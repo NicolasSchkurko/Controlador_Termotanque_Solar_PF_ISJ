@@ -1,0 +1,147 @@
+93
+113
+
+109
+113
+
+89
+93
+
+89
+93
+
+37
+69
+
+89
+91
+
+73
+89
+
+89
+91
+
+91
+613
+
+89
+91
+
+89
+91
+
+89
+91
+
+89
+91
+
+91
+91
+
+37
+37
+
+91
+91
+
+33
+33
+
+33
+51
+
+51
+51
+
+51
+51
+
+La temperatura 1 es de 51 grados fahrenheit
+La temperatura 2 es de 51 grados fahrenheit
+La temperatura 3 es de 51 grados fahrenheit
+La temperatura 4 es de 51 grados fahrenheit
+La temperatura 5 es de 51 grados fahrenheit
+La temperatura 6 es de 51 grados fahrenheit
+La temperatura 7 es de 51 grados fahrenheit
+La temperatura 8 es de 51 grados fahrenheit
+La temperatura 9 es de 51 grados fahrenheit
+La temperatura 10 es de 51 grados fahrenheit
+
+La temperatura 1 es de 53 grados fahrenheit
+La temperatura 2 es de 53 grados fahrenheit
+La temperatura 3 es de 53 grados fahrenheit
+La temperatura 4 es de 53 grados fahrenheit
+La temperatura 5 es de 53 grados fahrenheit
+La temperatura 6 es de 53 grados fahrenheit
+La temperatura 7 es de 53 grados fahrenheit
+La temperatura 8 es de 53 grados fahrenheit
+La temperatura 9 es de 53 grados fahrenheit
+La temperatura 10 es de 53 grados fahrenheit
+
+
+Se obtuvieron las siguientes temperaturas
+La temperatura 1 es de 53 grados fahrenheit
+La temperatura 2 es de 53 grados fahrenheit
+La temperatura 3 es de 71 grados fahrenheit
+La temperatura 4 es de 73 grados fahrenheit
+La temperatura 5 es de 73 grados fahrenheit
+La temperatura 6 es de 75 grados fahrenheit
+La temperatura 7 es de 78 grados fahrenheit
+La temperatura 8 es de 89 grados fahrenheit
+La temperatura 9 es de 91 grados fahrenheit
+La temperatura 10 es de 109 grados fahrenheit
+
+
+Se obtuvieron las siguientes temperaturas:
+12ºC, equivalente a 53ºF
+23ºC, equivalente a 73ºF
+23ºC, equivalente a 73ºF
+25ºC, equivalente a 77ºF
+31ºC, equivalente a 87ºF
+32ºC, equivalente a 89ºF
+33ºC, equivalente a 91ºF
+33ºC, equivalente a 91ºF
+34ºC, equivalente a 93ºF
+43ºC, equivalente a 109ºF
+
+
+Se obtuvieron las siguientes temperaturas:
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+11ºC, que equivale a 51ºF
+
+
+Se obtuvieron las siguientes temperaturas:
+Temperatura 1: 11ºC, que equivale a 51ºF
+Temperatura 2: 11ºC, que equivale a 51ºF
+Temperatura 3: 11ºC, que equivale a 51ºF
+Temperatura 4: 11ºC, que equivale a 51ºF
+Temperatura 5: 11ºC, que equivale a 51ºF
+Temperatura 6: 11ºC, que equivale a 51ºF
+Temperatura 7: 11ºC, que equivale a 51ºF
+Temperatura 8: 11ºC, que equivale a 51ºF
+Temperatura 9: 11ºC, que equivale a 51ºF
+Temperatura 10: 11ºC, que equivale a 51ºF
+
+
+Se obtuvieron las siguientes temperaturas:
+Temperatura 1: 2ºC, que equivale a 35ºF
+Temperatura 2: 3ºC, que equivale a 37ºF
+Temperatura 3: 12ºC, que equivale a 53ºF
+Temperatura 4: 12ºC, que equivale a 53ºF
+Temperatura 5: 12ºC, que equivale a 53ºF
+Temperatura 6: 12ºC, que equivale a 53ºF
+Temperatura 7: 23ºC, que equivale a 73ºF
+Temperatura 8: 23ºC, que equivale a 73ºF
+Temperatura 9: 23ºC, que equivale a 73ºF
+Temperatura 10: 43ºC, que equivale a 109ºF
+
