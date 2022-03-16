@@ -1,1 +1,0 @@
-printf("jere trolinga");
