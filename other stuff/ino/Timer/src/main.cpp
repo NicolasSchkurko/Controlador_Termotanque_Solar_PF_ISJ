@@ -15,7 +15,6 @@ SREG = (SREG & 0b01111111); //Desabilitar interrupciones
 TIMSK2 = TIMSK2|0b00000001; //Habilita la interrupcion por desbordamiento
 TCCR2B = 0b00000111; //Configura preescala para que FT2 sea de 7812.5Hz
 SREG = (SREG & 0b01111111) | 0b10000000; //Habilitar interrupciones //Desabilitar interrupciones
-Serial.begin(9600);
 }
 void loop() {
   if(digitalRead(pulsador1) == HIGH)
@@ -44,7 +43,7 @@ switch (info_estado)
     break;
 
   case 2:
-    if(cuenta > 1.52)
+    if(cuenta > 15)
     {
       digitalWrite(led, ESTADO);
       ESTADO = !ESTADO;
