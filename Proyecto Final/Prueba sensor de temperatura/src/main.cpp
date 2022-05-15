@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <OneWire.h>
 #include <LiquidCrystal.h>
+#include <Wire.h>
 #include <DallasTemperature.h>
 
 LiquidCrystal lcd(12,11,10,9,8,7);
