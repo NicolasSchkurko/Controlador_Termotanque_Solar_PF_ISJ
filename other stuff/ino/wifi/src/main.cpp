@@ -1,18 +1,20 @@
 #include <Arduino.h>
 #include "ESP8266WiFi.h"//aquí incluimos la libreria para comunicación WiFi del ESP8266
 #include <SPI.h> 
-const char* ssid = "Proyectos con arduino";
-const char* password = "12345678";
-
+const char* ssid = "WifiChuco";
+const char* password = "AloAmbAr!";
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192,168,1,50);
 String readString; 
+WiFiServer server(80);
+void SET_WIFI(); 
+void RUN_WIFI();
 
 int ledPin = D1; // LED Rojo
 int ledPin1 = D2; // LED Verde
 int ledPin2 = D3; // LED Azul
-WiFiServer server(80);
- 
+
+
 void setup() {
   Serial.begin(9600);
   delay(10);
@@ -26,10 +28,14 @@ void setup() {
   pinMode(ledPin2, OUTPUT);   // Inicia LED azul apagado
   digitalWrite(ledPin2, LOW);
  
-  // Conectarse a la red WiFi
+  SET_WIFI();
+}
+ 
+void SET_WIFI() {
+ // Conectarse a la red WiFi
   Serial.println();
   Serial.println();
-  Serial.print("Connecting to ");
+  Serial.print("Conectando ");
   Serial.println(ssid);
  
   WiFi.begin(ssid, password);
@@ -39,28 +45,27 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.println("WiFi conectado");
  
   // Iniciar el servidor
   server.begin();
-  Serial.println("Server started");
+  Serial.println("Server iniciado");
  
   // Imprimir la dirección IP
-  Serial.print("Use this URL to connect: ");
+  Serial.print("URL ");
   Serial.print("http://");
   Serial.print(WiFi.localIP());
   Serial.println("/");
- 
+  return(0);
 }
- 
+
 void loop() {
-  // Comprueba si cliente se ha conectado
+   // Comprueba si cliente se ha conectado
   WiFiClient client = server.available();
   if (!client) {
     return;
   }
- 
-  // Espera hasta que el cliente envíe algunos datos.
+// Espera hasta que el cliente envíe algunos datos.
   Serial.println("new client");
   while(!client.available()){
     delay(1);
@@ -158,6 +163,8 @@ void loop() {
   delay(1);
   Serial.println("Client disonnected");
   Serial.println("");
-
+  return(0);
 }
- 
+  
+
+
