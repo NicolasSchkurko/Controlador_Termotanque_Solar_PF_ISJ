@@ -56,11 +56,14 @@ void SET_WIFI() {
   Serial.print("http://");
   Serial.print(WiFi.localIP());
   Serial.println("/");
-  return(0);
 }
 
 void loop() {
-   // Comprueba si cliente se ha conectado
+  RUN_WIFI();
+}
+  
+void RUN_WIFI(){
+ // Comprueba si cliente se ha conectado
   WiFiClient client = server.available();
   if (!client) {
     return;
@@ -163,8 +166,5 @@ void loop() {
   delay(1);
   Serial.println("Client disonnected");
   Serial.println("");
-  return(0);
 }
-  
-
 
