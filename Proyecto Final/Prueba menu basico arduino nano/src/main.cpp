@@ -74,12 +74,12 @@ void actualizar_MEF()
       // calentamiento_por_hora();
       break;
     case carga_agua_por_nivel:
-      strcpy(variable_para_imprimir_en_el_lcd, "carga por nivel");
+      strcpy(variable_para_imprimir_en_el_lcd, "Carga por nivel");
       lcd.print(variable_para_imprimir_en_el_lcd);
       // calienta_por_sensor();
       break;
     case llenado_agua_manual:
-      strcpy(variable_para_imprimir_en_el_lcd, "llenado manual");
+      strcpy(variable_para_imprimir_en_el_lcd, "Llenado manual");
       lcd.print(variable_para_imprimir_en_el_lcd);
       // calefaccion_manual();
       break;
