@@ -5,7 +5,7 @@ void actualizar_MEF();
 void imprimir_en_pantalla();
 //optimizar
 LiquidCrystal lcd(12,11,10,9,8,7);
-//Pines que usa el menu para manejarce
+//Pines que usa el menu para manejarse
 const int pulsador1 = 2;
 const int pulsador2 = 3;
 const int pulsador3 = 4;
