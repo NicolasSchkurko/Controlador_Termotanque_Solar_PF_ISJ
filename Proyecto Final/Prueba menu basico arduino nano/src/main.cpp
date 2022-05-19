@@ -13,7 +13,7 @@ const int pulsador2 = 3;
 const int pulsador3 = 4;
 const int pulsador4 = 5;
 
-typedef enum{estado_inicial,Carga_x_sensor,Calienta_x_hora,Calienta_x_sensor,Calienta_manual,llenado_manual} estadoMEF;  
+typedef enum{estado_inicial,calefaccion_manual,calefaccion_auto_senstemp,carga_auto_hora,carga_agua_por_nivel,llenado_agua_manual} estadoMEF;  
 estadoMEF estadoActual;
 
 char variable_para_imprimir_en_el_lcd [20];
@@ -33,15 +33,15 @@ void setup()
 
 void loop() 
 {
-  if(digitalRead(pulsador1) == LOW) estadoActual = Carga_x_sensor;
+  if(digitalRead(pulsador1) == LOW) estadoActual = calefaccion_manual;
   if(digitalRead(pulsador1) == LOW) lcd.clear();
-  if(digitalRead(pulsador2) == LOW) estadoActual = Calienta_x_hora;
+  if(digitalRead(pulsador2) == LOW) estadoActual = calefaccion_auto_senstemp;
   if(digitalRead(pulsador2) == LOW) lcd.clear();
-  if(digitalRead(pulsador3) == LOW) estadoActual = Calienta_x_sensor;
+  if(digitalRead(pulsador3) == LOW) estadoActual = carga_auto_hora;
   if(digitalRead(pulsador3) == LOW) lcd.clear();
-  if(digitalRead(pulsador4) == LOW) estadoActual = Calienta_manual;
+  if(digitalRead(pulsador4) == LOW) estadoActual = carga_agua_por_nivel;
   if(digitalRead(pulsador4) == LOW) lcd.clear();
-  if(digitalRead(pulsador5) == LOW) estadoActual = llenado_manual;
+  if(digitalRead(pulsador5) == LOW) estadoActual = llenado_agua_manual;
   if(digitalRead(pulsador5) == LOW) lcd.clear();
   
   if(digitalRead(pulsador6) == LOW) estadoActual = estado_inicial;
@@ -57,28 +57,29 @@ void actualizar_MEF()
   {
     case estado_inicial:
       lcd.print("1       2      3"); lcd.setCursor(0,2); lcd.print("4              5");
-    case llenado_manual:
-      strcpy(variable_para_imprimir_en_el_lcd, "Llenado manual");
+      break;
+    case calefaccion_manual:
+      strcpy(variable_para_imprimir_en_el_lcd, "Calefaccion man");
       lcd.print(variable_para_imprimir_en_el_lcd);
       //llenado_manual();
       break;
-    case Carga_x_sensor:
-      strcpy(variable_para_imprimir_en_el_lcd, "Carga x sensor");
+    case calefaccion_auto_senstemp:
+      strcpy(variable_para_imprimir_en_el_lcd, "Calef auto temp");
       lcd.print(variable_para_imprimir_en_el_lcd);
       // carga_por_sensor();
       break;
-    case Calienta_x_hora:
-      strcpy(variable_para_imprimir_en_el_lcd, "Calienta x hora");
+    case carga_auto_hora:
+      strcpy(variable_para_imprimir_en_el_lcd, "Carga auto hora");
       lcd.print(variable_para_imprimir_en_el_lcd);
       // calentamiento_por_hora();
       break;
-    case Calienta_x_sensor:
-      strcpy(variable_para_imprimir_en_el_lcd, "Calienta x sensor");
+    case carga_agua_por_nivel:
+      strcpy(variable_para_imprimir_en_el_lcd, "carga por nivel");
       lcd.print(variable_para_imprimir_en_el_lcd);
       // calienta_por_sensor();
       break;
-    case Calienta_manual:
-      strcpy(variable_para_imprimir_en_el_lcd, "Calienta manual");
+    case llenado_agua_manual:
+      strcpy(variable_para_imprimir_en_el_lcd, "llenado manual");
       lcd.print(variable_para_imprimir_en_el_lcd);
       // calefaccion_manual();
       break;
