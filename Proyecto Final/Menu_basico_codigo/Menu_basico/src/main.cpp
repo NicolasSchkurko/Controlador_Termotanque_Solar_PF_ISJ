@@ -21,18 +21,18 @@ void actualizar_MEF();
 void setup() 
 {
   lcd.begin(16,2);
-  pinMode(pulsador1, INPUT);
-  pinMode(pulsador2, INPUT);
-  pinMode(pulsador3, INPUT);
-  pinMode(pulsador4, INPUT);
+  pinMode(pulsador1, INPUT_PULLUP);
+  pinMode(pulsador2, INPUT_PULLUP);
+  pinMode(pulsador3, INPUT_PULLUP);
+  pinMode(pulsador4, INPUT_PULLUP);
 }
 
 void loop() 
 {
-  if(digitalRead(pulsador1)== HIGH) estadoActual = Carga_x_sensor;
-  if(digitalRead(pulsador2)== HIGH) estadoActual = Calienta_x_hora;
-  if(digitalRead(pulsador3)== HIGH) estadoActual = Calienta_x_sensor;
-  if(digitalRead(pulsador1)== HIGH) estadoActual = Calienta_manual;
+  if(digitalRead(pulsador1) == LOW) estadoActual = Carga_x_sensor;
+  if(digitalRead(pulsador2) == LOW) estadoActual = Calienta_x_hora;
+  if(digitalRead(pulsador3) == LOW) estadoActual = Calienta_x_sensor;
+  if(digitalRead(pulsador1) == LOW) estadoActual = Calienta_manual;
   actualizar_MEF();
 }
 

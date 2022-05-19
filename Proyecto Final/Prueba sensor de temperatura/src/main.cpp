@@ -5,7 +5,7 @@
 
 LiquidCrystal lcd(12,11,10,9,8,7);
 
-const int sensor = 4;
+const int sensor = 6;
 
 OneWire onewire(sensor);
 
