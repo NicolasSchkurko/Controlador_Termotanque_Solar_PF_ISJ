@@ -19,8 +19,12 @@ void setup()
 
 void loop() 
 {
-  lcd.clear();
+  //lcd.clear();
   lcd.setCursor(0,0);
+  lcd.print("Temp: ");
+  lcd.setCursor(6,0);
   sensor_temp.requestTemperatures();
-  lcd.print(sensor_temp.requestTemperaturesByIndex(0));
+  lcd.print(sensor_temp.getTempCByIndex(0));
+  lcd.setCursor(11,0);
+  lcd.print(" C");
 }
