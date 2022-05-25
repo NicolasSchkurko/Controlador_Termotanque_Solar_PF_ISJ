@@ -1,20 +1,3 @@
-#include <Arduino.h>
-#include "ESP8266WiFi.h"
-#include <SPI.h>
-#include <WiFi.h>
-#include <ESPAsyncWebServer.h>
-
-const char* ssid = "WifiChuco";
-const char* password = "AloAmbAr!";
-
-const int led_pin = 14;
-String slidertemp_value = "0";
-
-const char* input_parameter = "value";
-
-AsyncWebServer server(80);
-
-const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
@@ -204,7 +187,7 @@ const char index_html[] PROGMEM = R"rawliteral(
     <div class="centroTemp"></div>
     <h1 style="font-size: 35px; position: relative; margin: -180px auto 20px;">50°c</h1>
     <div class="slider">
-        <input type="range" id="temp" value="%TEMP%" name="temp" min="0" max="100"  class="slider" step="5" oninput="this.nextElementSibling.value = this.value">
+        <input type="range" id="temp" name="temp" min="0" max="100" step="5" oninput="this.nextElementSibling.value = this.value">
         <output id="TEMPNUMB">50</output>
         <div class="container">
             <label class="switchtemp"><input type="checkbox" />    <div></div>
@@ -221,7 +204,7 @@ const char index_html[] PROGMEM = R"rawliteral(
     <div class="centroTemp"></div>
     <h1 style="font-size: 35px; position: relative; margin: -180px auto 20px;">50%</h1>
     <div class="slider">
-        <input type="range" id="lvl" name="lvl" min="0" max="100" step="5"  class="slider" oninput="this.nextElementSibling.value = this.value">
+        <input type="range" id="lvl" name="lvl" min="0" max="100" step="5" oninput="this.nextElementSibling.value = this.value">
         <output id="TEMPLVL">50</output>
         <div class="container">
             <label class="switchLVL"><input type="checkbox" />    <div></div>
@@ -239,46 +222,3 @@ const char index_html[] PROGMEM = R"rawliteral(
         </script>
 </body>
 </html>
-)rawliteral";
-
-String processor(const String& var){
-  if (var == "TEMP"){
-    return slidertemp_value;
-  }
-  return String();
-}
-
-void setup(){
-  Serial.begin(9600);
-
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting...");
-  }
-
-  Serial.println(WiFi.localIP());
-
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", index_html, processor);
-  });
-
-  server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    String message;
-    if (request->hasParam(input_parameter)) {
-      message = request->getParam(input_parameter)->value();
-      slidertemp_value = message;
-    }
-    else {
-      message = "No message sent";
-    }
-    Serial.println(message);
-    request->send(200, "text/plain", "OK");
-  });
-  
-  server.begin();
-}
-  
-void loop() {
-  
-}
