@@ -8,8 +8,8 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "c:/Users/chuco/Documents/PlatformIO/Projects/wifi/include",
-                "c:/Users/chuco/Documents/PlatformIO/Projects/wifi/src",
+                "c:/chuco/coding/other stuff/ino/wifi/include",
+                "c:/chuco/coding/other stuff/ino/wifi/src",
                 "C:/Users/chuco/.platformio/packages/framework-arduinoespressif8266/libraries/SPI",
                 "C:/Users/chuco/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
                 "C:/Users/chuco/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include",
@@ -55,8 +55,8 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "c:/Users/chuco/Documents/PlatformIO/Projects/wifi/include",
-                    "c:/Users/chuco/Documents/PlatformIO/Projects/wifi/src",
+                    "c:/chuco/coding/other stuff/ino/wifi/include",
+                    "c:/chuco/coding/other stuff/ino/wifi/src",
                     "C:/Users/chuco/.platformio/packages/framework-arduinoespressif8266/libraries/SPI",
                     "C:/Users/chuco/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
                     "C:/Users/chuco/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include",
