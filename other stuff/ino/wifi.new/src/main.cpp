@@ -4,15 +4,11 @@
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 
-const char* ssid = "Your_SSID";
-const char* password = "Your_Password";
+const char* ssid = "WifiChuco";
+const char* password = "AloAmbAr!";
 
 const int led_pin = 14;
 String slider_value = "0";
-
-const int frequency = 5000;
-const int led_channel = 0;
-const int resolution = 8;
 
 const char* input_parameter = "value";
 
@@ -60,7 +56,7 @@ String processor(const String& var){
 }
 
 void setup(){
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -79,7 +75,6 @@ void setup(){
     if (request->hasParam(input_parameter)) {
       message = request->getParam(input_parameter)->value();
       slider_value = message;
-      ledcWrite(led_channel, slider_value.toInt());
     }
     else {
       message = "No message sent";
