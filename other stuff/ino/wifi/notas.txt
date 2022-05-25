@@ -1,8 +1,0 @@
-COSAS PARA PONER EN EL WIFI
-1° boton calefaccion manual a cierto porcentaje
-2° boton llenado manual a cierto porcentaje
-3° horarios seteados de nivel de agua
-4° Configurar llenado de agua automatico
-5° configurar calentamiento de agua automatico
-
-
