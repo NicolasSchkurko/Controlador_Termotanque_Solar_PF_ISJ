@@ -7,164 +7,161 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192,168,1,50);
 String readString; 
 WiFiServer server(80);
-void SET_WIFI(); 
-void RUN_WIFI();
+  int CALENTAR_AGUA = 7; // Pin digital para el LED_1
+  String Estado_1 = "OFF"; // Estado_1 del LED_1 inicialmente "OFF"c
 
-int ledPin = D1; // LED Rojo
-int ledPin1 = D2; // LED Verde
-int ledPin2 = D3; // LED Azul
+  int CARGAR_AGUA = 6; // Pin digital para el LED_1
+  String Estado_2 = "OFF"; // Estado_1 del LED_1 inicialmente "OFF"c
 
+  
+  void setup()
+  {
+     Serial.begin(9600);
+  
 
-void setup() {
-  Serial.begin(9600);
-  delay(10);
- 
-  pinMode(ledPin, OUTPUT);   // Inicia LED rojo apagado
-  digitalWrite(ledPin, LOW);
-
-  pinMode(ledPin1, OUTPUT);    // Inicia LED verde apagado
-  digitalWrite(ledPin1, LOW);
-
-  pinMode(ledPin2, OUTPUT);   // Inicia LED azul apagado
-  digitalWrite(ledPin2, LOW);
- 
-  SET_WIFI();
-}
- 
-void SET_WIFI() {
- // Conectarse a la red WiFi
-  Serial.println();
-  Serial.println();
-  Serial.print("Conectando ");
+  // Connect to your Wi-Fi network
+  Serial.print("Connecting to ");
   Serial.println(ssid);
- 
   WiFi.begin(ssid, password);
- 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
+  // Print local IP address and start web server
   Serial.println("");
-  Serial.println("WiFi conectado");
- 
-  // Iniciar el servidor
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
   server.begin();
-  Serial.println("Server iniciado");
- 
-  // Imprimir la dirección IP
-  Serial.print("URL ");
-  Serial.print("http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("/");
 }
 
-void loop() {
-  RUN_WIFI();
-}
-  
-void RUN_WIFI(){
- // Comprueba si cliente se ha conectado
-  WiFiClient client = server.available();
-  if (!client) {
-    return;
-  }
-// Espera hasta que el cliente envíe algunos datos.
-  Serial.println("new client");
-  while(!client.available()){
-    delay(1);
-  }
- 
-  // Lee la primera línea requerida
-  String request = client.readStringUntil('\r');
-  Serial.println(request);
-  client.flush();
- 
-  // Coincide con la solicitud
- 
-  int value = HIGH;
-  if (request.indexOf("/LED=ON") != -1)  {
-    digitalWrite(ledPin, HIGH);
-    value =HIGH;
-  }
-  if (request.indexOf("/LED=OFF") != -1)  {
-    digitalWrite(ledPin,LOW);
-    value = LOW;
-  }
-
-  int value1 = HIGH;
-  if (request.indexOf("/LED1=ON") != -1)  {
-    digitalWrite(ledPin1, HIGH);
-    value1 = HIGH;
-  }
-  if (request.indexOf("/LED1=OFF") != -1)  {
-    digitalWrite(ledPin1, LOW);
-    value1 = LOW;
-  }
-
-  int value2 = HIGH;
-  if (request.indexOf("/LED2=ON") != -1)  {
-    digitalWrite(ledPin2, HIGH);
-    value2 = HIGH;
-  }
-  if (request.indexOf("/LED2=OFF") != -1)  {
-    digitalWrite(ledPin2, LOW);
-    value2 = LOW;
-  }
- 
- // Establecer ledPin de acuerdo a la solicitud
- // devuelve la respuesta
- 
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println(""); 
-  client.println("<!DOCTYPE HTML>");
-  client.println("<html>");
- 
-  client.print("Led pin es ahora: ");
- 
-  if(value == HIGH) {
-    client.print("Off");
-  } else {
-    client.print("On");
-  }
-  client.println("<br><br>");
-  client.println("<a href=\"/LED=ON\"\"><button>LED ROJO ON </button></a>");
-  client.println("<a href=\"/LED=OFF\"\"><button>LED ROJO OFF </button></a><br />");  
-  client.println("</html>"); 
- 
-  // Establecer ledPin1 de acuerdo a la solicitud
-  // devuelve la respuesta  
    
-  client.print("Led pin 1 es ahora: ");
- 
-  if(value1 == HIGH) {
-    client.print("Off");
-  } else {
-    client.print("On");
-  }
-  client.println("<br><br>");
-  client.println("<a href=\"/LED1=ON\"\"><button>LED VERDE ON </button></a>");
-  client.println("<a href=\"/LED1=OFF\"\"><button>LED VERDE OFF </button></a><br />");  
-  client.println("</html>");
-  
- 
-  // Establecer ledPin2 de acuerdo a la solicitud
-  // devuelve la respuesta
-  
-  client.print("Led pin 2 es ahora: ");
- 
-  if(value2 == HIGH) {
-    client.print("Off");
-  } else {
-    client.print("On");
-  }
-  client.println("<br><br>");
-  client.println("<a href=\"/LED2=ON\"\"><button>LED AZUL ON </button></a>");
-  client.println("<a href=\"/LED2=OFF\"\"><button>LED AZUL OFF </button></a><br />");  
-  client.println("</html>");
- 
-  delay(1);
-  Serial.println("Client disonnected");
-  Serial.println("");
-}
+  void loop()
+  {
+    WiFiClient client = server.available(); // Creamos un cliente Web
+    // Cuando detecte un cliente a través de una petición HTTP
+    if (client)
+    {
+      Serial.println(); // Salto de línea
+      Serial.println("Nuevo cliente");
+      Serial.println();
+      boolean currentLineIsBlank = true; // Una petición HTTP acaba con una línea en blanco
+      String cadena=""; // Creamos una cadena de caracteres vacía
+      
+      while (client.connected())
+      {
+        if (client.available())
+        {
+          char c = client.read();// Leemos la petición HTTP carácter por carácter
+          Serial.write(c);// Visualizamos la petición HTTP por el Monitor Serial
+          cadena.concat(c);// Unimos el String 'cadena' con la petición HTTP (c).
+          // De esta manera convertimos la petición HTTP a un String
+   
+           // Ya que hemos convertido la petición HTTP a una cadena de caracteres, ahora podremos buscar partes del texto.
+           int posicion_1=cadena.indexOf("CALENTAR_AGUA="); // Guardamos la posición de la instancia "LED_1=" a la variable 'posicion_1'
+           int posicion_2=cadena.indexOf("CARGAR_AGUA="); // Guardamos la posición de la instancia "LED_1=" a la variable 'posicion_1'
+   
+            if(cadena.substring(posicion_1)=="CALENTAR_AGUA=ON") // Si en la posición 'posicion_1' hay "LED_1=ON"
+            {
+              digitalWrite(CALENTAR_AGUA,HIGH);
+              Estado_1="ON";
+            }
+            if(cadena.substring(posicion_1)=="CALENTAR_AGUA=OFF") // Si en la posición 'posicion_1' hay "LED_1=OFF"
+            {
+              digitalWrite(CALENTAR_AGUA,LOW);
+              Estado_1="OFF";
+            }
 
+
+            if(cadena.substring(posicion_2)=="CARGAR_AGUA=ON") 
+            {
+              digitalWrite(CARGAR_AGUA,HIGH);
+              Estado_2="ON";
+            }
+            if(cadena.substring(posicion_2)=="CARGAR_AGUA=OFF") 
+            {
+              digitalWrite(CARGAR_AGUA,LOW);
+              Estado_2="OFF";
+            }
+   
+          // Cuando reciba una línea en blanco, quiere decir que la petición HTTP ha acabado y el servidor Web está listo
+          // para enviar una respuesta
+          if (c == '\n' && currentLineIsBlank)
+          {
+              // Enviamos al cliente una respuesta HTTP
+              client.println("HTTP/1.1 200 OK");
+              client.println("Content-Type: text/html");
+              
+              client.println("Connection: close");  // the connection will be closed after completion of the response
+              client.println("Refresh: 5");  // refresh the page automatically every 5 sec
+              client.println();
+              client.println("<!DOCTYPE HTML>");
+      
+              // Página web en formato HTML
+              client.println("<html>");
+              client.println("<head>");
+              client.println("</head>");
+              client.println("<body>");
+              client.println("<br/><br/>");
+              client.println("<h1 align='center'>Controladora panel solar - Servidor Web</h1>");
+              // Creamos los botones.
+              // Para enviar parámetros a través de HTML se utiliza el método URL encode.
+              // Los parámetros se envían a través del símbolo '?'
+              //--------------------------------------------------
+              client.println("<div style='text-align:center;'>");
+              client.println("<label><b>LED_1 &nbsp;&nbsp;&nbsp;</b></label>");
+              client.println("<select name='TEMP\'>");
+              client.println("<option onClick=location.href='./?CALENTAR_AGUA=ON\'>on</option>");
+              client.println("<option  onClick=location.href='./?CALENTAR_AGUA=OFF\' selected='selected\'>off</option>");
+              client.println("OFF");
+              client.println("</button>");
+              client.println("<br/><br/>");
+              client.println("<b>Estado_1 - ");
+              client.print(Estado_1);       
+              client.println("</div>");
+              client.println("</b><br/>");
+              //--------------------------------------------------     
+              client.println("<div style='text-align:center;'>");
+              client.println("<label><b>LED_2 &nbsp;&nbsp;&nbsp;</b></label>");
+              client.println("<button onClick=location.href='./?CARGAR_AGUA=ON\' style='margin:auto;background-color: #84B1FF;color: snow;padding: 10px;border: 1px solid #3F7CFF;width:85px;'>");
+              client.println("ON");
+              client.println("</button>");
+              client.println("<button onClick=location.href='./?CARGAR_AGUA=OFF\' style='margin:auto;background-color: #84B1FF;color: snow;padding: 10px;border: 1px solid #3F7CFF;width:85px;'>");
+              client.println("OFF");
+              client.println("</button>");
+              client.println("<br/><br/>");
+              client.println("<b>Estado_2 - ");
+              client.print(Estado_2);       
+              client.println("</div>");
+              client.println("</b><br/>");
+              //--------------------------------------------------   
+              client.println("<div style='text-align:center;'>");
+              client.println("<label><b>LECTURAS ANALOGAS</b></label>");
+              client.println("<br />");
+              client.println("<br />");
+               // output the value of each analog input pin
+              
+              client.println("</div>");
+              client.println("</b><br/>");
+              //-------------------------------------------------- 
+              
+              client.println("</b></body>");
+              client.println("</html>");
+              break;
+          }
+          if (c == '\n')
+          {
+            currentLineIsBlank = true;
+          }
+          else if (c != '\r')
+          {
+            currentLineIsBlank = false;
+          }
+        }
+      }
+      // Dar tiempo al navegador para recibir los datos
+    }
+  }
+
+
+  

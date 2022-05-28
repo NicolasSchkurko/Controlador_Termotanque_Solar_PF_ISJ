@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, user-scalable=no"
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>SLB_x02</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script>
+    <style>
+        body{
+            font-family: monospace;
+            background-color: rgb(214, 180, 204);
+        }
+        h1{
+            color: rgb(0, 0, 0);
+            text-align: center;
+            margin: 90px auto 20px;;   
+            font-size: 20px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="desing.css"
+</head>
+<body>
+    <h1>Mediciones en tiempo real</h1>
+
+    <h1>Temperatura</h1>
+    <div class="centroTemp"></div>
+    <form action="/TEMP" method="post">
+    <div class="slider">
+        <input type="range" id="temp" name="temp" min="0" max="100" step="5" value="%SLIDERVALUE%" oninput="this.nextElementSibling.value = this.value">
+        <p><span id="textSliderValue">%SLIDERVALUE%</span></p>
+        <div class="container">
+            <label class="switchtemp"><input type="checkbox" />    <div></div>
+            </label>
+          </div>
+    </form>
+    </div>
+
+
+    <h1>Nivel de agua</h1>
+    <div class="centroTemp"></div>
+    <form action="/level" method="post">
+    <div class="slider">
+        <input type="range" id="lvl" name="lvl" min="0" max="100" step="5" oninput="this.nextElementSibling.value = this.value">
+        <output id="TEMPLVL">50</output>
+        <div class="container">
+            <label class="switchLVL"><input type="checkbox" />    <div></div>
+            </label>
+          </div>
+    </form>
+    </div>
+
+    <script>
+function updateSliderPWM(element) {
+  var pwmSliderValue = document.getElementById("temp").value;
+  document.getElementById("textSliderValue").innerHTML = pwmSliderValue;
+  console.log(pwmSliderValue);
+  var httpRequest = new XMLHttpRequest();
+  httpRequest.open("GET", "/slider?value="+pwmSliderValue, true);
+  httpRequest.send();
+}
+        </script>
+</body>
+</html>
+
+
