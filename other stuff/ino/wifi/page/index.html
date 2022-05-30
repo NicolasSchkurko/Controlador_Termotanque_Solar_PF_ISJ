@@ -187,15 +187,23 @@
     <div class="centroTemp"></div>
     <h1 style="font-size: 35px; position: relative; margin: -180px auto 20px;">50°c</h1>
     <div class="slider">
-        <input type="range" id="temp" name="temp" min="0" max="100" step="5" oninput="this.nextElementSibling.value = this.value">
-        <output id="TEMPNUMB">50</output>
+        <input type="range" id="temp" name="temp" min="0" max="100" step="5" onchange="updateSliderTEMP(this)" class="slider" value="%SLIDERVALUE%" oninput="this.nextElementSibling.value = this.value">
+        <p><span id="TEMPSliderValue">%SLIDERVALUE%</span></p>
         <div class="container">
             <label class="switchtemp"><input type="checkbox" />    <div></div>
             </label>
           </div>
     </div>
-
-
+    <script>
+    function updateSliderTEMP(element) {
+        var sliderTEMPValue = document.getElementById("temp").value;
+        document.getElementById("TEMPSliderValue").innerHTML = sliderTEMPValue;
+        console.log(sliderTEMPValue);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/slider?value="+sliderTEMPValue, true);
+        xhr.send();
+      }
+    </script>
     <h1>Nivel de agua</h1>
     <div class="BarraTemp" style="transform: rotate(35deg);">
         <div class="cont" style=" background-color: rgb(255, 195, 0)"></div>
@@ -204,7 +212,7 @@
     <div class="centroTemp"></div>
     <h1 style="font-size: 35px; position: relative; margin: -180px auto 20px;">50%</h1>
     <div class="slider">
-        <input type="range" id="lvl" name="lvl" min="0" max="100" step="5" oninput="this.nextElementSibling.value = this.value">
+        <input type="range" id="lvl" name="lvl" min="0" max="100" step="5" onchange="updateSliderLVL(this)" class="slider" value="%LVLVALUE%  oninput="this.nextElementSibling.value = this.value">
         <output id="TEMPLVL">50</output>
         <div class="container">
             <label class="switchLVL"><input type="checkbox" />    <div></div>
