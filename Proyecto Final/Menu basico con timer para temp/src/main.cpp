@@ -99,7 +99,7 @@ void actualizar_MEF()
     case calefaccion_manual:
       strcpy(variable_para_imprimir_en_el_lcd, "Calefaccion man");
       lcd.print(variable_para_imprimir_en_el_lcd);
-      //llenado_manual();
+      //calef_manual();
       break;
     case calefaccion_auto_senstemp:
       strcpy(variable_para_imprimir_en_el_lcd, "Calef auto temp");
