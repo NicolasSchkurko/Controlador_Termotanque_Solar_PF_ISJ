@@ -72,12 +72,18 @@ String processor(const String& var){
   if (var == "LVLVALUE"){
     return sliderLVLValue;
   }
-    if (var == "TEMPVALUE"){
+  if (var == "TEMPVALUE"){
     return sliderTEMPValue;
   }
-    if(var == "ESTADO_RELE"){
-    return "lol";
+  if(var == "ESTADO_TEMP"){
+      if(TEMP_STATE==1)return "calentamiento encendido";
+      else return "calentamiento apagado";
     }
+  if(var == "ESTADO_LVL"){
+      if(LVL_STATE==1)return "llenado encendido";
+      else return "llenado apagado";
+    }
+    
   return String();
 }
 
