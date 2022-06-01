@@ -5,8 +5,8 @@
 #include <FS.h>
 
 // Replace with your network credentials
-const char* ssid = "WifiChuco";
-const char* password = "AloAmbAr!";
+const char* ssid = "Proyectos1";
+const char* password = "proy.Tec";
 
 const int output = 2;
 char TEMP_VAL=0;
@@ -124,13 +124,13 @@ void setup(){
 
     }
   });
-  server.on("/TEMP=ON", HTTP_GET, [](AsyncWebServerRequest *request){TEMP_STATE=1; request->send_P(1000, "text/html", index_html, processor);}); 
+  server.on("/TEMP=ON", HTTP_GET, [](AsyncWebServerRequest *request){TEMP_STATE=1; request->send_P(10, "text/html", index_html, processor);}); 
   
-  server.on("/TEMP=OFF", HTTP_GET, [](AsyncWebServerRequest *request){TEMP_STATE=0; request->send_P(1, "text/html", index_html, processor);});
+  server.on("/TEMP=OFF", HTTP_GET, [](AsyncWebServerRequest *request){TEMP_STATE=0; request->send_P(10, "text/html", index_html, processor);});
 
-  server.on("/LVL=ON", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=1; request->send_P(1, "text/html", index_html, processor);});
+  server.on("/LVL=ON", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=1; request->send_P(10, "text/html", index_html, processor);});
 
-  server.on("/LVL=OFF", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=0; request->send_P(1, "text/html", index_html, processor);});
+  server.on("/LVL=OFF", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=0; request->send_P(10, "text/html", index_html, processor);});
   // Start server
   server.begin();
 }
