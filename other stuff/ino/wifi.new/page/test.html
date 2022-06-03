@@ -3,8 +3,8 @@
 <head>
     <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no"><title>SLB_x02</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' type='text/css' media='screen' href='main.css'>
     </head><body>
-    <div class="slidertemp"><input type="range" id="temp" name="temp" min="40"  class="slidertemp" max="80" step="5" onchange="updateSliderTEMP(this)" value="%SLIDERVALUE%" oninput="this.nextElementSibling.value = this.value">
-    <p><span id="TEMPSliderValue">%SLIDERVALUE%</span></p>
+    <div class="slidertemp"><input type="range" id="temp" name="temp" min="40"  class="slidertemp" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TEMPVALUE%" oninput="this.nextElementSibling.value = this.value">
+    <p><span id="TEMPSliderValue">%TEMPVALUE%</span></p>
     <div class="caja">
       <p><button class="button2" onclick=location.href="/TEMP=ON"> Encender</button></p> 
       <p><button class="button" onclick=location.href="/TEMP=OFF" >Apagar</button></p> 
@@ -21,7 +21,7 @@
       }
     </script>
     <div class="sliderlvl">
-        <input type="range" id="lvl" name="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVLVALUE%  oninput="this.nextElementSibling.value = this.value">
+        <input type="range" id="lvl" name="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVLVALUE%"  oninput="this.nextElementSibling.value = this.value">
         <p><span id="LVLSliderValue">%LVLVALUE%</span></p>
         <div class="caja">
           <p><button class="button2" onclick=location.href="/LVL=ON"> Encender</button></p> 
@@ -38,5 +38,6 @@
         xhr.send();
       }
     </script>
+  <p><button class="config" onclick=location.href="/CONFIGURATION" >Set auto</button></p> 
 </body>
 </html>

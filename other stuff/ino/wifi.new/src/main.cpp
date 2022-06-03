@@ -20,6 +20,70 @@ const char* PARAM_INPUT = "values";
 const char* PARAM_INPUT2 = "value";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
+const char sethour_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no"><title>Configuration</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    </head><body>
+        <p><span id="HOURSliderValue">%HOURVALUE%</span>:<span id="MINUTESliderValue">%MINUTEVALUE%</span></p>
+        <p class="titulo">Temperature: <span id="TEMPSliderValue">%TEMPVALUE%</span>°C</p>
+        <p class="titulo">Water level: <span id="LVLSliderValue">%LVLVALUE%</span>℅</p>
+    <div class="slidertemp"><input type="range" id="temp" name="temp" min="40"  class="slidertemp" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TEMPVALUE%" oninput="this.nextElementSibling.value = this.value">
+  </div>
+    <script>
+    function updateSliderTEMP(element) {
+        var sliderTEMPValue = document.getElementById("temp").value;
+        document.getElementById("TEMPSliderValue").innerHTML = sliderTEMPValue;
+        console.log(sliderTEMPValue);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/slider?values="+sliderTEMPValue, true);
+        xhr.send();
+      }
+    </script>
+    <div class="sliderlvl">
+        <input type="range" id="lvl" name="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVLVALUE%"  oninput="this.nextElementSibling.value = this.value">
+
+      </div>
+        <script>
+    function updateSliderLVL(element) {
+        var sliderLVLValue = document.getElementById("lvl").value;
+        document.getElementById("LVLSliderValue").innerHTML = sliderLVLValue;
+        console.log(sliderLVLValue);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/slider?value="+sliderLVLValue, true);
+        xhr.send();
+      }
+    </script>
+    <div class="sliderhour">
+        <input type="range" id="hour" name="hour" min="0" max="23" step="1" onchange="updateSliderHOUR(this)" class="slider" value="%HOURVALUE%"  oninput="this.nextElementSibling.value = this.value">
+      </div>
+        <script>
+    function updateSliderHOUR(element) {
+        var sliderHOURValue = document.getElementById("hour").value;
+        document.getElementById("HOURSliderValue").innerHTML = sliderHOURValue;
+        console.log(sliderHOURValue);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/slider?hour="+sliderHOURValue, true);
+        xhr.send();
+      }
+    </script>
+        <div class="sliderminute">
+        <input type="range" id="minute" name="minute" min="0" max="45" step="15" onchange="updateSliderMINUTE(this)" class="slider" value="%MINUTEVALUE%"  oninput="this.nextElementSibling.value = this.value">
+      </div>
+        <script>
+    function updateSliderMINUTE(element) {
+        var sliderMINUTEValue = document.getElementById("minute").value;
+        document.getElementById("MINUTESliderValue").innerHTML = sliderMINUTEValue;
+        console.log(sliderMINUTEValue);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/slider?hour="+sliderMINUTEValue, true);
+        xhr.send();
+      }
+    </script>
+</body>
+</html>
+  )rawliteral";
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
@@ -62,6 +126,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         xhr.send();
       }
     </script>
+  <p><button class="config" onclick=location.href="/CONFIGURATION" >Set auto</button></p> 
 </body>
 </html>
 )rawliteral";
@@ -130,7 +195,9 @@ void setup(){
 
   server.on("/LVL=ON", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=1; request->send_P(10, "text/html", index_html, processor);});
 
-  server.on("/LVL=OFF", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=0; request->send_P(10, "text/html", index_html, processor);});
+  server.on("/LVL=OFF", HTTP_GET, [](AsyncWebServerRequest *request){LVL_STATE=0; request->send_P(200, "text/html", index_html, processor);});
+
+  server.on("/CONFIGURATION", HTTP_GET, [](AsyncWebServerRequest *request){ request->send_P(200, "text/html", sethour_html, processor);});
   // Start server
   server.begin();
 }
