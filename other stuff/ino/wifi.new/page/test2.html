@@ -14,7 +14,7 @@
         document.getElementById("TEMPSliderValue").innerHTML = sliderTEMPValue;
         console.log(sliderTEMPValue);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?values="+sliderTEMPValue, true);
+        xhr.open("GET", "/slider?temp="+sliderTEMPValue, true);
         xhr.send();
       }
     </script>
@@ -28,7 +28,7 @@
         document.getElementById("LVLSliderValue").innerHTML = sliderLVLValue;
         console.log(sliderLVLValue);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?value="+sliderLVLValue, true);
+        xhr.open("GET", "/slider?nivel="+sliderLVLValue, true);
         xhr.send();
       }
     </script>
@@ -54,7 +54,7 @@
         document.getElementById("MINUTESliderValue").innerHTML = sliderMINUTEValue;
         console.log(sliderMINUTEValue);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?hour="+sliderMINUTEValue, true);
+        xhr.open("GET", "/slider?minute="+sliderMINUTEValue, true);
         xhr.send();
       }
     </script>

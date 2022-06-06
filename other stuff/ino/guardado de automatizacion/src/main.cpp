@@ -1,5 +1,5 @@
 #include <Arduino.h>
-void convercionhora1(int modo,char hora,char tempylvl);
+void convercionhora1(char hora,char tempylvl);
 void convercionhora(int horas, int minuto,int nivel, int temp);
 /*HORARIOS EN BITS HORA /TEMP 40-80(5en5) Y LVL 50 a 100 (5en5)
   00:00=000             / 40° xx0           50%   00x                   null==255

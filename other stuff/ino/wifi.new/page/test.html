@@ -16,7 +16,7 @@
         document.getElementById("TEMPSliderValue").innerHTML = sliderTEMPValue;
         console.log(sliderTEMPValue);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?values="+sliderTEMPValue, true);
+        xhr.open("GET", "/slider?temp="+sliderTEMPValue, true);
         xhr.send();
       }
     </script>
@@ -34,10 +34,32 @@
         document.getElementById("LVLSliderValue").innerHTML = sliderLVLValue;
         console.log(sliderLVLValue);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?value="+sliderLVLValue, true);
+        xhr.open("GET", "/slider?nivel="+sliderLVLValue, true);
         xhr.send();
       }
     </script>
-  <p><button class="config" onclick=location.href="/CONFIGURATION" >Set auto</button></p> 
+    <div id="seteos_hora">
+      <div class="caja-automatizacion">
+          <div id="set-1">
+            <h3>Automatic start 1</h3>
+            <p>Hour: %HOUR1% 
+              Water level: %WATERLEVEL1% 
+              Water temp:%WATERTEMP1%
+          </div>        
+          <div id="set-2">
+            <h3>Automatic start 2</h3>
+            <p>Hour: %HOUR2TEST% 
+              Water level: %WATERLEVEL2% 
+              Water temp:%WATERTEMP2%
+          </div>        
+          <div id="set-1">
+            <h3>Automatic start 3</h3>
+            <p>Hour: %HOUR3% 
+              Water level: %WATERLEVEL3% 
+              Water temp:%WATERTEMP3%
+          </div>        
+      </div>
+    </div>
+  <p><button class="config" onclick=location.href="/CONFIGURATION" >Auto-start configuration</button></p> 
 </body>
 </html>
