@@ -8,7 +8,7 @@
 #include <OneWire.h>
 
 //sensr de temperatura
-#define onewire 6
+#define onewire 7
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t); 
 void tomar_temperatura ();
@@ -23,8 +23,13 @@ void colectar_nivel_de_agua();
 //
 
 //cosas del menu princial
-void actualizar_MEF();
+void menu_basico();
+void standby();
 void imprimir_en_pantalla();
+//
+
+//
+void menu_avanzado();
 //
 
 //funciones para el RTC
@@ -42,8 +47,14 @@ const int pulsador1 = 2;
 const int pulsador2 = 3;
 const int pulsador3 = 4;
 const int pulsador4 = 5;
+const int pulsador7 = 6;
+bool flag_menu_avanzado = false;
+
 typedef enum{estado_standby,estado_inicial,calefaccion_manual,calefaccion_auto_senstemp,carga_auto_hora,carga_agua_por_nivel,llenado_agua_manual} estadoMEF;  
 estadoMEF Menu_principal = estado_inicial;
+
+typedef enum{menu_inicio,set_wifi,activar_bomba,cambio_unidad,set_hora,momento_standby} estadoMEF2;
+estadoMEF2 Menu_secundario = menu_inicio;
 //
 
 void setup() 
@@ -55,7 +66,6 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   //
-  void actualizar_MEF();
 
   //iniccializacion del RTC 
  /* RTC.begin();
@@ -83,40 +93,60 @@ void setup()
   pinMode(pulsador4, INPUT_PULLUP);
   pinMode(pulsador5, INPUT_PULLUP);
   pinMode(pulsador6, INPUT_PULLUP);
+  pinMode(pulsador7, INPUT_PULLUP);
   //
 
 }
 
 void loop() 
 {
-  actualizar_MEF();
+  if(flag_menu_avanzado == true)
+  {
+    menu_avanzado();
+    Menu_principal = estado_inicial;
+  }
+
+  if(flag_menu_avanzado == false)
+  {
+    menu_basico();
+    Menu_secundario = menu_inicio;
+  } 
+
+  if(digitalRead(pulsador7) == LOW)
+  {
+    while(digitalRead(pulsador7) == LOW){}
+    lcd.clear();
+    mili_segundos = 0;
+    flag_menu_avanzado = !flag_menu_avanzado;
+  } 
+
   if(digitalRead(pulsador6) == LOW) 
   {
     while (digitalRead(pulsador6) == LOW){}
     mili_segundos = 0;
     Menu_principal = estado_inicial;
+    Menu_secundario = menu_inicio;
     lcd.clear();
   }
-  if(mili_segundos >= 1000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
+  if(mili_segundos >= 10000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
   {
-    Menu_principal = estado_standby;   
-    mili_segundos = 0; 
+    Menu_principal = estado_standby;
+    Menu_secundario = momento_standby; 
+    mili_segundos = 0;
   }
 }
 
-void actualizar_MEF()
+void menu_basico()
 {
   switch (Menu_principal)
   {
     case estado_standby:
-      lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print(" ");
-      lcd.setCursor(18,1); lcd.print("  ");
-      lcd.setCursor(1,1);
-      tomar_temperatura();
-      lcd.setCursor(1,2); 
-      lcd.print("Nivel:            ");
-      lcd.setCursor(1,3); 
-      lcd.print("       HH/MM        ");
+      standby();
+      if(digitalRead(pulsador1) == LOW) Menu_principal = estado_inicial;
+      if(digitalRead(pulsador2) == LOW) Menu_principal = estado_inicial;
+      if(digitalRead(pulsador3) == LOW) Menu_principal = estado_inicial;
+      if(digitalRead(pulsador4) == LOW) Menu_principal = estado_inicial;
+      if(digitalRead(pulsador5) == LOW) Menu_principal = estado_inicial;
       break;
     case estado_inicial:
       lcd.setCursor(0,0); lcd.print("Calef manual"); lcd.setCursor(0,1); lcd.print("Calef auto"); lcd.setCursor(0,2); lcd.print("Carga hora"); lcd.setCursor(0,3); lcd.print("Carga nivel"); //lcd.setCursor(16,4); lcd.print(Sensor_temp.getTempCByIndex(0));
@@ -179,6 +209,73 @@ void actualizar_MEF()
   }
 }
 
+void menu_avanzado()
+{
+  switch (Menu_secundario)
+  {
+    case momento_standby:
+      standby();
+      if(digitalRead(pulsador1) == LOW) Menu_secundario = menu_inicio;
+      if(digitalRead(pulsador2) == LOW) Menu_secundario = menu_inicio;
+      if(digitalRead(pulsador3) == LOW) Menu_secundario = menu_inicio;
+      if(digitalRead(pulsador4) == LOW) Menu_secundario = menu_inicio;
+      if(digitalRead(pulsador5) == LOW) Menu_secundario = menu_inicio;
+    break;  
+    
+    case menu_inicio:
+      lcd.setCursor(0,0); lcd.print("Setear wifi"); lcd.setCursor(0,1); lcd.print("Activar bomba"); lcd.setCursor(0,2); lcd.print("Cambio unidad"); lcd.setCursor(0,3); lcd.print("Setear hora");
+      if(digitalRead(pulsador1) == LOW )
+      { 
+        while (digitalRead(pulsador1) == LOW){}
+        mili_segundos = 0;
+        Menu_secundario = set_wifi;
+        lcd.clear();
+      }
+      if(digitalRead(pulsador2) == LOW) 
+      {
+        while (digitalRead(pulsador2) == LOW){}
+        mili_segundos = 0;
+        Menu_secundario = activar_bomba;
+        lcd.clear();
+      }
+      if(digitalRead(pulsador3) == LOW) 
+      {
+        while (digitalRead(pulsador3) == LOW){}
+        mili_segundos = 0;
+        Menu_secundario = cambio_unidad;
+        lcd.clear();
+      }
+      if(digitalRead(pulsador4) == LOW) 
+      {
+        while (digitalRead(pulsador4) == LOW){}
+        mili_segundos = 0;
+        Menu_secundario = set_hora;
+        lcd.clear();
+      }
+    break;
+
+    case set_wifi:
+      lcd.setCursor(0,0); lcd.print("Seteo WIFI");
+    //setea wifi, falta programar
+    break;
+
+    case activar_bomba:
+      lcd.setCursor(0,0); lcd.print("Activar bomba");
+    //activa bomba de agua por relay, falta programar
+    break;
+
+    case cambio_unidad:
+      lcd.setCursor(0,0); lcd.print("Cambio de unidad");
+    //cambia unidad de temperatura entre Celsius y Fahrenheit
+    break;
+
+    case set_hora:
+      lcd.setCursor(0,0); lcd.print("Seteo de hora");
+    //Seteo hora del RTC mediante pulsadores
+    break;
+  }
+}
+
 /*void imresion_de_hora_del_dia(){
 lcd.setCursor(0,0);
 lcd.print(now.hour()); // Horas
@@ -231,6 +328,18 @@ void tomar_temperatura ()
   lcd.print("Temperatura:");
   Sensor_temp.requestTemperatures();
   lcd.print(Sensor_temp.getTempCByIndex(0));
+}
+
+void standby()
+{
+  lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print(" ");
+  lcd.setCursor(18,1); lcd.print("  ");
+  lcd.setCursor(1,2); 
+  lcd.print("Nivel:            ");
+  lcd.setCursor(1,3); 
+  lcd.print("       HH/MM        ");
+  lcd.setCursor(1,1);
+  tomar_temperatura();
 }
 
 ISR(TIMER2_OVF_vect){
