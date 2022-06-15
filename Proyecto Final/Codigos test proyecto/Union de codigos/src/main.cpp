@@ -97,7 +97,7 @@ void loop()
     Menu_principal = estado_inicial;
     lcd.clear();
   }
-  if(mili_segundos >= 5000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
+  if(mili_segundos >= 1000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
   {
     Menu_principal = estado_standby;   
     mili_segundos = 0; 
@@ -109,8 +109,14 @@ void actualizar_MEF()
   switch (Menu_principal)
   {
     case estado_standby:
-      lcd.setCursor(0,1); lcd.print("                    "); lcd.setCursor(0,2); lcd.print("                    "); lcd.setCursor(0,3); lcd.print("                    ");
+      lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print(" ");
+      lcd.setCursor(18,1); lcd.print("  ");
+      lcd.setCursor(1,1);
       tomar_temperatura();
+      lcd.setCursor(1,2); 
+      lcd.print("Nivel:            ");
+      lcd.setCursor(1,3); 
+      lcd.print("       HH/MM        ");
       break;
     case estado_inicial:
       lcd.setCursor(0,0); lcd.print("Calef manual"); lcd.setCursor(0,1); lcd.print("Calef auto"); lcd.setCursor(0,2); lcd.print("Carga hora"); lcd.setCursor(0,3); lcd.print("Carga nivel"); //lcd.setCursor(16,4); lcd.print(Sensor_temp.getTempCByIndex(0));
@@ -220,9 +226,8 @@ void colectar_nivel_de_agua()
     }*/
 }
 
-void tomar_temperatura (){
-
-  lcd.setCursor(0,0);
+void tomar_temperatura ()
+{
   lcd.print("Temperatura:");
   Sensor_temp.requestTemperatures();
   lcd.print(Sensor_temp.getTempCByIndex(0));
