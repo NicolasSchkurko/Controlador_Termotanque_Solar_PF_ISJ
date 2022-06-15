@@ -1,0 +1,40 @@
+body{
+    background-color: rgb(143, 216, 245);
+}
+.titulo{
+    text-align: center; 
+    font-family: Arial Black; 
+    font-weight: bold; 
+    font-size: 30px; 
+    color: #fff; 
+    text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+}
+.caja{
+    background-color: rgb(212, 241, 245);
+    width: 340px;
+    margin: auto;
+    text-align: center;
+    border: rgb(212, 241, 245) 5px solid;
+    border-radius: 20px;
+}
+.button {
+    background-color: rgb(209, 82, 73);
+    color: white;
+    width: 200px;
+    height: 50px;
+    border-radius: 8px;
+    font-family: fantasy;
+    font-size: 30px;
+    transition-duration: 0.4s;
+  }
+.button:hover {
+    background-color: #d63232;
+    color: white;
+  }
+.button2{
+    background-color: rgb(80, 170, 80);
+}
+.button2:hover{
+    background-color: rgb(36, 122, 36);
+    color: white;
+}
