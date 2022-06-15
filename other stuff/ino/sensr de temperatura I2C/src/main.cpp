@@ -4,8 +4,6 @@
 #include <LiquidCrystal_I2C.h>
 
 #define  onewire 6
-float temperatura = 0;
-float verificacion = 0;
 int cuenta = 0;
 bool time_out = false;
 LiquidCrystal_I2C lcd(0x27,20,4);
