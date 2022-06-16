@@ -3,7 +3,7 @@
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
-
+String processor(const String& var);
 
 const char settimer_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <html>
@@ -58,7 +58,6 @@ const char settimer_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
   )rawliteral";
 
 const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
-<!DOCTYPE html>
 <html>
 <head>
     <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no"><title>SLB_x02</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' type='text/css' media='screen' href='main.css'>
@@ -93,11 +92,11 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <div id="Set"><h3>Start by timer 1</h3><p>Hour: %H1% Water level: %L1% Water temp:%T1%       
 <h3>Start by timer 2</h3><p>Hour: %H2% Water level: %L2% Water temp:%T2%       
 <h3>Start by timer 3</h3><p>Hour: %H3% Water level: %L3% Water temp:%T3%</div>        
-<p><button class="config" onclick=location.href="/TIMERSET" >Set timer </button></p>  
+  <p><button class="config" onclick=location.href="/TIMERSET" >Set timer </button></p>  
 </body>
 </html>
 )rawliteral";
-struct save{char hora,char temp,char lvl;};
+struct save{char hora;char temp;char lvl;};
 
 const char* ssid = "Proyectos1";
 const char* password = "proy.Tec";
@@ -196,21 +195,10 @@ void setup(){
   server.begin();
 }
   
-void loop() {
-  if(auto_start_config==1){
-  int print;
-  print= TEMP_VAL;
-  Serial.println(print);
-  print= TEMP_STATE;
-  Serial.println(print);
-  print= LVL_VAL;
-  Serial.println(print);
-  print= LVL_STATE;
-  Serial.println(print);
-  auto_start_config=0;
-  }
+void loop() {}
   
-}
+  
+
 String processor(const String& var){
 
 if(var == "TVAL")return TVal;
@@ -218,8 +206,8 @@ if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
 if(var == "MVAL")return MVal;
 
-if(var == "BTNT")if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico"; else return "calentamiento apagado";
-if(var == "BTNL") if(CHARGING_STATE==true)return "llenado encendido"; else return "llenado apagado";
+if(var == "BTNT"){if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico"; else return "calentamiento apagado";}
+if(var == "BTNL"){ if(CHARGING_STATE==true)return "llenado encendido"; else return "llenado apagado";}
 
 if(var == "STT"){
   if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico";
