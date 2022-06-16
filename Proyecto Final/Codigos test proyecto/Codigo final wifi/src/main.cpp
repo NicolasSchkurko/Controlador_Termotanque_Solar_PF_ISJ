@@ -66,8 +66,8 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
     <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <p><span id="TSV">%TVAL%</span></p>
     <p><button class="button" onclick=location.href="/STATEMP">%BTNT%</button></p> 
-    <p><button class="Set" onclick=location.href="/SETEMP" >%STTA%</button></p> 
     <div id="auto"><h5> temp start min: %TMIN% Automatic temp max: %TMAX%  </h5></div>
+    <p><button class="Set" onclick=location.href="/SETEMP" >%STTA%</button></p> 
     <script>
     function updateSliderTEMP(element){
         var TVal = document.getElementById("temp").value;
@@ -80,8 +80,8 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
     <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
     <p><span id="LSV">%LVAL%</span></p>
     <p><button class="button" onclick=location.href="/STALVL">%BTNL%</button></p> 
-    <p><button class="SetLVL" onclick=location.href="/SETLVL">%STLA%</button></p> 
     <div id="auto"><h5> Automatic level start min: %LMIN% Automatic level max: %LMAX%  </h5></div>
+    <p><button class="SetLVL" onclick=location.href="/SETLVL">%STLA%</button></p> 
     <script>
     function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
