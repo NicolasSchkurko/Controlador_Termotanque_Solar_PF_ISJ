@@ -101,8 +101,8 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 )rawliteral";
 struct save{char hora;char temp;char lvl;};
 
-const char* ssid = "Proyectos1";
-const char* password = "proy.Tec";
+const char* ssid = "WifiChuco";
+const char* password = "AloAmbAr!";
 
 String TVal = "60";
 String LVal = "70";
@@ -173,9 +173,9 @@ void setup(){
 
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request){CHARGING_STATE= !CHARGING_STATE; request->send_P(500, "text/html", index_html, processor);});
 
-  server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request){AUTOTEMP_STATE++; if(AUTOTEMP_STATE>2)AUTOTEMP_STATE=0;  request->send_P(500, "text/html", index_html, processor);});
+  server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request){AUTOTEMP_STATE++; if(AUTOTEMP_STATE>3)AUTOTEMP_STATE=0;  request->send_P(500, "text/html", index_html, processor);});
 
-  server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request){AUTOLVL_STATE++; if(AUTOLVL_STATE>2)AUTOLVL_STATE=0; request->send_P(500, "text/html", index_html, processor);});
+  server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request){AUTOLVL_STATE++; if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; request->send_P(500, "text/html", index_html, processor);});
 
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request){ request->send_P(500, "text/html", settimer_html, processor);});
 
@@ -210,8 +210,8 @@ if(var == "HVAL")return HVal;
 if(var == "MVAL")return MVal;
 
 if(var == "BTNT"){
-if(AUTOTEMP_STATE==0)return "calentamiento encendido"; 
-else return "calentamiento apagado";
+if(HEATING_STATE==1)return "llenado encendido"; 
+else return "llenado apagado";
 }
 
 if(var == "BTNL"){
@@ -223,12 +223,14 @@ if(var == "STTA"){
   if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico";
   if(AUTOTEMP_STATE==1)return "Setear temperatura minima";
   if(AUTOTEMP_STATE==2)return "Setear temperatura a calentar";
+  if(AUTOTEMP_STATE==3)return "Confirmar seteo";
 }
 
 if(var == "STLA"){
   if(AUTOLVL_STATE==0)return "Setear llenado automatico";
   if(AUTOLVL_STATE==1)return "Setear llenado minima";
   if(AUTOLVL_STATE==2)return "Setear llenado a calentar";
+  if(AUTOLVL_STATE==3)return "Confirmar seteo";
 }
 
 return String();
