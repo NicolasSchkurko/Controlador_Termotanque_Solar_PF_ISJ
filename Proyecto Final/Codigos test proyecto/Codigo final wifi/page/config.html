@@ -10,6 +10,8 @@
   <script>
     function updateSliderTEMP(element) {
         var TVal = document.getElementById("temp").value;
+        console.log(TVal);
+        document.getElementById("TSV").innerHTML = TVal;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/slider?temp="+TVal, true);
         xhr.send();
@@ -19,6 +21,8 @@
     <script>
     function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
+        console.log(LVal);
+        document.getElementById("LSV").innerHTML = LVal;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/slider?nivel="+LVal, true);
         xhr.send();
@@ -28,6 +32,8 @@
     <script>
     function updateSliderHOUR(element) {
         var HVal = document.getElementById("hour").value;
+        console.log(HVal);
+        document.getElementById("HSV").innerHTML = HVal;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/slider?hour="+HVal, true);
         xhr.send();
@@ -37,6 +43,8 @@
     <script>
     function updateSliderMINUTE(element) {
         var MVal = document.getElementById("minute").value;
+        console.log(MVal);
+        document.getElementById("MSV").innerHTML = MVal;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/slider?minute="+MVal, true);
         xhr.send();
