@@ -206,8 +206,15 @@ if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
 if(var == "MVAL")return MVal;
 
-if(var == "BTNT"){if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico"; else return "calentamiento apagado";}
-if(var == "BTNL"){ if(CHARGING_STATE==true)return "llenado encendido"; else return "llenado apagado";}
+if(var == "BTNT"){
+if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico"; 
+else return "calentamiento apagado";
+}
+
+if(var == "BTNL"){
+if(CHARGING_STATE==1)return "llenado encendido"; 
+else return "llenado apagado";
+}
 
 if(var == "STT"){
   if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico";
@@ -215,7 +222,7 @@ if(var == "STT"){
   if(AUTOTEMP_STATE==2)return "Setear temperatura a calentar";
 }
 
-if(var == "STTL"){
+if(var == "STL"){
   if(AUTOLVL_STATE==0)return "Setear llenado automatico";
   if(AUTOLVL_STATE==1)return "Setear llenado minima";
   if(AUTOLVL_STATE==2)return "Setear llenado a calentar";

@@ -5,13 +5,15 @@
     </head><body>
     <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <p><span id="TSV">%TVAL%</span></p>
-    <p><button class="button" onclick=location.href="/STATEMP"> %BTNT%</button></p> 
+    <p><button class="button" onclick=location.href="/STATEMP">%BTNT%</button></p> 
     <p class="Set">Estado: %STT%</p>
     <p><button class="Set" onclick=location.href="/SETEMP" >%STT%</button></p> 
     <div id="auto"><h5> temp start min: %TMIN% Automatic temp max: %TMAX%  </h5></div>
     <script>
     function updateSliderTEMP(element){
         var TVal = document.getElementById("temp").value;
+        console.log(TVal);
+        document.getElementById("TSV").innerHTML = TVal;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/slider?temp="+TVal, true);
         xhr.send();}
@@ -20,13 +22,15 @@
     <p><span id="LSV">%LVAL%</span></p>
     <p><button class="button" onclick=location.href="/STALVL">%BTNL%</button></p> 
     <p class="titulo">Estado: %STL%</p>
-    <p><button class="SetLVL" onclick=location.href="/SETLVL" >%STL%</button></p> 
+    <p><button class="SetLVL" onclick=location.href="/SETLVL">%STL%</button></p> 
     <div id="auto"><h5> Automatic level start min: %LMIN% Automatic level max: %LMAX%  </h5></div>
     <script>
     function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
+        console.log(LVal);
+        document.getElementById("LSV").innerHTML = LVal;
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?nivel="+LVal, true);
+        xhr.open("GET", "/slider?lvl="+LVal, true);
         xhr.send();
       }
     </script>
