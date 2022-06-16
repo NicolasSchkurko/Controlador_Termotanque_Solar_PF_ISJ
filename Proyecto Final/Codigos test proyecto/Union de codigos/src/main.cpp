@@ -32,7 +32,7 @@ void imprimir_en_pantalla();
 void menu_avanzado();
 //
 
-//funciones para el RTC
+//funciones para el RTC se cionecta directamente a los pines SCL Y SDA
 //void imresion_de_hora_del_dia();
 /*RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
 DateTime now = RTC.now(); */      // guarda la fecha y hora del RTC en la variable (es una maquina de estado que guarda año,mes,dia,hora,minutos,segundos en ese orden)
