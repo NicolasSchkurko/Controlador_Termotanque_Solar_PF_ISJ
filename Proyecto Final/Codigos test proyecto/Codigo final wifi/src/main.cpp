@@ -58,19 +58,21 @@ const char settimer_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
   )rawliteral";
 
 const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no"><title>SLB_x02</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' type='text/css' media='screen' href='main.css'>
     </head><body>
     <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <p><span id="TSV">%TVAL%</span></p>
-    <p><button class="button" onclick=location.href="/STATEMP"> %BTNT%</button></p> 
-    <p class="Set">Estado: %STT%</p>
-    <p><button class="Set" onclick=location.href="/SETEMP" >%STT%</button></p> 
+    <p><button class="button" onclick=location.href="/STATEMP">%BTNT%</button></p> 
+    <p><button class="Set" onclick=location.href="/SETEMP" >%STTA%</button></p> 
     <div id="auto"><h5> temp start min: %TMIN% Automatic temp max: %TMAX%  </h5></div>
     <script>
     function updateSliderTEMP(element){
         var TVal = document.getElementById("temp").value;
+        console.log(TVal);
+        document.getElementById("TSV").innerHTML = TVal;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/slider?temp="+TVal, true);
         xhr.send();}
@@ -78,14 +80,15 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
     <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
     <p><span id="LSV">%LVAL%</span></p>
     <p><button class="button" onclick=location.href="/STALVL">%BTNL%</button></p> 
-    <p class="titulo">Estado: %STL%</p>
-    <p><button class="SetLVL" onclick=location.href="/SETLVL" >%STL%</button></p> 
+    <p><button class="SetLVL" onclick=location.href="/SETLVL">%STLA%</button></p> 
     <div id="auto"><h5> Automatic level start min: %LMIN% Automatic level max: %LMAX%  </h5></div>
     <script>
     function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
+        console.log(LVal);
+        document.getElementById("LSV").innerHTML = LVal;
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?nivel="+LVal, true);
+        xhr.open("GET", "/slider?lvl="+LVal, true);
         xhr.send();
       }
     </script>
@@ -207,7 +210,7 @@ if(var == "HVAL")return HVal;
 if(var == "MVAL")return MVal;
 
 if(var == "BTNT"){
-if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico"; 
+if(AUTOTEMP_STATE==0)return "calentamiento encendido"; 
 else return "calentamiento apagado";
 }
 
@@ -216,13 +219,13 @@ if(CHARGING_STATE==1)return "llenado encendido";
 else return "llenado apagado";
 }
 
-if(var == "STT"){
+if(var == "STTA"){
   if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico";
   if(AUTOTEMP_STATE==1)return "Setear temperatura minima";
   if(AUTOTEMP_STATE==2)return "Setear temperatura a calentar";
 }
 
-if(var == "STL"){
+if(var == "STLA"){
   if(AUTOLVL_STATE==0)return "Setear llenado automatico";
   if(AUTOLVL_STATE==1)return "Setear llenado minima";
   if(AUTOLVL_STATE==2)return "Setear llenado a calentar";
