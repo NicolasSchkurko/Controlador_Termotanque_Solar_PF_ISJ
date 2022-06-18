@@ -1,0 +1,51 @@
+q<html>
+
+<head>
+    <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>SLB_x02</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='desing.css'>
+</head>
+
+<body>
+    <h1>Controladora temperatura</h1>
+    <h1>Temperatura</h1>
+
+    <div class="barraTemp" style="transform: rotate(10deg);">
+         <div class="cont" style="background-color: rgb(143, 136, 136);"></div>
+         <div class="cont" style="background-color: rgb(253,0,0);"></div>   
+
+    </div>
+    <div class="circulo_centro"></div>
+    <div class="rectangulo"></div>
+    <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="TSV">%TVAL%</h1>
+    <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+    <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
+    <div id="auto"><h5> temp start min: %TMIN% Automatic temp max: %TMAX%  </h5>
+    <button class="Set" onclick=location.href="/SETEMP" >%STTA%</button></div> 
+    
+    <script>
+        function updateSliderTEMP(element){
+            var TVal = document.getElementById("temp").value;
+            console.log(TVal);
+            document.getElementById("TSV").innerHTML = TVal;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/slider?temp="+TVal, true);
+            xhr.send();}
+    </script>
+
+    <h1>Humedad</h1>
+    <div class="barraTemp" style="transform: rotate(120deg);">
+         <div class="cont" style="background-color: rgb(143, 136, 136);"></div>
+         <div class="cont" style="background-color: rgb(253,0,0);"></div>   
+
+    </div>
+    <div class="circulo_centro"></div>
+    <div class="rectangulo"></div>
+    <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;">65.0 %</h1>
+
+
+</body>
+
+
+</html>

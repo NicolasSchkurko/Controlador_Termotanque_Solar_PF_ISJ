@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no"><title>SLB_x02</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no"><title>SLB_x02</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' type='text/css' media='screen' href='desing.css'>
     </head><body>
-    <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <p><span id="TSV">%TVAL%</span></p>
+    <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <p><button class="button" onclick=location.href="/STATEMP">%BTNT%</button></p> 
     <div id="auto"><h5> temp start min: %TMIN% Automatic temp max: %TMAX%  </h5></div>
     <p><button class="Set" onclick=location.href="/SETEMP" >%STTA%</button></p> 
+
     <script>
     function updateSliderTEMP(element){
         var TVal = document.getElementById("temp").value;
@@ -17,11 +18,13 @@
         xhr.open("GET", "/slider?temp="+TVal, true);
         xhr.send();}
     </script>
-    <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
+
     <p><span id="LSV">%LVAL%</span></p>
+    <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
     <p><button class="button" onclick=location.href="/STALVL">%BTNL%</button></p> 
     <div id="auto"><h5> Automatic level start min: %LMIN% Automatic level max: %LMAX%  </h5></div>
-    <p><button class="SetLVL" onclick=location.href="/SETLVL">%STLA%</button></p> 
+    <p><button class="Set" onclick=location.href="/SETLVL">%STLA%</button></p> 
+
     <script>
     function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
@@ -32,6 +35,7 @@
         xhr.send();
       }
     </script>
+
 <div id="Set"><h3>Start by timer 1</h3><p>Hour: %H1% Water level: %L1% Water temp:%T1%       
 <h3>Start by timer 2</h3><p>Hour: %H2% Water level: %L2% Water temp:%T2%       
 <h3>Start by timer 3</h3><p>Hour: %H3% Water level: %L3% Water temp:%T3%</div>        

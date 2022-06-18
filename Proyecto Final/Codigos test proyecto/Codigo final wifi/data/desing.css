@@ -1,0 +1,38 @@
+body {
+    font-family: monospace;
+    background-color: rgb(20,21, 38);
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    margin: 50px;
+    font-size: 18px;
+}
+.barraTemp{
+    height: 200px;
+    width: 200px;
+    margin: auto;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.cont{
+    height: 100px;
+    width: 200px;
+}
+.circulo_centro {
+    width: 150px;
+    height: 150px;
+    background-color: rgb(20,21, 38);
+    border-radius: 50%;
+    margin: auto;
+    position: relative;
+    margin: -175px auto 50px;
+}
+.rectangulo{
+    width: 200px;
+    height: 100px;
+    background-color: rgb(20,21, 38);
+    position: relative;
+    margin: -125px auto 50px;
+}
