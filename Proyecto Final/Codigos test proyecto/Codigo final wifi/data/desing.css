@@ -1,3 +1,5 @@
+/*https://www.youtube.com/watch?v=L_bctronMFo*/
+
 body {
     font-family: monospace;
     background-color: #30011c;
@@ -6,20 +8,44 @@ body {
 h1 {
     color: white;
     text-align: center;
-    margin: 50px;
-    font-size: 20px;
+    margin: 1%;
+    font-size: 250%;
 }
 h3 {
     color: white;
     text-align: center;
-    margin: 20px;
-    font-size: 18px;
+    margin: 1%;
+    font-size: 180%
 }
 h5 {
     color: white;
     text-align: center;
-    margin: 20px;
-    font-size: 15px;
+    margin: 1%;
+    font-size: 120%
+}
+.Sliders{
+  align-items: center;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.temperature{
+  align-items: center;
+  text-align: center;
+  width: 40%;
+  margin: 40px;
+}
+.Waterlevel{
+  align-items: center;
+  text-align: center;
+  width: 40%;
+  margin: 40px;
+}
+.Timer{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 .barraTemp{
     height: 200px;
@@ -164,13 +190,13 @@ h5 {
     outline: none;
     overflow: hidden;
     padding: 9px 20px 8px;
-    position: relative;
+    margin: auto;
     text-align: center;
     text-transform: none;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    width: 100%;
+    width: 500px;
   }
   .config:hover,.config:focus {
     opacity: .75;

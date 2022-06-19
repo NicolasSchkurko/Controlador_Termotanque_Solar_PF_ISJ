@@ -9,6 +9,8 @@
 
 <body>
     <h1>Controladora temperatura</h1>
+<div class="Sliders">
+    <div class="temperature">
     <h1>Temperatura</h1>
 
     <div class="barraTemp" style="transform: rotate(10deg);">
@@ -23,8 +25,11 @@
     <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
 
-    <div id="auto"><h5> temp start min: %TMIN% Automatic temp max: %TMAX%  </h5>
-    <button class="Set" onclick=location.href="/SETEMP" >%STTA%</button></div> 
+    <div id="auto">
+        <h5> temp start min: %TMIN% </h5>
+        <h5> Automatic temp max: %TMAX% </h5>
+    </div>
+    <button class="Set" onclick=location.href="/SETEMP" >%STTA%</button>
     
     <script>
         function updateSliderTEMP(element)
@@ -37,8 +42,9 @@
             xhr.send();
         }
     </script>
-
-    <h1>Humedad</h1>
+    </div>
+    <div class="Waterlevel">
+    <h1>Waterlevel</h1>
     <div class="barraTemp" style="transform: rotate(10deg);">
         <div class="cont" style="background-color: rgb(51, 14, 51);"></div>
         <div class="cont" style="background-color: rgb(255, 208, 0);"></div>   
@@ -49,10 +55,13 @@
     <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;"id="LSV">%LVAL%</h1>
 
     <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
-    <p><button class="button" onclick=location.href="/STALVL">%BTNL%</button></p> 
+    <button class="button" onclick=location.href="/STALVL">%BTNL%</button>
 
-    <div id="auto"><h5> Automatic level start min: %LMIN% Automatic level max: %LMAX%  </h5></div>
-    <p><button class="Set" onclick=location.href="/SETLVL">%STLA%</button></p> 
+    <div id="auto">
+        <h5> Automatic level start min: %LMIN% </h5>
+        <h5> Automatic level max: %LMAX% </h5>
+    </div>
+    <button class="Set" onclick=location.href="/SETLVL">%STLA%</button> 
 
     <script>
         function updateSliderLVL(element) 
@@ -65,12 +74,23 @@
             xhr.send();
         }
     </script>
-
-    <h3>Start by timer 1</h3><h5>Hour: %H1% Water level: %L1% Water temp:%T1%</h5>      
-    <h3>Start by timer 2</h3><h5>Hour: %H2% Water level: %L2% Water temp:%T2%</h5>       
-    <h3>Start by timer 3</h3><h5>Hour: %H3% Water level: %L3% Water temp:%T3%</h5>      
-    <p><button class="config" onclick=location.href="/TIMERSET" >Set timer </button></p>  
+</div>
+</div>
+<div class="Timer">
+    <div class="bloqueset">
+    <h3>Start by timer 1</h3>
+    <h5>Hour: %H1% Water level: %L1% Water temp:%T1%</h5>     
+    </div> 
+    <div class="bloqueset">
+    <h3>Start by timer 2</h3>
+    <h5>Hour: %H2% Water level: %L2% Water temp:%T2%</h5>
+    </div>
+    <div class="bloqueset">      
+    <h3>Start by timer 3</h3>
+    <h5>Hour: %H3% Water level: %L3% Water temp:%T3%</h5>     
+    </div> 
+    <button class="config" onclick=location.href="/TIMERSET" >Set timer </button>
 </body>
-
+</div>
 
 </html>
