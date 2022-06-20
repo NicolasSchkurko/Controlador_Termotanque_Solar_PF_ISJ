@@ -9,8 +9,8 @@ String processor(const String& var);
 //█████████████████████████████████████████████████████████████████████████████████
 
 struct save{char hora;char temp;char lvl;};
-const char* ssid = "chuco";
-const char* password = "nico1234";
+const char* ssid = "WifiChuco";
+const char* password = "AloAmbAr!";
 
 //█████████████████████████████████████████████████████████████████████████████████
 
@@ -52,8 +52,8 @@ void setup(){
   Serial.println(WiFi.localIP());
 
   // Setea la pagina main 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){request->send(LittleFS, "/index.html", String(), false, processor);});
-  server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request){request->send(LittleFS, "/desing.css", "text/css");});
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){request->send(SPIFFS, "/index.html", String(), false, processor);});
+  server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request){request->send(SPIFFS, "/desing.css", "text/css");});
   //Toma datos del slider y los guarda en una variable
   server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) { 
     
