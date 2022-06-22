@@ -3,15 +3,14 @@
 
 LiquidCrystal_I2C lcd(0x20,20,4);
 
-void nivel_manual();
 void nivel_auto();
-void cambio_de_numero_a_maquina_de_estado();
+void nivel_manual();
+void cambio_de_variable_a_nivel();
 void sensar_nivel();
 
 const int nivel_del_tanque = A0;
 const int electrovalvula = 10;
-int nivel = 75;
-bool escribir = false;
+int nivel = 50;
 
 typedef enum{carga_automatica, carga_manual} carga; 
 carga tipo_de_carga = carga_manual;
@@ -21,50 +20,18 @@ niveles nivel_actual;
 niveles nivel_seteado;
 
 void setup() {
-  lcd.init();
-  lcd.backlight();
   pinMode(nivel_del_tanque, INPUT);
   pinMode(electrovalvula, OUTPUT);
 }
 
 void loop() {
   sensar_nivel();
-  nivel_manual();
-  if (escribir == false)
-  {
-    lcd.setCursor(0,0);
-    lcd.print("Llenando tanque");
-  }
-
-  if (escribir == true)
-  {
-    lcd.setCursor(0,0);
-    lcd.print("Tanque lleno         ");
-  }
-  
+  nivel_auto();
 }
 
-void nivel_manual(){
-  cambio_de_numero_a_maquina_de_estado();
-  if (nivel_seteado > nivel_actual){
-    digitalWrite(electrovalvula, HIGH); 
-    escribir = false;
-  }
-  
-  if (nivel_seteado <= nivel_actual)
-  {
-    escribir = true;
-    digitalWrite(electrovalvula, LOW);
-    nivel_seteado = tanque_vacio;
-  }
-}
-
-void cambio_de_numero_a_maquina_de_estado(){
-  if(nivel == 0)    nivel_seteado = tanque_vacio;
-  if(nivel == 25)    nivel_seteado = tanque_al_25;
-  if(nivel == 50)    nivel_seteado = tanque_al_50;
-  if(nivel == 75)    nivel_seteado = tanque_al_75;
-  if(nivel == 100)    nivel_seteado = tanque_al_100;
+void nivel_auto (){
+  if (nivel_actual <= tanque_al_25)    digitalWrite(electrovalvula, HIGH);
+  if (nivel_actual == tanque_al_100)    digitalWrite(electrovalvula, LOW);
 }
 
 void sensar_nivel(){
