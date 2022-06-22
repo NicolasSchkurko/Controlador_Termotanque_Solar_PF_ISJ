@@ -4,7 +4,6 @@ body {
     font-family: monospace;
     background-color: #30011c;
 }
-
 h1 {
     color: white;
     text-align: center;
@@ -17,35 +16,30 @@ h3 {
     margin: 1%;
     font-size: 180%
 }
+h4 {
+  color: white;
+  text-align: center;
+  margin: 1%;
+  font-size: 130%
+}
 h5 {
     color: white;
     text-align: center;
     margin: 1%;
     font-size: 120%
 }
-.Sliders{
-  align-items: center;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+
 .temperature{
   align-items: center;
   text-align: center;
   width: 40%;
-  margin: 40px;
+  margin: 4%;
 }
 .Waterlevel{
   align-items: center;
   text-align: center;
   width: 40%;
-  margin: 40px;
-}
-.Timer{
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
+  margin: 4%;
 }
 .barraTemp{
     height: 200px;
@@ -98,7 +92,6 @@ h5 {
     -webkit-appearance: none;
     margin-top: 0px;
   }
-
 .slider::-moz-range-thumb {
     box-shadow: 0px 0px 0px #000000;
     border: 1px solid #000000;
@@ -108,8 +101,12 @@ h5 {
     background: #FFFFFF;
     cursor: pointer;
   }
-
-  .button{
+.slider::-webkit-slider-thumb:active { 
+    outline: none !important;
+    border-color: #e5ff00;
+    box-shadow: 0 0 10px #e5ff00;
+ }
+.button{
     background-color: #3f0025;
     border-radius: 4px;
     border-style: none;
@@ -136,11 +133,11 @@ h5 {
     touch-action: manipulation;
     width: 100%;
   }
-  .button:hover,.button:focus {
+.button:hover,.button:focus {
     opacity: .75;
   }
 
-  .set{
+.set{
     background-color: #3f0025;
     border-radius: 4px;
     border-style: none;
@@ -167,11 +164,11 @@ h5 {
     touch-action: manipulation;
     width: 100%;
   }
-  .set:hover,.set:focus {
+.set:hover,.set:focus {
     opacity: .75;
   }
 
-  .config{
+.Pagechange{
     background-color: #3f0025;
     border-radius: 4px;
     border-style: none;
@@ -198,6 +195,91 @@ h5 {
     touch-action: manipulation;
     width: 500px;
   }
-  .config:hover,.config:focus {
+.Pagechange:hover,.config:focus {
     opacity: .75;
   }
+
+input[type=time] {
+    border: none;
+    color: #e5ff00;
+    font-size: 14px;
+    font-family: helvetica;
+    width: 180px;
+    background-color: #3f0025;
+
+  }
+
+input[type=time]::-webkit-datetime-edit-fields-wrapper {
+    display: flex;
+  }
+  
+input[type=time]::-webkit-datetime-edit-text {
+  border-radius: 5%;
+  padding: 12% 1%;
+  color: white;
+
+  }
+
+input[type=time]::-webkit-datetime-edit-hour-field {
+  border-radius: 5%;
+  padding: 12% 12%;
+  color: white;
+  }
+  input[type=time]::-webkit-datetime-edit-hour-field:focus {
+    background-color: #3f0034;
+    border-radius: 20%;
+  }
+input[type=time]::-webkit-datetime-edit-minute-field {
+  border-radius: 5%;
+  padding: 12% 12%;
+  color: white;
+  }
+  input[type=time]::-webkit-datetime-edit-minute-field:focus {
+    background-color: #3f0034;
+    border-radius: 20%;
+    
+  }
+input[type=time]::-webkit-datetime-edit-ampm-field {
+    border-radius: 5%;
+    padding: 12% 12%;
+    color: white;
+  
+  }
+  input[type=time]::-webkit-datetime-edit-ampm-field:focus {
+    background-color: #3f0034;
+    border-radius: 20%;
+  }
+  input[type="time"]::-webkit-calendar-picker-indicator{
+    color: white;
+    filter: invert(80%) sepia(13%) saturate(3300%)  brightness(95%) contrast(80%);
+  }
+  input[type="time"]:focus { 
+    outline: none !important;
+    border-color: #e5ff00;
+    box-shadow: 0 0 10px #e5ff00;
+ }
+
+.Column{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    text-align: center;
+    padding-left: 30%;
+    padding-right: 30%;
+  }
+
+.Sliders{
+    align-items: center;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-wrap: w;
+}  
+.elbicho{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  padding-left: 30%;
+  padding-right: 30%;
+}
