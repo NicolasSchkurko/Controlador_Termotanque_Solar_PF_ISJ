@@ -43,17 +43,22 @@ void setup(){
     return;
   }
 
-  while (WiFi.status() != WL_CONNECTED) 
-  {
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connectarado");
+    Serial.println("Connecting to WiFi..");
   }
-  // Imprime en serial el IP Address
+
+  // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
-  // Setea la pagina main 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){request->send(SPIFFS, "/index.html", String(), false, processor);});
-  server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request){request->send(SPIFFS, "/desing.css", "text/css");});
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(LittleFS, "/index.html", String(), false, processor);
+  });
+  
+  server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request){request->send(LittleFS, "/desing.css", "text/css");});
   //Toma datos del slider y los guarda en una variable
   server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) { 
     
