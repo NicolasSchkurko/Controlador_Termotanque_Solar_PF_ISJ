@@ -9,15 +9,13 @@ String processor(const String& var);
 //█████████████████████████████████████████████████████████████████████████████████
 
 struct save{char hora;char temp;char lvl;};
-const char* ssid = "WifiChuco";
-const char* password = "AloAmbAr!";
-
+const char* ssid = "Jere";
+const char* password = "chucotest";
 //█████████████████████████████████████████████████████████████████████████████████
 
 String TVal = "60";
 String LVal = "70";
-String HVal = "12";
-String MVal = "30";
+String HVal = "12:30";
 char TEMP_VAL=0;
 char LVL_VAL=0;
 char HOUR_VAL=0;
@@ -34,19 +32,14 @@ AsyncWebServer server(80);
 //█████████████████████████████████████████████████████████████████████████████████
 
 void setup(){
+
   Serial.begin(9600);
   WiFi.begin(ssid, password);
-
-  if(!LittleFS.begin())
-  {
-    Serial.println("An Error has occurred while mounting LittleFS");
-    return;
-  }
-
+  LittleFS.begin();
+ 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
     Serial.println("Connecting to WiFi..");
   }
 
@@ -54,14 +47,21 @@ void setup(){
   Serial.println(WiFi.localIP());
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/index.html", String(), false, processor);
-  });
-  
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){request->send(LittleFS, "/index.html", String(), false, processor);});
+
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request){request->send(LittleFS, "/desing.css", "text/css");});
   //Toma datos del slider y los guarda en una variable
-  server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) { 
-    
+
+  server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {  
+  if (request->hasParam("hour")) 
+    {
+      String inputMessage = request->getParam("hour")->value();
+      HVal = inputMessage;
+      Serial.println(HVal);
+      request->send(LittleFS, "/index.html", String(), false, processor);
+    }
+  });
+  server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) {   
     String inputMessage;
     //Toma datos del slider temp
     if (request->hasParam("temp")) 
@@ -79,25 +79,9 @@ void setup(){
       LVL_VAL = LVal.toInt();
       request->send(LittleFS, "/index.html", String(), false, processor);
     }
-    //Toma datos del slider hour
-    if (request->hasParam("hour")) 
-    {
-      inputMessage = request->getParam("hour")->value();
-      HVal = inputMessage;
-      HOUR_VAL = HVal.toInt();
-      request->send(LittleFS, "/index.html", String(), false, processor);
-    }
-    //Toma datos del slider minute
-    if (request->hasParam("minute")) 
-    {
-      inputMessage = request->getParam("minute")->value();
-      MVal = inputMessage;
-      MINUTE_VAL = MVal.toInt();
-      request->send(LittleFS, "/index.html", String(), false, processor);
-    }
   });
-
-  //detecta cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
+  
+  //detectaa cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
   server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request){HEATING_STATE= !HEATING_STATE; request->send(LittleFS, "/index.html", String(), false, processor);}); 
 
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request){CHARGING_STATE= !CHARGING_STATE; request->send(LittleFS, "/index.html", String(), false, processor);});
@@ -109,23 +93,19 @@ void setup(){
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request){ request->send(LittleFS, "/config.html", String(), false, processor);});
 
 
-  server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+  server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request){
      request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
-  server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+  server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request){
      request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
-  server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+  server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request){
      request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
-  server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
+  server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request){ 
    request->send(LittleFS, "/index.html", String(), false, processor);
   });
   server.begin();
@@ -146,7 +126,6 @@ String processor(const String& var){
 if(var == "TVAL")return TVal;
 if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
-if(var == "MVAL")return MVal;
 
 //Devuelve un texto
 if(var == "BTNT"){

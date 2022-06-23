@@ -26,7 +26,7 @@
     <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
 
     <div id="auto">
-        <h5> temp start min: %TMIN% </h5>
+        <h5> Automatic temp start min: %TMIN% </h5>
         <h5> Automatic temp max: %TMAX% </h5>
     </div>
     <button class="Set" onclick=location.href="/SETEMP" >%STTA%</button>
@@ -70,13 +70,13 @@
             console.log(LVal);
             document.getElementById("LSV").innerHTML = LVal;
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/slider?lvl="+LVal, true);
+            xhr.open("GET", "/slider?nivel="+LVal, true);
             xhr.send();
         }
     </script>
 </div>
 </div>
-<div class="Timer">
+<div class="Column">
     <div class="bloqueset">
     <h3>Start by timer 1</h3>
     <h5>Hour: %H1% Water level: %L1% Water temp:%T1%</h5>     
@@ -89,8 +89,14 @@
     <h3>Start by timer 3</h3>
     <h5>Hour: %H3% Water level: %L3% Water temp:%T3%</h5>     
     </div> 
-    <button class="config" onclick=location.href="/TIMERSET" >Set timer </button>
-</body>
+    <div class="bloqueset">  
+    <button class="Pagechange" onclick=location.href="/TIMERSET" >Set timer </button>
+</div> 
 </div>
+</body>
+
 
 </html>
+
+
+

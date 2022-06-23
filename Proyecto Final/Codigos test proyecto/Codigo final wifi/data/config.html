@@ -9,11 +9,15 @@
 </head>
 
 <body>
-    <p class="titl">Hour:<span id="HSV">%HVAL%</span>:<span id="MSV">%MVAL%</span></p>
-    <p class="titl">Temperature: <span id="TSV">%TVAL%</span>°C</p>
-    <p class="titl">Water level: <span id="LSV">%LVALUE%</span>℅</p>
+    <h1>Set by hour at:</h1>
+    <h4 class="titl"><span id="HSV">%HVAL%</span>hs</h4>
+    <h4 class="titl"><span id="TSV">%TVAL%</span>°C⠀⠀⠀⠀<span id="LSV">%LVALUE%</span>℅</h4>
+
+  <div class="elbicho">
+    <div class="bloqueset">
     <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
-  <script>
+    </div>
+    <script>
     function updateSliderTEMP(element) {
         var TVal = document.getElementById("temp").value;
         console.log(TVal);
@@ -23,7 +27,9 @@
         xhr.send();
       }
     </script>
+    <div class="bloqueset">
     <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
+    </div>
     <script>
     function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
@@ -34,31 +40,27 @@
         xhr.send();
       }
     </script>
-    <input type="range" id="hour"  min="0" max="23" step="1" onchange="updateSliderHOUR(this)" class="slider" value="%HVAL%"  oninput="this.nextElementSibling.value = this.value">
-    <script>
-    function updateSliderHOUR(element) {
-        var HVal = document.getElementById("hour").value;
-        console.log(HVal);
-        document.getElementById("HSV").innerHTML = HVal;
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?hour="+HVal, true);
-        xhr.send();
+    </div>
+    <div class="Column">
+      <div class="bloqueset">
+      <form action="/get">
+      <input type="time" id="time" value="%HVAL%" step="900" onchange="updateHour(this)">
+      </form>
+      <script>
+        function updateHour(element) {
+          var HVal = document.getElementById("time").value;
+          console.log(HVal);
+          document.getElementById("HSV").innerHTML = HVal;
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "/get?hour="+HVal, true);
+          xhr.send();
       }
-    </script>
-    <input type="range" id="minute" min="0" max="45" step="15" onchange="updateSliderMINUTE(this)" class="slider" value="%MVAL%"  oninput="this.nextElementSibling.value = this.value">
-    <script>
-    function updateSliderMINUTE(element) {
-        var MVal = document.getElementById("minute").value;
-        console.log(MVal);
-        document.getElementById("MSV").innerHTML = MVal;
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?minute="+MVal, true);
-        xhr.send();
-      }
-    </script>
-    <p><button class="save1" onclick=location.href="/S1" >Save in slot 1</button></p> 
-    <p><button class="save2" onclick=location.href="/S2" >Save in slot 2</button></p> 
-    <p><button class="save3" onclick=location.href="/S3" >Save in slot 3</button></p> 
-    <p><button class="return" onclick=location.href="/RETURN" >RETURN TO MAIN PAGE</button></p> 
+      </script>
+      </div>
+      <div class="bloqueset"><p><button class="button" onclick=location.href="/S1" >Save in slot 1</button></p> </div>
+      <div class="bloqueset"><p><button class="button" onclick=location.href="/S2" >Save in slot 2</button></p> </div>
+      <div class="bloqueset"><p><button class="button" onclick=location.href="/S3" >Save in slot 3</button></p> </div>
+      <div class="bloqueset"><p><button class="Pagechange" onclick=location.href="/RETURN" >RETURN TO MAIN PAGE</button></p> </div>
+    </div>
 </body>
 </html>
