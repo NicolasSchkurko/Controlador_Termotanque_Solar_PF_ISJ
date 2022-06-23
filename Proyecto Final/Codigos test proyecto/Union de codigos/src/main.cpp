@@ -15,11 +15,16 @@ void tomar_temperatura ();
 //
 
 //nivel de agua
-typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
-niveles nivel;
-const int sensado_de_nivel = A0;
+const int nivel_del_tanque = A0;
+const int electrovalvula = 10;
+int nivel = 0;
 int mili_segundos = 0;
-void colectar_nivel_de_agua();
+
+typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
+niveles nivel_seteado;
+niveles nivel_actual;
+void sensar_nivel_de_agua();
+void sensar_nivel_actual();
 //
 
 //cosas del menu princial
@@ -33,12 +38,14 @@ void menu_avanzado();
 //
 
 //funciones para el RTC se cionecta directamente a los pines SCL Y SDA
-//void imresion_de_hora_del_dia();
-/*RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
-DateTime now = RTC.now(); */      // guarda la fecha y hora del RTC en la variable (es una maquina de estado que guarda año,mes,dia,hora,minutos,segundos en ese orden)
+void imprimir_de_hora_del_dia();
+RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
+DateTime now = RTC.now();    // guarda la fecha y hora del RTC en la variable (es una maquina de estado que guarda año,mes,dia,hora,minutos,segundos en ese orden)
 //
 
-LiquidCrystal_I2C lcd(0x27,20,4);
+//LiquidCrystal_I2C lcd(0x27,20,4);
+LiquidCrystal_I2C lcd(0x20,20,4);
+
 //Cosas necesarias para el menu
 bool borrar_display = false;
 const int pulsador6 = 0; //pulsador de retorno
@@ -59,7 +66,7 @@ estadoMEF2 Menu_secundario = menu_inicio;
 
 void setup() 
 {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   //Interrupcion ca 1 mili
   SREG = (SREG & 0b01111111);
   TIMSK2 = TIMSK2|0b00000001;
@@ -68,8 +75,8 @@ void setup()
   //
 
   //iniccializacion del RTC 
- /* RTC.begin();
-  RTC.adjust(DateTime(__DATE__, __TIME__)); //saca la data de la compu, despues comentar para subirlo bien*/
+  RTC.begin();
+  //RTC.adjust(DateTime(__DATE__, __TIME__)); //saca la data de la compu, despues comentar para subirlo bien
   //
 
   //Iniciacion del LCD//
@@ -79,7 +86,8 @@ void setup()
   //
 
   //pines para el sensor de nivel
-  pinMode(sensado_de_nivel, INPUT);
+  pinMode(nivel_del_tanque, INPUT);
+  pinMode(electrovalvula, OUTPUT);
   //
 
   //Sensr de temperatura
@@ -128,7 +136,7 @@ void loop()
     Menu_secundario = menu_inicio;
     lcd.clear();
   }
-  if(mili_segundos >= 10000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
+  if(mili_segundos >= 2000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
   {
     Menu_principal = estado_standby;
     Menu_secundario = momento_standby; 
@@ -214,6 +222,7 @@ void menu_avanzado()
   switch (Menu_secundario)
   {
     case momento_standby:
+      sensar_nivel_actual();
       standby();
       if(digitalRead(pulsador1) == LOW) Menu_secundario = menu_inicio;
       if(digitalRead(pulsador2) == LOW) Menu_secundario = menu_inicio;
@@ -276,52 +285,16 @@ void menu_avanzado()
   }
 }
 
-/*void imresion_de_hora_del_dia(){
-lcd.setCursor(0,0);
-lcd.print(now.hour()); // Horas
+/*void imprimir_de_hora_del_dia(){
+lcd.print("       ");
+lcd.print(now.hour(), DEC); // Horas
 lcd.print(':');
-lcd.print(now.minute(), DEC); // Minutos
+lcd.print(now.minute(),DEC); // Minutos
+Serial.print(now.hour()); // Horas
+Serial.print(':');
+Serial.print(now.minute()); // Minutos
+Serial.println();
 }*/
-
-void colectar_nivel_de_agua()
-{
-  if (analogRead(sensado_de_nivel) >= 100 && analogRead(sensado_de_nivel) < 256)    nivel = tanque_al_25;
-  if (analogRead(sensado_de_nivel) >= 256 && analogRead(sensado_de_nivel) < 512)    nivel = tanque_al_50;
-  if (analogRead(sensado_de_nivel) >=512  && analogRead(sensado_de_nivel) < 768)    nivel = tanque_al_75;
-  if (analogRead(sensado_de_nivel) >= 768 && analogRead(sensado_de_nivel) <= 1024)    nivel = tanque_al_100;
-  if (analogRead(sensado_de_nivel) < 100) nivel = tanque_vacio;  
-  
-  lcd.setCursor(0,3);
-  switch (nivel)
-  {
-    case tanque_vacio:
-      lcd.print("Tanque al: 0%");
-      break;
-    case tanque_al_25:
-      lcd.print("Tanque al: 25%");
-      break;  
-    case tanque_al_50:
-      lcd.print("Tanque al: 50%");
-      break;
-    case tanque_al_75:
-      lcd.print("Tanque al: 75%");
-      break;
-    case tanque_al_100:
-      lcd.print("Tanque al: 100%");
-      break;
-  }
-  /*if (mili_segundos >= 5500)
-    {
-      lcd.clear();
-      if (analogRead(sensado_de_nivel) >= 100 && analogRead(sensado_de_nivel) < 256)    nivel = tanque_al_25;
-      if (analogRead(sensado_de_nivel) >= 256 && analogRead(sensado_de_nivel) < 512)    nivel = tanque_al_50;
-      if (analogRead(sensado_de_nivel) >=512  && analogRead(sensado_de_nivel) < 768)    nivel = tanque_al_75;
-      if (analogRead(sensado_de_nivel) >= 768 && analogRead(sensado_de_nivel) <= 1024)    nivel = tanque_al_100;
-      if (analogRead(sensado_de_nivel) < 100) nivel = tanque_vacio;  
-      
-      mili_segundos = 0;
-    }*/
-}
 
 void tomar_temperatura ()
 {
@@ -335,13 +308,46 @@ void standby()
   lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print(" ");
   lcd.setCursor(18,1); lcd.print("  ");
   lcd.setCursor(1,2); 
-  lcd.print("Nivel:            ");
-  lcd.setCursor(1,3); 
-  lcd.print("       HH/MM        ");
+  lcd.print("Nivel: ");
+  switch (nivel_actual)
+  {
+    case tanque_vacio:
+      lcd.print("0% ");
+      break;
+    case tanque_al_25:
+      lcd.print("25%");
+      break;  
+    case tanque_al_50:
+      lcd.print("50%");
+      break;
+    case tanque_al_75:
+      lcd.print("75% ");
+      break;
+    case tanque_al_100:
+      lcd.print("100%");
+      break;
+  }
+  lcd.setCursor(0,3); 
+  lcd.print("       ");
+  lcd.print(now.hour(), DEC); // Horas
+  lcd.print(':');
+  lcd.print(now.minute(),DEC); // Minutos
+  Serial.print(now.hour()); // Horas
+  Serial.print(':');
+  Serial.print(now.minute()); // Minutos
+  Serial.println();
   lcd.setCursor(1,1);
   tomar_temperatura();
 }
 
 ISR(TIMER2_OVF_vect){
     mili_segundos++;
+}
+
+void sensar_nivel_actual(){
+    if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
+    if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
+    if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = tanque_al_50;
+    if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
+    if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;
 }

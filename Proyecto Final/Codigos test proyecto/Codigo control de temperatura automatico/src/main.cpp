@@ -2,8 +2,6 @@
 #include <LiquidCrystal_I2C.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-// este es un menu de vefiracion donde al confirmanr
-// se debe enviar la infomacion guardada para que se ponga la resistencia a calentar el agua
 
 void control_de_temp_auto(int temperatura_inicial,int temperatura_final);
 

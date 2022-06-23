@@ -23,9 +23,9 @@ lcd.setCursor(0,0);
 lcd.print("Tiempo: ");
 lcd.print(now.hour()); // Horas
 lcd.print(':');
-lcd.print(now.minute(), DEC); // Minutos
+lcd.print(now.minute()); // Minutos
 Serial.print(now.hour()); // Horas
 Serial.print(':');
-Serial.print(now.minute(), DEC); // Minutos
+Serial.print(now.minute()); // Minutos
 Serial.println();
 }
