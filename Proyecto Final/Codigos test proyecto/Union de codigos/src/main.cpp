@@ -1,8 +1,8 @@
 //optimizar
 #include <Arduino.h>
-#include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <LiquidCrystal_I2C.h>
 #include "RTClib.h"
 #include <DallasTemperature.h>
 #include <OneWire.h>
@@ -17,7 +17,7 @@ void tomar_temperatura ();
 //const int nivel_del_tanque = A0;
 //const int electrovalvula = 10;
 //int nivel = 0;
-//int mili_segundos = 0;
+int mili_segundos = 0;
 
 /*typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
 niveles nivel_seteado;
@@ -46,7 +46,7 @@ void imprimir_hora ();
 //
 
 //LiquidCrystal_I2C lcd(0x27,20,4);
-LiquidCrystal_I2C lcd(0x20,20,4);
+*/LiquidCrystal_I2C lcd(0x20,20,4);/*
 
 //Cosas necesarias para el menu
 bool borrar_display = false;
@@ -80,8 +80,8 @@ void setup()
   RTC.begin();
 
   //Iniciacion del LCD//
-  //lcd.init();
-  //lcd.backlight();
+  lcd.init();
+  lcd.backlight();
   RTC.adjust(DateTime (F(__DATE__), F(__TIME__))); //saca la data de la compu, despues comentar para subirlo bien
   //
   Serial.begin(9600);
@@ -351,11 +351,11 @@ void tomar_temperatura ()
   mostrar_hora = true;
   lcd.setCursor(1,1);
   //tomar_temperatura();
-}
+}*/
 ISR(TIMER2_OVF_vect){
     mili_segundos++;
 }
-
+/*
 void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
     if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;

@@ -4,6 +4,8 @@
 #include <LiquidCrystal_I2C.h>
 #include "RTClib.h"
 #include <DallasTemperature.h>
+#include <OneWire.h>
+
 LiquidCrystal_I2C lcd(0x20,20,4);
 //LiquidCrystal_I2C lcd(0x27,20,4);
 RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
@@ -28,14 +30,19 @@ void setup () {
 
 void loop(){
   //DateTime now =  RTC.now();
-  char buf1[20];
   DateTime now = RTC.now(); 
+  char buf1[20];
   sprintf(buf1, "%02d:%02d:%02d %02d/%02d/%02d",  now.hour(), now.minute(), now.second(), now.day(), now.month(), now.year()); 
   
-  Serial.print(F("Date/Time: "));
-  Serial.println(buf1);
   //mostrar_hora = true;
   //imprimir(now);       // guarda la fecha y hora del RTC en la variable (es una maquina de estado que guarda año,mes,dia,hora,minutos,segundos en ese orden)
+  lcd.setCursor(1,3); 
+  lcd.print("Hora: ");
+  lcd.print(now.hour()); // Horas
+  lcd.print(':');
+  lcd.print(now.minute()); // Minutos
+  Serial.print(F("Date/Time: "));
+  Serial.println(buf1);
 }
 
 void imprimir (DateTime date){
