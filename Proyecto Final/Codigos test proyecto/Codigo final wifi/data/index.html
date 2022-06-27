@@ -13,7 +13,7 @@
     <div class="temperature">
     <h1>Temperatura</h1>
 
-    <div class="barraTemp" style="transform: rotate(10deg);">
+    <div class="barraTemp" id="barratemp">
          <div class="cont" style="background-color: rgb(51, 14, 51);"></div>
          <div class="cont" style="background-color: rgb(255, 208, 0);"></div>   
 
@@ -22,7 +22,7 @@
     <div class="rectangulo"></div>
     <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="TSV">%TVAL%</h1>
 
-    <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+    <input type="range" id="temp"  min="30"  class="slider" max="90" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
 
     <div id="auto">
@@ -32,9 +32,15 @@
     <button class="Set" onclick=location.href="/SETEMP" >%STTA%</button>
     
     <script>
+        var TVal = document.getElementById("temp").value;
+        var degrees = (TVal)*1.8;
+        document.getElementById("barratemp").style.transform = String("rotate("+degrees+"deg)");
+        document.getElementById("TSV").innerHTML = TVal;
         function updateSliderTEMP(element)
         {
             var TVal = document.getElementById("temp").value;
+            var degrees = (TVal)*1.8;
+            document.getElementById("barratemp").style.transform = String("rotate("+degrees+"deg)");
             console.log(TVal);
             document.getElementById("TSV").innerHTML = TVal;
             var xhr = new XMLHttpRequest();
@@ -45,7 +51,7 @@
     </div>
     <div class="Waterlevel">
     <h1>Waterlevel</h1>
-    <div class="barraTemp" style="transform: rotate(10deg);">
+    <div class="barraTemp" id="barralvl">
         <div class="cont" style="background-color: rgb(51, 14, 51);"></div>
         <div class="cont" style="background-color: rgb(255, 208, 0);"></div>   
 
@@ -54,7 +60,7 @@
     <div class="rectangulo"></div>
     <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;"id="LSV">%LVAL%</h1>
 
-    <input type="range" id="lvl" min="40" max="100" step="10" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
+    <input type="range" id="lvl" min="40" max="100" step="5" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
     <button class="button" onclick=location.href="/STALVL">%BTNL%</button>
 
     <div id="auto">
@@ -64,15 +70,21 @@
     <button class="Set" onclick=location.href="/SETLVL">%STLA%</button> 
 
     <script>
+        var LVal = document.getElementById("lvl").value;
+        var degrees = (LVal)*1.8;
+        document.getElementById("LSV").innerHTML = LVal;
+        document.getElementById("barralvl").style.transform = String("rotate("+degrees+"deg)");
         function updateSliderLVL(element) 
-        {
-            var LVal = document.getElementById("lvl").value;
-            console.log(LVal);
-            document.getElementById("LSV").innerHTML = LVal;
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/slider?nivel="+LVal, true);
-            xhr.send();
-        }
+            {
+                var LVal = document.getElementById("lvl").value;
+                var degrees = (LVal)*1.8;
+                document.getElementById("barralvl").style.transform = String("rotate("+degrees+"deg)");
+                console.log(LVal);
+                document.getElementById("LSV").innerHTML = LVal;
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/slider?nivel="+LVal, true);
+                xhr.send();
+            }
     </script>
 </div>
 </div>

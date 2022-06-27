@@ -115,7 +115,6 @@ void setup(){
 
 void loop() 
 {
-  
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -124,6 +123,8 @@ String processor(const String& var){
 
 //Devuelve numeros
 if(var == "TVAL")return TVal;
+
+
 if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
 
