@@ -95,7 +95,6 @@ void loop()
 }
 
 void limpiar_pantalla_y_escribir (){
-  
   lcd.clear();
   if (confirmar == true)
   {
