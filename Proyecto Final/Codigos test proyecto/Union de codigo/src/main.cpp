@@ -6,47 +6,43 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 #include "RTClib.h"
-/*
+
 //sensr de temperatura
 #define onewire 7
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t); 
 void tomar_temperatura ();
-//*/
-//nivel de agua
-//const int nivel_del_tanque = A0;
-//const int electrovalvula = 10;
-//int nivel = 0;
-int mili_segundos = 0;
+//
 
-/*typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
+//nivel de agua
+const int nivel_del_tanque = A0;
+const int electrovalvula = 10;
+int nivel = 0;
+int mili_segundos = 0;
+typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
 niveles nivel_seteado;
 niveles nivel_actual;
 void sensar_nivel_de_agua();
-void sensar_nivel_actual();*/
+void sensar_nivel_actual();
 //
 
 //cosas del menu princial
-//void menu_basico();
-//void standby();
-//void imprimir_en_pantalla();
+void menu_basico();
+void standby();
+void imprimir_en_pantalla();
 //
 
-//
-//void menu_avanzado();
+//cosas del mennu avanzado
+void menu_avanzado();
 //
 
 //funciones para el RTC se cionecta directamente a los pines SCL Y SDA
 RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
-
-/*
-//void igualar_hora();
+DateTime now; 
 void imprimir_hora ();
-
 //
 
-//LiquidCrystal_I2C lcd(0x27,20,4);
-*/LiquidCrystal_I2C lcd(0x20,20,4);/*
+
 
 //Cosas necesarias para el menu
 bool borrar_display = false;
@@ -58,17 +54,18 @@ const int pulsador3 = 4;
 const int pulsador4 = 5;
 const int pulsador7 = 6;
 bool flag_menu_avanzado = false;
-
 typedef enum{estado_standby,estado_inicial,calefaccion_manual,calefaccion_auto_senstemp,carga_auto_hora,carga_agua_por_nivel,llenado_agua_manual} estadoMEF;  
 estadoMEF Menu_principal = estado_inicial;
-
 typedef enum{menu_inicio,set_wifi,activar_bomba,cambio_unidad,set_hora,momento_standby} estadoMEF2;
 estadoMEF2 Menu_secundario = menu_inicio;
+
+LiquidCrystal_I2C lcd(0x27,20,4);
+//LiquidCrystal_I2C lcd(0x20,20,4);
 //
-*/
+
 void setup() 
 {
-  //Interrupcion ca 1 mili
+  //Interrupcion cada 1 mili
   SREG = (SREG & 0b01111111);
   TIMSK2 = TIMSK2|0b00000001;
   TCCR2B = 0b00000011;
@@ -78,14 +75,15 @@ void setup()
   
   //iniccializacion del RTC 
   RTC.begin();
-  RTC.adjust(DateTime (F(__DATE__), F(__TIME__))); //saca la data de la compu, despues comentar para subirlo bien
+  //RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  //la compu, despues comentar para subirlo bien
 
   //Iniciacion del LCD//
   lcd.init();
   lcd.backlight();
   //
   Serial.begin(9600);
-/*
+
   //pines para el sensor de nivel
   pinMode(nivel_del_tanque, INPUT);
   pinMode(electrovalvula, OUTPUT);
@@ -104,25 +102,13 @@ void setup()
   pinMode(pulsador6, INPUT_PULLUP);
   pinMode(pulsador7, INPUT_PULLUP);
   //
-*/
+
 }
 
 void loop() 
 {
-  DateTime now = RTC.now(); 
-  char buf1[20];
-  //Updated now.day to now.date
-  //ponerlo en una variable para imprimir aparte en un lcd
-  sprintf(buf1, "%02d:%02d:%02d %02d/%02d/%02d",  now.hour(), now.minute(), now.second(), now.day(), now.month(), now.year()); 
-  lcd.setCursor(1,3); 
-  lcd.print("Hora: ");
-  lcd.print(now.hour(), DEC); // Horas
-  lcd.print(':');
-  lcd.print(now.minute(),DEC); // Minutos
-  Serial.print(F("Date/T: "));
-  Serial.println(buf1);
-  }
-/*
+  now = RTC.now();
+
   if(flag_menu_avanzado == true)
   {
     menu_avanzado();
@@ -231,6 +217,7 @@ void menu_basico()
       break;
   }
 }
+
 void menu_avanzado()
 {
   switch (Menu_secundario)
@@ -297,39 +284,17 @@ void menu_avanzado()
     break;
   }
 }
-*/
-/*void imprimir_hora (){
-  if (mostrar_hora == true)
-  {
-    lcd.setCursor(1,3); 
-    sprintf(hora, "%02d:%02d:%02d %02d/%02d/%02d",  now.hour(), now.minute(), now.second(), now.day(), now.month(), now.year()); 
-    lcd.print(F("Date/Time: "));
-    Serial.print(F("Date/Time: "));
-    Serial.println(hora);
-    lcd.print("Hora: ");
-    lcd.print(now.hour()); // Horas
-    lcd.print(':');
-    lcd.print(date.minute()); // Minutos
-    Serial.print(date.hour(), DEC);
-    Serial.print(':');
-    Serial.print(date.minute(), DEC);
-    Serial.print(':');
-    Serial.print(date.second(), DEC);
-    Serial.println();
-  }
-  
-}*/
-/*
+
 void tomar_temperatura ()
 {
   lcd.print("Temperatura:");
   Sensor_temp.requestTemperatures();
   lcd.print(Sensor_temp.getTempCByIndex(0));
 }
-*/
-/*void standby()
+
+void standby()
 {
-  lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print(" ");
+  lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print("        ");
   lcd.setCursor(18,1); lcd.print("  ");
   lcd.setCursor(1,2); 
   lcd.print("Nivel: ");
@@ -352,16 +317,22 @@ void tomar_temperatura ()
       lcd.print("100%");
       break;
   }
-  //DateTime date = RTC.now();
-  lcd.setCursor(0,3); 
-  mostrar_hora = true;
+  imprimir_hora();
   lcd.setCursor(1,1);
-  //tomar_temperatura();
-}*/
+  tomar_temperatura();
+}
+
+void imprimir_hora (){
+  lcd.setCursor(8,3); 
+  lcd.print(now.hour(), DEC);
+  lcd.print(':');
+  lcd.print(now.minute(), DEC);
+}
+
 ISR(TIMER2_OVF_vect){
     mili_segundos++;
 }
-/*
+
 void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
     if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
@@ -369,5 +340,3 @@ void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;
 }
-
-*/
