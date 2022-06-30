@@ -75,7 +75,7 @@ void loop()
     confirmar = false;
     lcd.clear();
   }
-  if (temperatura_final > maxima_temp_fin) temperatura_final = maxima_temp_fin;
+  if(temperatura_final > maxima_temp_fin) temperatura_final = maxima_temp_fin;
 
   if(digitalRead(pulsador5) == LOW)
   {

@@ -15,12 +15,17 @@ void tomar_temperatura ();
 void limpiar_pantalla_y_escribir ();
 void control_de_temp_auto(int temperatura_inicial,int temperatura_final);
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
+void menu_de_calefaccion_manual();
 int temperatura_inicial = 40;
 int temperatura_final = 40;
 int min_temp_ini = 40;
 int maxima_temp_fin = 80;
 int sumador = 5;
+int milis_para_temperatura = 0;
+int umbral_de_temperatura = 5;
+int tiempo_para_temperatura = 3000;
 bool confirmar = false;
+bool encendido_de_temp_auto = false;
 //
 
 //nivel de agua
@@ -40,6 +45,7 @@ int mili_segundos = 0;
 void menu_basico();
 void standby();
 void imprimir_en_pantalla();
+int tiempo_de_standby = 10000;
 //
 
 //cosas del mennu avanzado
@@ -119,7 +125,12 @@ void setup()
 void loop() 
 {
   now = RTC.now();
-
+  if (milis_para_temperatura == tiempo_para_temperatura)
+  {
+    control_de_temp_auto(temperatura_inicial,temperatura_final);
+    milis_para_temperatura = 0;
+  }
+  
   if(flag_menu_avanzado == true)
   {
     menu_avanzado();
@@ -148,7 +159,7 @@ void loop()
     Menu_secundario = menu_inicio;
     lcd.clear();
   }
-  if(mili_segundos >= 10000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
+  if(mili_segundos >= tiempo_de_standby && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
   {
     Menu_principal = estado_standby;
     Menu_secundario = momento_standby; 
@@ -207,65 +218,36 @@ void menu_basico()
       }
       break;
     case calefaccion_manual:
-      lcd.setCursor(0,0); lcd.print("Calefaccion man");
-      control_de_temp_auto(temperatura_inicial,temperatura_final);
+      menu_de_calefaccion_manual();
+      break;
     case calefaccion_auto_senstemp:
-      if(digitalRead(pulsador1) == LOW)
+      lcd.setCursor(3,2); lcd.print("        "); lcd.setCursor(3,3);lcd.print("     ");
+      lcd.setCursor(0,0); lcd.print("Encender calefaccion");    lcd.setCursor(5,1); lcd.print("automatica"); lcd.setCursor(0,2); lcd.print("-Si"); lcd.setCursor(0,3); lcd.print("-No");
+      if(digitalRead(pulsador1) == LOW)//con las variables y el while le doy un delay para que se vea la confirmacion
       {
-        while(digitalRead(pulsador1) == LOW){}
-        temperatura_inicial += sumador;
-        mili_segundos = 0;
-        confirmar = false;
+        while (digitalRead(pulsador1) == LOW){}//con las variables y el while le doy un delay para que se vea la confirmacion
+        int espera = 900;
+        unsigned long tiempo_ahora = 0;
+        tiempo_ahora = millis();
+        lcd.clear(); lcd.setCursor(8,1); lcd.print("DONE");
+        while (millis()< tiempo_ahora + espera){}
+        mili_segundos=0;
         lcd.clear();
+        encendido_de_temp_auto = true;
+        Menu_principal = estado_inicial;
       }
-      if (temperatura_inicial > maxima_temp_fin) temperatura_inicial = maxima_temp_fin;
-
-      if(digitalRead(pulsador2) == LOW)
+      if(digitalRead(pulsador2) == LOW)//con las variables y el while le doy un delay para que se vea la confirmacion
       {
-        while(digitalRead(pulsador2) == LOW){}
-        temperatura_inicial -= sumador;
-        mili_segundos = 0;
-        confirmar = false;
+        while (digitalRead(pulsador2) == LOW){}
+        int espera = 900;
+        unsigned long tiempo_ahora = 0;
+        tiempo_ahora = millis();
+        lcd.clear(); lcd.setCursor(8,1); lcd.print("DONE");
+        while (millis()< tiempo_ahora + espera){}
+        mili_segundos=0;
         lcd.clear();
-      }
-      if (temperatura_inicial < min_temp_ini) temperatura_inicial = min_temp_ini;
-
-      if(digitalRead(pulsador3) == LOW)
-      {
-        while(digitalRead(pulsador3) == LOW){}
-        temperatura_final += sumador;
-        mili_segundos = 0;
-        confirmar = false;
-        lcd.clear();
-      }
-      if (temperatura_final < temperatura_inicial) temperatura_final = temperatura_inicial;
-
-      if(digitalRead(pulsador4) == LOW)
-      {
-        while(digitalRead(pulsador4) == LOW){}
-        temperatura_final -= sumador;
-        mili_segundos = 0;
-        confirmar = false;
-        lcd.clear();
-      }
-      if (temperatura_final > maxima_temp_fin) temperatura_final = maxima_temp_fin;
-
-      if(digitalRead(pulsador5) == LOW)
-      {
-        while(digitalRead(pulsador5) == LOW){}
-        confirmar = true;
-        mili_segundos = 0;
-        limpiar_pantalla_y_escribir ();
-      }
-        if(confirmar == false)
-      {
-        lcd.setCursor(0,0);
-        lcd.print("Minima guardada:");
-        lcd.print(temperatura_inicial);
-        lcd.setCursor(0,1);
-        lcd.print("Maxima guardada:");
-        lcd.print(temperatura_final);
-        control_de_temp_auto(temperatura_inicial,temperatura_final);
+        encendido_de_temp_auto = false;
+        Menu_principal = estado_inicial;
       }
       break;
     case carga_auto_hora:
@@ -387,7 +369,7 @@ void standby()
   tomar_temperatura();
 }
 
-void imprimir_hora (){
+void imprimir_hora (){//ver que pasa
   lcd.setCursor(8,3); 
   lcd.print(now.hour(), DEC);
   lcd.print(':');
@@ -396,6 +378,7 @@ void imprimir_hora (){
 
 ISR(TIMER2_OVF_vect){
     mili_segundos++;
+    if(encendido_de_temp_auto == true) milis_para_temperatura++;
 }
 
 void sensar_nivel_actual(){
@@ -407,7 +390,7 @@ void sensar_nivel_actual(){
 }
 
 void control_de_temp_auto(int temp_a_alcanzar,int temp_minima){
-  int umbral_de_temperatura = 5;
+  
   int temperatura_actual = 0;
   if( temperatura_actual < temp_a_alcanzar + umbral_de_temperatura)
   {
@@ -419,18 +402,83 @@ void control_de_temp_auto(int temp_a_alcanzar,int temp_minima){
 
 }
 
+void menu_de_calefaccion_manual(){
+  if(confirmar == false)//con las variables y el while le doy un delay para que se vea la confirmacion
+  {
+    lcd.setCursor(0,0);
+    lcd.print("Temperatua minima:");
+    lcd.print(temperatura_inicial);
+    lcd.setCursor(0,1);
+    lcd.print("Temperatua maxima:");
+    lcd.print(temperatura_final);
+    control_de_temp_auto(temperatura_inicial,temperatura_final);
+  }
+  if(digitalRead(pulsador1) == LOW)
+  {
+    while(digitalRead(pulsador1) == LOW){}
+    temperatura_inicial += sumador;
+    mili_segundos = 0;
+    confirmar = false;
+    lcd.clear();
+  }
+  if (temperatura_inicial > maxima_temp_fin) temperatura_inicial = maxima_temp_fin;
+
+  if(digitalRead(pulsador2) == LOW)
+  {
+    while(digitalRead(pulsador2) == LOW){}
+    temperatura_inicial -= sumador;
+    mili_segundos = 0;
+    confirmar = false;
+    lcd.clear();
+  }
+  if (temperatura_inicial < min_temp_ini) temperatura_inicial = min_temp_ini;
+
+  if(digitalRead(pulsador3) == LOW)
+  {
+    while(digitalRead(pulsador3) == LOW){}
+    temperatura_final += sumador;
+    mili_segundos = 0;
+    confirmar = false;
+    lcd.clear();
+  }
+  if (temperatura_final < temperatura_inicial) temperatura_final = temperatura_inicial;
+
+  if(digitalRead(pulsador4) == LOW)
+  {
+    while(digitalRead(pulsador4) == LOW){}
+    temperatura_final -= sumador;
+    mili_segundos = 0;
+    confirmar = false;
+    lcd.clear();
+  }
+  if (temperatura_final > maxima_temp_fin) temperatura_final = maxima_temp_fin;
+
+  if(digitalRead(pulsador5) == LOW)
+  {
+    while(digitalRead(pulsador5) == LOW){}
+    confirmar = true;
+    mili_segundos = 0;
+    limpiar_pantalla_y_escribir ();
+    }
+}
+
 void limpiar_pantalla_y_escribir (){
   lcd.clear();
   if (confirmar == true)
   {
     lcd.clear();
-    lcd.print("Temp minima: ");
-    lcd.setCursor(12,0);
+    lcd.print("Minima guardada:");
     lcd.print(temperatura_inicial);
     lcd.setCursor(0,1);
-    lcd.print("Temp maxima: ");
-    lcd.setCursor(12,1);
+    lcd.print("Maxima guardada:");
     lcd.print(temperatura_final);
+    confirmar = false;
+    int espera = 1500;
+    unsigned long tiempo_ahora = 0;
+    tiempo_ahora = millis();
+    while (millis()< tiempo_ahora + espera){}
+    lcd.clear();
+    Menu_principal = estado_inicial;
   }
 }
 
