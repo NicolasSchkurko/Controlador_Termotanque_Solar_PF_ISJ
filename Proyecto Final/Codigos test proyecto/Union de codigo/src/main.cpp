@@ -341,8 +341,10 @@ void tomar_temperatura ()
 
 void standby()
 {
-  lcd.setCursor(0,0); lcd.print("                    "); lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(0,3); lcd.print("        ");
-  lcd.setCursor(18,1); lcd.print("  ");
+  lcd.setCursor(0,0); lcd.print("                    "); 
+  lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(18,1); lcd.print("  ");
+  lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(11,2); lcd.print("      "); 
+  lcd.setCursor(0,3); lcd.print("        "); lcd.setCursor(12,3); lcd.print("        ");
   lcd.setCursor(1,2); 
   lcd.print("Nivel: ");
   sensar_nivel_actual();
@@ -412,6 +414,10 @@ void menu_de_calefaccion_manual(){
     lcd.print("Temperatua maxima:");
     lcd.print(temperatura_final);
     control_de_temp_auto(temperatura_inicial,temperatura_final);
+    lcd.setCursor(0,2);
+    lcd.print("Sumar 5 con: 1 y 3");
+    lcd.setCursor(0,3);
+    lcd.print("Restar 5 con: 2 y 4");
   }
   if(digitalRead(pulsador1) == LOW)
   {
