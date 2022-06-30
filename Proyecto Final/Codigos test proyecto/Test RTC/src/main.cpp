@@ -38,10 +38,10 @@ void setup() {
   // Inicializar las variables con el tiempo a cargar en el modulo RTC
   // ¡¡¡ COLOCA AQUI LA FECHA Y HORA QUE QUIERAS GRABAR EN EL RTC !!!
   second = 00;
-  minute = 05;
-  hour = 12;
-  wday = 4;
-  day = 29;
+  minute = 14;
+  hour = 15;
+  wday = 5;
+  day = 30;
   month = 6;
   year = 22;
 }

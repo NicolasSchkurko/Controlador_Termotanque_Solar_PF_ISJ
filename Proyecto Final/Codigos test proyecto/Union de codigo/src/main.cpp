@@ -124,6 +124,12 @@ void setup()
 
 void loop() 
 {
+  Serial.print(now.hour(), DEC);
+  Serial.print(':');
+  Serial.print(now.minute() , DEC);
+  Serial.print(':');
+  Serial.print(now.second(), DEC);
+  Serial.println();
   now = RTC.now();
   if (milis_para_temperatura == tiempo_para_temperatura)
   {
@@ -343,15 +349,15 @@ void standby()
 {
   lcd.setCursor(0,0); lcd.print("                    "); 
   lcd.setCursor(0,1); lcd.print(" "); lcd.setCursor(18,1); lcd.print("  ");
-  lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(11,2); lcd.print("      "); 
-  lcd.setCursor(0,3); lcd.print("        "); lcd.setCursor(12,3); lcd.print("        ");
+  lcd.setCursor(0,2); lcd.print(" "); lcd.setCursor(12,2); lcd.print("      "); 
+  lcd.setCursor(0,3); lcd.print("        "); lcd.setCursor(13,3); lcd.print("        ");
   lcd.setCursor(1,2); 
   lcd.print("Nivel: ");
   sensar_nivel_actual();
   switch (nivel_actual)
   {
     case tanque_vacio:
-      lcd.print("0% ");
+      lcd.print("0%  ");
       break;
     case tanque_al_25:
       lcd.print("25%");
@@ -376,6 +382,7 @@ void imprimir_hora (){//ver que pasa
   lcd.print(now.hour(), DEC);
   lcd.print(':');
   lcd.print(now.minute(), DEC);
+  lcd.print(" ");
 }
 
 ISR(TIMER2_OVF_vect){
