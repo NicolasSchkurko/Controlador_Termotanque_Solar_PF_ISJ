@@ -8,30 +8,31 @@
 #include "RTClib.h"
 
 //sensr de temperatura
-#define onewire 7
+#define onewire 9
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t); 
 void tomar_temperatura ();
 void limpiar_pantalla_y_escribir ();
-void control_de_temp_auto(int temperatura_inicial,int temperatura_final);
+void control_de_temp_auto();
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
 void menu_de_calefaccion_manual();
 int temperatura_inicial = 40;
 int temperatura_final = 40;
 int min_temp_ini = 40;
 int maxima_temp_fin = 80;
-int sumador = 5;
 int milis_para_temperatura = 0;
 int umbral_de_temperatura = 5;
-int tiempo_para_temperatura = 3000;
+int sumador_temperatura = 5;
+int tiempo_para_temperatura = 5000;
 bool confirmar = false;
-bool encendido_de_temp_auto = false;
+bool confirmar_nivel = false;
+bool encendido_de_temp_auto = true;
 //
 
 //nivel de agua
 const int nivel_del_tanque = A0;
 const int electrovalvula = 10;
-const int resistencia = 8;
+const int resistencia = 11;
 typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
 niveles nivel_seteado;
 niveles nivel_actual;
@@ -39,12 +40,15 @@ void sensar_nivel_de_agua();
 void sensar_nivel_actual();
 int nivel = 0;
 int mili_segundos = 0;
+int sumador_nivel = 25;
 //
 
 //cosas del menu princial
 void menu_basico();
 void standby();
 void imprimir_en_pantalla();
+void carga_por_nivel();
+void limpiar_pantalla_y_escribir_nivel();
 int tiempo_de_standby = 10000;
 //
 
@@ -53,8 +57,8 @@ void menu_avanzado();
 //
 
 //funciones para el RTC se cionecta directamente a los pines SCL Y SDA
-RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
-DateTime now; 
+/*RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
+DateTime now; */
 void imprimir_hora ();
 //
 
@@ -62,13 +66,13 @@ void imprimir_hora ();
 
 //Cosas necesarias para el menu
 bool borrar_display = false;
-const int pulsador6 = 0; //pulsador de retorno
-const int pulsador5 = 1;
 const int pulsador1 = 2;
 const int pulsador2 = 3;
 const int pulsador3 = 4;
 const int pulsador4 = 5;
-const int pulsador7 = 6;
+const int pulsador5 = 6;
+const int pulsador6 = 7; //pulsador de retorno
+const int pulsador7 = 8;
 bool flag_menu_avanzado = false;
 typedef enum{estado_standby,estado_inicial,calefaccion_manual,calefaccion_auto_senstemp,carga_auto_hora,carga_agua_por_nivel,llenado_agua_manual} estadoMEF;  
 estadoMEF Menu_principal = estado_inicial;
@@ -90,7 +94,7 @@ void setup()
   Wire.begin();
   
   //iniccializacion del RTC 
-  RTC.begin();
+  //RTC.begin();
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //la compu, despues comentar para subirlo bien
 
@@ -124,16 +128,10 @@ void setup()
 
 void loop() 
 {
-  Serial.print(now.hour(), DEC);
-  Serial.print(':');
-  Serial.print(now.minute() , DEC);
-  Serial.print(':');
-  Serial.print(now.second(), DEC);
-  Serial.println();
-  now = RTC.now();
+  //now = RTC.now();
   if (milis_para_temperatura == tiempo_para_temperatura)
   {
-    control_de_temp_auto(temperatura_inicial,temperatura_final);
+    control_de_temp_auto();
     milis_para_temperatura = 0;
   }
   
@@ -227,7 +225,7 @@ void menu_basico()
       menu_de_calefaccion_manual();
       break;
     case calefaccion_auto_senstemp:
-      lcd.setCursor(3,2); lcd.print("        "); lcd.setCursor(3,3);lcd.print("     ");
+      lcd.setCursor(3,2); lcd.print("        "); lcd.setCursor(3,3);lcd.print("     "); lcd.setCursor(16,1); lcd.print("     ");
       lcd.setCursor(0,0); lcd.print("Encender calefaccion");    lcd.setCursor(5,1); lcd.print("automatica"); lcd.setCursor(0,2); lcd.print("-Si"); lcd.setCursor(0,3); lcd.print("-No");
       if(digitalRead(pulsador1) == LOW)//con las variables y el while le doy un delay para que se vea la confirmacion
       {
@@ -258,11 +256,10 @@ void menu_basico()
       break;
     case carga_auto_hora:
       lcd.setCursor(0,0); lcd.print("Carga auto hora");
-      // calentamiento_por_hora();
+      //Todavia no
       break;
     case carga_agua_por_nivel:
-      lcd.setCursor(0,0); lcd.print("Carga por nivel");
-      // calienta_por_sensor();
+      carga_por_nivel();
       break;
     case llenado_agua_manual:
       lcd.setCursor(0,0); lcd.print("Llenado manual");
@@ -338,12 +335,6 @@ void menu_avanzado()
   }
 }
 
-void tomar_temperatura ()
-{
-  lcd.print("Temperatura:");
-  Sensor_temp.requestTemperatures();
-  lcd.print(Sensor_temp.getTempCByIndex(0));
-}
 
 void standby()
 {
@@ -372,11 +363,19 @@ void standby()
       lcd.print("100%");
       break;
   }
-  imprimir_hora();
+  //imprimir_hora();
   lcd.setCursor(1,1);
   tomar_temperatura();
+  control_de_temp_auto();
 }
 
+void tomar_temperatura ()
+{
+  lcd.print("Temperatura:");
+  Sensor_temp.requestTemperatures();
+  lcd.print(Sensor_temp.getTempCByIndex(0));
+}
+/*
 void imprimir_hora (){//ver que pasa
   lcd.setCursor(8,3); 
   lcd.print(now.hour(), DEC);
@@ -384,6 +383,7 @@ void imprimir_hora (){//ver que pasa
   lcd.print(now.minute(), DEC);
   lcd.print(" ");
 }
+*/
 
 ISR(TIMER2_OVF_vect){
     mili_segundos++;
@@ -398,21 +398,16 @@ void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;
 }
 
-void control_de_temp_auto(int temp_a_alcanzar,int temp_minima){
-  
+void control_de_temp_auto(){
   int temperatura_actual = 0;
-  if( temperatura_actual < temp_a_alcanzar + umbral_de_temperatura)
-  {
-    Sensor_temp.requestTemperatures();
-    temperatura_actual = Sensor_temp.getTempCByIndex(0);
-    digitalWrite(resistencia, HIGH);
-  }
-  if(temperatura_actual >= temp_a_alcanzar + umbral_de_temperatura)digitalWrite(resistencia, LOW);
-
+  Sensor_temp.requestTemperatures();
+  temperatura_actual = Sensor_temp.getTempCByIndex(0);
+  if(temperatura_actual < temperatura_inicial) digitalWrite(resistencia, HIGH);
+  if(temperatura_actual >= temperatura_final + umbral_de_temperatura) digitalWrite(resistencia, LOW);
 }
 
 void menu_de_calefaccion_manual(){
-  if(confirmar == false)//con las variables y el while le doy un delay para que se vea la confirmacion
+  if(confirmar == false)
   {
     lcd.setCursor(0,0);
     lcd.print("Temperatua minima:");
@@ -420,7 +415,7 @@ void menu_de_calefaccion_manual(){
     lcd.setCursor(0,1);
     lcd.print("Temperatua maxima:");
     lcd.print(temperatura_final);
-    control_de_temp_auto(temperatura_inicial,temperatura_final);
+    
     lcd.setCursor(0,2);
     lcd.print("Sumar 5 con: 1 y 3");
     lcd.setCursor(0,3);
@@ -429,7 +424,7 @@ void menu_de_calefaccion_manual(){
   if(digitalRead(pulsador1) == LOW)
   {
     while(digitalRead(pulsador1) == LOW){}
-    temperatura_inicial += sumador;
+    temperatura_inicial += sumador_temperatura;
     mili_segundos = 0;
     confirmar = false;
     lcd.clear();
@@ -439,7 +434,7 @@ void menu_de_calefaccion_manual(){
   if(digitalRead(pulsador2) == LOW)
   {
     while(digitalRead(pulsador2) == LOW){}
-    temperatura_inicial -= sumador;
+    temperatura_inicial -= sumador_temperatura;
     mili_segundos = 0;
     confirmar = false;
     lcd.clear();
@@ -449,7 +444,7 @@ void menu_de_calefaccion_manual(){
   if(digitalRead(pulsador3) == LOW)
   {
     while(digitalRead(pulsador3) == LOW){}
-    temperatura_final += sumador;
+    temperatura_final += sumador_temperatura;
     mili_segundos = 0;
     confirmar = false;
     lcd.clear();
@@ -459,7 +454,7 @@ void menu_de_calefaccion_manual(){
   if(digitalRead(pulsador4) == LOW)
   {
     while(digitalRead(pulsador4) == LOW){}
-    temperatura_final -= sumador;
+    temperatura_final -= sumador_temperatura;
     mili_segundos = 0;
     confirmar = false;
     lcd.clear();
@@ -477,7 +472,7 @@ void menu_de_calefaccion_manual(){
 
 void limpiar_pantalla_y_escribir (){
   lcd.clear();
-  if (confirmar == true)
+  if (confirmar == true)//con las variables y el while le doy un delay para que se vea la confirmacion
   {
     lcd.clear();
     lcd.print("Minima guardada:");
@@ -492,8 +487,107 @@ void limpiar_pantalla_y_escribir (){
     while (millis()< tiempo_ahora + espera){}
     lcd.clear();
     Menu_principal = estado_inicial;
+    control_de_temp_auto();
   }
 }
+
+void carga_por_nivel()
+{
+  if(digitalRead(pulsador1) == LOW)
+  {
+    while(digitalRead(pulsador1) == LOW){}
+    nivel += sumador_nivel;
+    confirmar_nivel = false;
+    mili_segundos = 0;
+    lcd.clear();
+  }
+
+  if(digitalRead(pulsador2) == LOW)
+  {
+    while(digitalRead(pulsador2) == LOW){}
+    nivel -= sumador_nivel;
+    confirmar_nivel = false;
+    mili_segundos = 0;
+    lcd.clear();
+  }
+
+  if(digitalRead(pulsador5) == LOW)
+  {
+    while(digitalRead(pulsador5) == LOW){}
+    confirmar_nivel = true;
+    mili_segundos = 0;
+    limpiar_pantalla_y_escribir_nivel ();
+  }
+
+  if(nivel < 0) nivel = 0;
+  if(nivel > 100) nivel = 100;
+
+  if(confirmar_nivel == false)
+  {
+    lcd.setCursor(0,0);
+    lcd.print("Nivel:");
+    if(nivel < 10)
+    {
+      lcd.setCursor(6,0);
+      lcd.print(nivel);
+      lcd.setCursor(7,0);
+      lcd.print("%");
+    }
+    if(nivel > 9 && nivel < 100)
+    {
+      lcd.setCursor(6,0);
+      lcd.print(nivel);
+      lcd.setCursor(8,0);
+      lcd.print("%");
+    }
+    if(nivel == 100)
+    {
+      lcd.setCursor(6,0);
+      lcd.print(nivel);
+      lcd.setCursor(9,0);
+      lcd.print("%");
+    } 
+  }
+}
+
+void limpiar_pantalla_y_escribir_nivel ()
+{
+  if (confirmar_nivel == true)//con las variables y el while le doy un delay para que se vea la confirmacion
+  {
+    lcd.setCursor(0,0);
+    lcd.print("Nivel maximo:");
+    lcd.print(nivel);
+    if(nivel < 10)
+    {
+      lcd.setCursor(14,0);
+      lcd.print("%");
+    }
+    if(nivel > 9 && nivel < 100)
+    {
+      lcd.setCursor(15,0);
+      lcd.print("%");
+    }
+    if(nivel == 100)
+    {
+      lcd.setCursor(16,0);
+      lcd.print("%");
+    }
+    confirmar_nivel = false;
+    int espera = 1500;
+    unsigned long tiempo_ahora = 0;
+    tiempo_ahora = millis();
+    while (millis()< tiempo_ahora + espera){}
+    lcd.clear();
+    Menu_principal = estado_inicial;
+  }
+}
+
+
+
+
+
+
+
 
 
 
