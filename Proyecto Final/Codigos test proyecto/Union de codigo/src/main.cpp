@@ -25,7 +25,6 @@ int umbral_de_temperatura = 5;
 int sumador_temperatura = 5;
 int tiempo_para_temperatura = 5000;
 bool confirmar = false;
-bool confirmar_nivel = false;
 bool encendido_de_temp_auto = true;
 //
 
@@ -38,9 +37,13 @@ niveles nivel_seteado;
 niveles nivel_actual;
 void sensar_nivel_de_agua();
 void sensar_nivel_actual();
+void nivel_auto();
 int nivel = 0;
 int mili_segundos = 0;
 int sumador_nivel = 25;
+int milis_para_nivel = 0;
+int tiempo_para_nivel = 3000;
+bool confirmar_nivel = false;
 //
 
 //cosas del menu princial
@@ -129,6 +132,12 @@ void setup()
 void loop() 
 {
   //now = RTC.now();
+  if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
+  {
+    control_de_temp_auto();
+    milis_para_nivel= 0;
+  }
+
   if (milis_para_temperatura == tiempo_para_temperatura)
   {
     control_de_temp_auto();
@@ -387,6 +396,7 @@ void imprimir_hora (){//ver que pasa
 
 ISR(TIMER2_OVF_vect){
     mili_segundos++;
+    milis_para_nivel++;
     if(encendido_de_temp_auto == true) milis_para_temperatura++;
 }
 
@@ -579,10 +589,14 @@ void limpiar_pantalla_y_escribir_nivel ()
     while (millis()< tiempo_ahora + espera){}
     lcd.clear();
     Menu_principal = estado_inicial;
+    nivel_auto();
   }
 }
 
-
+void nivel_auto (){
+  if (nivel_actual <= tanque_al_25)    digitalWrite(electrovalvula, HIGH);
+  if (nivel_actual == tanque_al_100)    digitalWrite(electrovalvula, LOW);
+}
 
 
 
