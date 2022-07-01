@@ -4,14 +4,14 @@
 
 const int pulsador1 = 2;
 const int pulsador2 = 3;
-const int pulsador5 = 1;
+const int pulsador5 = 6;
 int nivel = 0;
 int sumador = 25;
 bool confirmar = false;
 
-LiquidCrystal_I2C lcd(0x27,16,2);
+LiquidCrystal_I2C lcd(0x27,20,4);
 
-void limpiar_pantalla_y_escribir();
+void limpiar_pantalla_y_escribir_nivel();
 
 void setup() 
 {
@@ -44,7 +44,7 @@ void loop()
   {
     while(digitalRead(pulsador5) == LOW){}
     confirmar = true;
-    limpiar_pantalla_y_escribir ();
+    limpiar_pantalla_y_escribir_nivel ();
   }
 
   if(nivel < 0) nivel = 0;
@@ -78,7 +78,7 @@ void loop()
   }
 }
 
-void limpiar_pantalla_y_escribir ()
+void limpiar_pantalla_y_escribir_nivel ()
 {
   lcd.clear();
   if (confirmar == true)
