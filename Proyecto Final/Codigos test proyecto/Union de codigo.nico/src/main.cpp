@@ -18,7 +18,6 @@ no sean cripticos la concha de su madre*/
 //sensor de temperatura
 #define onewire 9
 void tomar_temperatura ();
-void limpiar_pantalla_y_escribir ();
 void control_de_temp_auto();
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
 void menu_de_calefaccion_manual();
@@ -61,6 +60,8 @@ void imprimir_en_pantalla();
 void carga_por_nivel();
 void limpiar_pantalla_y_escribir_nivel();
 uint16_t tiempo_de_standby = 0;
+uint8_t posicionmenu1=0;
+uint8_t posicionmenu2=0;
 //
 
 //cosas del mennu avanzado
@@ -72,7 +73,10 @@ void menu_avanzado();
 DateTime now; */
 void imprimir_hora ();
 //
-
+// cosas del wifi
+char Letra(uint8_t , bool);
+String WIFISSID;
+String WIFIPASS;
 //Cosas necesarias para el menu
 LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x20,20,4);
 typedef enum{estado_standby,estado_inicial,menu1,menu2} estadoMEF;  
@@ -146,14 +150,14 @@ void setup()
   pinMode(pulsador6, INPUT_PULLUP);
   pinMode(pulsador7, INPUT_PULLUP);
   //
-
+  WIFISSID" ";
 }
 
 void loop() 
 {
-  tomar_temperatura();
+  /*tomar_temperatura();
   control_de_temp_auto();
-  sensar_nivel_actual();
+  sensar_nivel_actual();*/
   if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
   {
     control_de_temp_auto();
@@ -171,6 +175,8 @@ void loop()
       break;
     case estado_inicial:
       standby();
+      posicionmenu1=0; //reinicia la posicion del menu1
+      posicionmenu2=0; //reinicia la posicion del menu2
       break;
     case menu1:
       menu_basico();
@@ -185,11 +191,10 @@ void loop()
 void menu_basico()
 {
   uint8_t Ypos=0;
-  uint8_t posicionmenu=0;
   if (digitalRead(pulsador1) == LOW) Ypos++;
   if (digitalRead(pulsador2) == LOW) Ypos--;
-  if (digitalRead(pulsador3) == LOW) posicionmenu=Ypos+1;
-  switch (posicionmenu)
+  if (digitalRead(pulsador3) == LOW) posicionmenu1=Ypos+1;
+  switch (posicionmenu1)
   {
     case 0:
       lcd.setCursor(1,0); 
@@ -264,7 +269,8 @@ void menu_avanzado()
 }
 
 void standby()
-{
+{ 
+  lcd.setCursor(0,0);
   lcd.print("Nivel: ");
   switch (nivel_actual)
   {
@@ -289,12 +295,12 @@ void standby()
     switch (Estadoequipo)
     {
     case estado_standby:
-      Estadoequipo == estado_inicial;
+      Estadoequipo = estado_inicial;
       lcd.backlight();
       tiempo_de_standby=0;
       break;
     case estado_inicial:
-      Estadoequipo ==menu1;
+      Estadoequipo =menu1;
       lcd.backlight();
       break;
     default:
@@ -309,6 +315,7 @@ void standby()
     tiempo_de_standby = 0;
   }
 
+
 }
 
 void tomar_temperatura ()
@@ -317,7 +324,6 @@ void tomar_temperatura ()
   Sensor_temp.requestTemperatures();
   lcd.print(Sensor_temp.getTempCByIndex(0));
 }
-
 
 void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
@@ -392,17 +398,6 @@ void menu_de_calefaccion_manual(){
 
   if(digitalRead(pulsador5) == LOW)
   {
-    while(digitalRead(pulsador5) == LOW){}
-    confirmar = true;
-    mili_segundos = 0;
-    limpiar_pantalla_y_escribir ();
-    }
-}
-
-void limpiar_pantalla_y_escribir (){
-  lcd.clear();
-  if (confirmar == true)//con las variables y el while le doy un delay para que se vea la confirmacion
-  {
     lcd.clear();
     lcd.print("Minima guardada:");
     lcd.print(temperatura_inicial);
@@ -415,9 +410,8 @@ void limpiar_pantalla_y_escribir (){
     tiempo_ahora = millis();
     while (millis()< tiempo_ahora + espera){}
     lcd.clear();
-    Estadoequipo = estado_inicial;
     control_de_temp_auto();
-  }
+    }
 }
 
 void carga_por_nivel()
@@ -479,51 +473,119 @@ void carga_por_nivel()
   }
 }
 
-void limpiar_pantalla_y_escribir_nivel ()
-{
-  if (confirmar_nivel == true)//con las variables y el while le doy un delay para que se vea la confirmacion
-  {
-    lcd.setCursor(0,0);
-    lcd.print("Nivel maximo:");
-    lcd.print(nivel);
-    if(nivel < 10)
-    {
-      lcd.setCursor(14,0);
-      lcd.print("%");
-    }
-    if(nivel > 9 && nivel < 100)
-    {
-      lcd.setCursor(15,0);
-      lcd.print("%");
-    }
-    if(nivel == 100)
-    {
-      lcd.setCursor(16,0);
-      lcd.print("%");
-    }
-    confirmar_nivel = false;
-    int espera = 1500;
-    unsigned long tiempo_ahora = 0;
-    tiempo_ahora = millis();
-    while (millis()< tiempo_ahora + espera){}
-    lcd.clear();
-    Menu_principal = estado_inicial;
-    nivel_auto();
-  }
-}
-
 void nivel_auto (){
   if (nivel_actual <= tanque_al_25)    digitalWrite(electrovalvula, HIGH);
   if (nivel_actual == tanque_al_100)    digitalWrite(electrovalvula, LOW);
 }
 
+void configuracionwifi()
+{
+  char NombreSSID[32]  = " ";
+  char ContraseñaSSID[63]=" ";
+  uint8_t flag = 0;
+  uint8_t Xpos=0;
+  uint8_t LetraActual=0;
+  uint8_t i=0;
+  bool mayus=false;
+
+  if (digitalRead(pulsador1)==LOW)LetraActual=LetraActual+1;
+  if (digitalRead(pulsador2)==LOW)mayus!=mayus;
+  if (digitalRead(pulsador3)==LOW)LetraActual=LetraActual-1;
+  if (LetraActual>40)LetraActual=0;
+  if (LetraActual<0)LetraActual=40;
+
+  switch (flag)
+  {
+  case 0:
+    if (Xpos>32)Xpos=0;
+    if (Xpos<0)Xpos=32;
+    if(LetraActual==40 && mayus==true && digitalRead(pulsador1)==LOW && digitalRead(pulsador3)==LOW)
+    {
+      NombreSSID[Xpos]= Letra(LetraActual,mayus);
+      Xpos--;
+    }
+    else NombreSSID[Xpos]= Letra(LetraActual,mayus);
+    lcd.setCursor(0,1);
+    lcd.print("Set Wifi");
+    lcd.setCursor(menuposY(Xpos,16),2);
+    lcd.print(NombreSSID[Xpos]);
+    if(digitalRead(pulsador1)==LOW && digitalRead(pulsador2)==LOW && NombreSSID[Xpos-1]>0)Xpos--;
+    if(digitalRead(pulsador3)==LOW && digitalRead(pulsador2)==LOW && NombreSSID[Xpos]>0)Xpos++;
+    if(digitalRead(pulsador1)==LOW && digitalRead(pulsador3)==LOW && NombreSSID[1]>0){
+      for (i=0; NombreSSID[i]!= 0; i++){
+        WIFISSID= WIFISSID+NombreSSID[i];
+      }
+    }
+    break;
+
+  default:
+    if (Xpos>63)Xpos=0;
+    if (Xpos<0)Xpos=63;
+    if(LetraActual==40 && mayus==true && digitalRead(pulsador1)==LOW && digitalRead(pulsador3)==LOW)
+    {
+      NombreSSID[Xpos]= Letra(LetraActual,mayus);
+      Xpos--;
+    }
+    else NombreSSID[Xpos]= Letra(LetraActual,mayus);
+    lcd.setCursor(0,1);
+    lcd.print("password");
+    lcd.setCursor(menuposY(Xpos,16),2);
+    lcd.print(NombreSSID[Xpos]);
+    if(digitalRead(pulsador1)==LOW && digitalRead(pulsador2)==LOW && NombreSSID[Xpos-1]>0)Xpos--;
+    if(digitalRead(pulsador3)==LOW && digitalRead(pulsador2)==LOW && NombreSSID[Xpos]>0)Xpos++;
+    if(digitalRead(pulsador1)==LOW && digitalRead(pulsador3)==LOW && NombreSSID[1]>0){
+      for (i=0; NombreSSID[i]!= 0; i++){
+        WIFIPASS= WIFIPASS+NombreSSID[i];
+      }
+    }
+    break;
+  }
+}
+char Letra(uint8_t letranum, bool mayus){
+switch (mayus)
+{
+case true:
+  if (letranum>=0 && letranum<=13)return letranum+65;
+  if (letranum==14)return 165;
+  if (letranum>=15 && letranum<=26)return letranum+64;
+  if (letranum==27) return 36;
+  if (letranum==28) return 37;
+  if (letranum==29) return 38;
+  if (letranum==30) return 47;
+  if (letranum==31) return 40;
+  if (letranum==32) return 41;
+  if (letranum==33) return 61;
+  if (letranum==34) return 59;
+  if (letranum==35) return 58;
+  if (letranum==36) return 94;
+  if (letranum==36) return 63;
+  if (letranum==37) return 168;
+  if (letranum==38) return 95;
+  if (letranum==39) return 35;
+  if (letranum==40) return 27;
+  break;
+
+default:
+  if (letranum>=0 && letranum<=13)return letranum+97;
+  if (letranum==14)return 164;
+  if (letranum>=15 && letranum<=26)return letranum+96;
+  if (letranum>=26 && letranum<=35)return letranum+22;
+  if (letranum==36) return 33;
+  if (letranum==37) return 173;
+  if (letranum==38) return 45;
+  if (letranum==39) return 64;
+  if (letranum==40) return 0;
+  break;
+}
+
+}
 uint8_t menuposY (uint8_t actualpos, uint8_t maxpos){
 uint8_t diferencepos = 0;
 if (actualpos>maxpos){
   diferencepos = actualpos-maxpos;
   return diferencepos;
 }
-  if (actualpos<=maxpos){
+else{
   return actualpos;
 }
 }
