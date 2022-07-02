@@ -6,43 +6,49 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 #include "RTClib.h"
+/* para ordenar declaraciones usar el siguiente orden Definitons
+                                                      Functions
+                                                      Library declarations
+                                                      Type def 
+                                                      Const declarations
+                                                      Variable declarations according to value
+no sean cripticos la concha de su madre*/
 
-//sensr de temperatura
+//sensor de temperatura
 #define onewire 9
-OneWire sensor_t(onewire);
-DallasTemperature Sensor_temp(&sensor_t); 
 void tomar_temperatura ();
 void limpiar_pantalla_y_escribir ();
 void control_de_temp_auto();
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
 void menu_de_calefaccion_manual();
-int temperatura_inicial = 40;
-int temperatura_final = 40;
-int min_temp_ini = 40;
-int maxima_temp_fin = 80;
-int milis_para_temperatura = 0;
-int umbral_de_temperatura = 5;
-int sumador_temperatura = 5;
-int tiempo_para_temperatura = 5000;
+OneWire sensor_t(onewire);
+DallasTemperature Sensor_temp(&sensor_t); 
+uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
+uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
+uint8_t temperatura_final = 40;
+uint8_t min_temp_ini = 40;
+uint8_t maxima_temp_fin = 80;
+uint8_t milis_para_temperatura = 0;
+uint8_t umbral_de_temperatura = 5;
+uint8_t sumador_temperatura = 5;
 bool confirmar = false;
 bool encendido_de_temp_auto = true;
-//
 
 //nivel de agua
-const int nivel_del_tanque = A0;
-const int electrovalvula = 10;
-const int resistencia = 11;
-typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
-niveles nivel_seteado;
-niveles nivel_actual;
 void sensar_nivel_de_agua();
 void sensar_nivel_actual();
 void nivel_auto();
-int nivel = 0;
-int mili_segundos = 0;
-int sumador_nivel = 25;
-int milis_para_nivel = 0;
-int tiempo_para_nivel = 3000;
+typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
+niveles nivel_seteado;
+niveles nivel_actual;
+const uint8_t nivel_del_tanque = A0; 
+const uint8_t electrovalvula = 10;
+const uint8_t resistencia = 11;
+uint8_t  nivel = 0;
+uint8_t  mili_segundos = 0;
+uint8_t sumador_nivel = 25;
+uint8_t  milis_para_nivel = 0;
+uint8_t tiempo_para_nivel = 3000;
 bool confirmar_nivel = false;
 //
 
@@ -52,7 +58,7 @@ void standby();
 void imprimir_en_pantalla();
 void carga_por_nivel();
 void limpiar_pantalla_y_escribir_nivel();
-int tiempo_de_standby = 10000;
+uint16_t tiempo_de_standby = 10000;
 //
 
 //cosas del mennu avanzado
@@ -65,26 +71,28 @@ DateTime now; */
 void imprimir_hora ();
 //
 
-
-
 //Cosas necesarias para el menu
-bool borrar_display = false;
-const int pulsador1 = 2;
-const int pulsador2 = 3;
-const int pulsador3 = 4;
-const int pulsador4 = 5;
-const int pulsador5 = 6;
-const int pulsador6 = 7; //pulsador de retorno
-const int pulsador7 = 8;
-bool flag_menu_avanzado = false;
+LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x20,20,4);
 typedef enum{estado_standby,estado_inicial,calefaccion_manual,calefaccion_auto_senstemp,carga_auto_hora,carga_agua_por_nivel,llenado_agua_manual} estadoMEF;  
 estadoMEF Menu_principal = estado_inicial;
 typedef enum{menu_inicio,set_wifi,activar_bomba,cambio_unidad,set_hora,momento_standby} estadoMEF2;
 estadoMEF2 Menu_secundario = menu_inicio;
+const uint8_t pulsador1 = 2;
+const uint8_t pulsador2 = 3;
+const uint8_t pulsador3 = 4;
+const uint8_t pulsador4 = 5;
+const uint8_t pulsador5 = 6;
+const uint8_t pulsador6 = 7; //pulsador de retorno
+const uint8_t pulsador7 = 8;
+bool flag_menu_avanzado = false;
+bool borrar_display = false;
 
-LiquidCrystal_I2C lcd(0x27,20,4);
-//LiquidCrystal_I2C lcd(0x20,20,4);
-//
+// Cosas rtc y reajustes 
+RTC_DS1307 rtc;
+uint16_t anio;
+uint8_t mes,dia,hora,minutos,segundos;
+uint8_t correccionh,correccionmin, correccionseg;
+
 
 void setup() 
 {
@@ -94,29 +102,22 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   //
-  Wire.begin();
-  
-  //iniccializacion del RTC 
-  //RTC.begin();
-  //RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //la compu, despues comentar para subirlo bien
-
+  Wire.begin();  //iniccializacion del i2C
+  Serial.begin(9600); //iniccializacion del serial arduino-esp
+  rtc.begin();//iniccializacion del rtc arduino-esp
+  //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
   //Iniciacion del LCD//
   lcd.init();
   lcd.backlight();
   //
-  Serial.begin(9600);
-
   //pines para el sensor de nivel
   pinMode(nivel_del_tanque, INPUT);
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
   //
-
   //Sensr de temperatura
   Sensor_temp.begin();
   //
-
   //pulsadores pra manejar los menus//
   pinMode(pulsador1, INPUT_PULLUP);
   pinMode(pulsador2, INPUT_PULLUP);
@@ -143,7 +144,7 @@ void loop()
     control_de_temp_auto();
     milis_para_temperatura = 0;
   }
-  
+  // nico: QUE CHOTA ES ESTO AYUDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   if(flag_menu_avanzado == true)
   {
     menu_avanzado();
