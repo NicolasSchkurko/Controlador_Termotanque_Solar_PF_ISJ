@@ -145,6 +145,7 @@ void loop()
     milis_para_temperatura = 0;
   }
   // nico: QUE CHOTA ES ESTO AYUDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  // Jere: pusimos una variable flag para que un pulsador alterne entre menus
   if(flag_menu_avanzado == true)
   {
     menu_avanzado();
