@@ -8,22 +8,22 @@
 String processor(const String& var);
 //█████████████████████████████████████████████████████████████████████████████████
 
-struct save{char hora;char temp;char lvl;};
-const char* ssid = "Jere";
-const char* password = "chucotest";
+struct save{uint8_t hora;uint8_t temp;uint8_t lvl;};
+String ssid = "Jere";
+String password = "chucotest";
 //█████████████████████████████████████████████████████████████████████████████████
 
 String TVal = "60";
 String LVal = "70";
 String HVal = "12:30";
-char TEMP_VAL=0;
-char LVL_VAL=0;
-char HOUR_VAL=0;
-char MINUTE_VAL=0;
+uint8_t TEMP_VAL=0;
+uint8_t LVL_VAL=0;
+uint8_t HOUR_VAL=0;
+uint8_t MINUTE_VAL=0;
 bool CHARGING_STATE=0;
 bool HEATING_STATE=0;
-char AUTOTEMP_STATE=0;
-char AUTOLVL_STATE=0;
+uint8_t AUTOTEMP_STATE=0;
+uint8_t AUTOLVL_STATE=0;
 
 //█████████████████████████████████████████████████████████████████████████████████
 // Asigna el webserver al puerto 80 de la red wifi
