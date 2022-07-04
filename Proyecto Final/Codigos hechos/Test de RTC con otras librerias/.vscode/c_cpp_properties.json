@@ -1,0 +1,62 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/include",
+                "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/src",
+                "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/.pio/libdeps/uno/LiquidCrystal_I2C",
+                "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/.pio/libdeps/uno/DS1307RTC",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/.pio/libdeps/uno/Time-1.6.1",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/variants/standard",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/include",
+                    "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/src",
+                    "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/.pio/libdeps/uno/LiquidCrystal_I2C",
+                    "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/.pio/libdeps/uno/DS1307RTC",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    "c:/Users/alumno/Desktop/Proyecto/Proyecto Final/Codigos test proyecto/Test de RTC con otras librerias/.pio/libdeps/uno/Time-1.6.1",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "C:/Users/alumno/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60002",
+                "ARDUINO_AVR_UNO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "C:/Users/alumno/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
