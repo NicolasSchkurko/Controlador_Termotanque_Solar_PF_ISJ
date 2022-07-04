@@ -16,13 +16,11 @@
 no sean cripticos la concha de su madre*/
 
 //sensor de temperatura
-#define onewire 9
+OneWire sensor_temp(9);
 void tomar_temperatura ();
 void control_de_temp_auto();
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
 void menu_de_calefaccion_manual();
-OneWire sensor_t(onewire);
-DallasTemperature Sensor_temp(&sensor_t); 
 uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
 uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
 uint8_t temperatura_final = 40;
@@ -141,7 +139,7 @@ void setup()
   pinMode(resistencia, OUTPUT);
   //
   //Sensr de temperatura
-  Sensor_temp.begin();
+  sensor_temp.search(addr);
   //
   //pulsadores pra manejar los menus//
   pinMode(pulsador1, INPUT_PULLUP);
@@ -273,7 +271,7 @@ void menu_basico()
       //menu_de_llenado_manual();
       break;
     case 2:
-      //menu_de_calefaccion_manual();
+      menu_de_calefaccion_manual();
       break;
     case 3:
       // cal y carg segun hora
@@ -361,11 +359,9 @@ ISR(TIMER2_OVF_vect){
 }
 /*======================PARA ADAPTAR=========================*/
 
-void tomar_temperatura ()
+void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 {
-  lcd.print("Temperatura:");
-  Sensor_temp.requestTemperatures();
-  lcd.print(Sensor_temp.getTempCByIndex(0));
+
 }
 
 void sensar_nivel_actual(){
@@ -376,27 +372,23 @@ void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;
 }
 
-void nivel_auto (bool use){
-    if (nivel_actual <= tanque_al_25)    digitalWrite(electrovalvula, HIGH);
+void nivel_auto (){//modificar
+    if (nivel_actual <= nivel_seteado)    digitalWrite(electrovalvula, HIGH);
     if (nivel_actual == tanque_al_100)    digitalWrite(electrovalvula, LOW);
 }
 
 void control_de_temp_auto(){
-  int temperatura_actual = 0;
-  Sensor_temp.requestTemperatures();
-  temperatura_actual = Sensor_temp.getTempCByIndex(0);
-  if(temperatura_actual < temperatura_inicial) digitalWrite(resistencia, HIGH);
-  if(temperatura_actual >= temperatura_final + umbral_de_temperatura) digitalWrite(resistencia, LOW);
+
 }
 
 void menu_de_calefaccion_manual(){
-  if(confirmar == false)
+  if(confirmar == false)//Lo que muestra cuando entras al menu 
   {
     lcd.setCursor(0,0);
-    lcd.print("Temperatua minima:");
+    lcd.print("Temperatura min:");
     lcd.print(temperatura_inicial);
     lcd.setCursor(0,1);
-    lcd.print("Temperatua maxima:");
+    lcd.print("Temperatura max:");
     lcd.print(temperatura_final);
     
     lcd.setCursor(0,2);
@@ -413,7 +405,6 @@ void menu_de_calefaccion_manual(){
     lcd.clear();
   }
   if (temperatura_inicial > maxima_temp_fin) temperatura_inicial = maxima_temp_fin;
-
   if(digitalRead(pulsador2) == LOW)
   {
     while(digitalRead(pulsador2) == LOW){}
@@ -423,7 +414,6 @@ void menu_de_calefaccion_manual(){
     lcd.clear();
   }
   if (temperatura_inicial < min_temp_ini) temperatura_inicial = min_temp_ini;
-
   if(digitalRead(pulsador3) == LOW)
   {
     while(digitalRead(pulsador3) == LOW){}
@@ -433,7 +423,6 @@ void menu_de_calefaccion_manual(){
     lcd.clear();
   }
   if (temperatura_final < temperatura_inicial) temperatura_final = temperatura_inicial;
-
   if(digitalRead(pulsador4) == LOW)
   {
     while(digitalRead(pulsador4) == LOW){}
@@ -443,8 +432,7 @@ void menu_de_calefaccion_manual(){
     lcd.clear();
   }
   if (temperatura_final > maxima_temp_fin) temperatura_final = maxima_temp_fin;
-
-  if(digitalRead(pulsador5) == LOW)
+  if(digitalRead(pulsador5) == LOW) //Confirmar la temperatura para guardar
   {
     lcd.clear();
     lcd.print("Minima guardada:");
@@ -529,43 +517,43 @@ void configuracionwifi(){
 }
 
 char Letra(uint8_t letranum, bool mayus){
-switch (mayus)
-{
-case true:
-  if (letranum>=0 && letranum<=13)return letranum+65;
-  if (letranum==14)return 165;
-  if (letranum>=15 && letranum<=26)return letranum+64;
-  if (letranum==27) return 36;
-  if (letranum==28) return 37;
-  if (letranum==29) return 38;
-  if (letranum==30) return 47;
-  if (letranum==31) return 40;
-  if (letranum==32) return 41;
-  if (letranum==33) return 61;
-  if (letranum==34) return 59;
-  if (letranum==35) return 58;
-  if (letranum==36) return 94;
-  if (letranum==36) return 63;
-  if (letranum==37) return 168;
-  if (letranum==38) return 95;
-  if (letranum==39) return 35;
-  if (letranum==40) return 27;
-  if (letranum>40) return 0;
-  break;
+  switch (mayus)
+  {
+  case true:
+    if (letranum>=0 && letranum<=13)return letranum+65;
+    if (letranum==14)return 165;
+    if (letranum>=15 && letranum<=26)return letranum+64;
+    if (letranum==27) return 36;
+    if (letranum==28) return 37;
+    if (letranum==29) return 38;
+    if (letranum==30) return 47;
+    if (letranum==31) return 40;
+    if (letranum==32) return 41;
+    if (letranum==33) return 61;
+    if (letranum==34) return 59;
+    if (letranum==35) return 58;
+    if (letranum==36) return 94;
+    if (letranum==36) return 63;
+    if (letranum==37) return 168;
+    if (letranum==38) return 95;
+    if (letranum==39) return 35;
+    if (letranum==40) return 27;
+    if (letranum>40) return 0;
+    break;
 
-case false:
-  if (letranum>=0 && letranum<=13)return letranum+97;
-  if (letranum==14)return 164;
-  if (letranum>=15 && letranum<=26)return letranum+96;
-  if (letranum>=26 && letranum<=35)return letranum+22;
-  if (letranum==36) return 33;
-  if (letranum==37) return 173;
-  if (letranum==38) return 45;
-  if (letranum==39) return 64;
-  if (letranum==40) return 0;
-  if (letranum>40) return 0;
-  break;
-}
+  case false:
+    if (letranum>=0 && letranum<=13)return letranum+97;
+    if (letranum==14)return 164;
+    if (letranum>=15 && letranum<=26)return letranum+96;
+    if (letranum>=26 && letranum<=35)return letranum+22;
+    if (letranum==36) return 33;
+    if (letranum==37) return 173;
+    if (letranum==38) return 45;
+    if (letranum==39) return 64;
+    if (letranum==40) return 0;
+    if (letranum>40) return 0;
+    break;
+  }
 }
 
 

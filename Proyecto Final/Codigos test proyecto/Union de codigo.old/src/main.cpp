@@ -402,7 +402,7 @@ ISR(TIMER2_OVF_vect){
     if(encendido_de_temp_auto == true) milis_para_temperatura++;
 }
 
-void sensar_nivel_actual(){
+void sensar_nivel_actual(){//bien
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
     if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
     if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = tanque_al_50;
@@ -410,7 +410,7 @@ void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;
 }
 
-void control_de_temp_auto(){
+void control_de_temp_auto(){//modificar para que se haga y no bloquee el codigo
   int temperatura_actual = 0;
   Sensor_temp.requestTemperatures();
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
