@@ -7,6 +7,12 @@ String Device= "ARDUINO";
 void Serial_Read_UNO();
 void Serial_Send_UNO(uint8_t);
 String Serial_Input;
+<<<<<<< HEAD
+String ActualValue;
+String OTROVALIU;
+char input=0;
+uint8_t StringLength=0;
+=======
 String Individualdata[4];
 String IndividualValue;
 
@@ -17,6 +23,7 @@ uint8_t nivel_a_llenar=0;
 uint8_t ActualStruct=0;
 struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
 save_data save[5]; 
+>>>>>>> 2d554643a7d21654259823a4e190981be575d8e5
 
 char Actualchar=0;
 char input=0;
@@ -78,7 +85,51 @@ void Serial_Read_UNO(){
     break;
 
   case 'K':
+<<<<<<< HEAD
+    
+    for (uint8_t CharPos2 = 0; CharPos2 < StringLength-2; CharPos2++)
+    {
+      Actualchar=ActualValue.charAt(CharPos2);
+      if (Actualchar != ':')
+      {
+        if (ResetString==true){OTROVALIU=Actualchar; ResetString=false;}
+        else OTROVALIU+=Actualchar; 
+        Serial.println(Actualchar);
+      }
+      else 
+      {
+        switch (InfoPos)
+        {
+        case 0:
+        horasave=OTROVALIU.toInt();
+        Serial.println(horasave);
+        ResetString=true;
+          break;
+
+        case 1:
+        tempsave=OTROVALIU.toInt();
+        Serial.println(tempsave);
+        ResetString=true;
+          break;
+
+        case 2:
+        lvlsave=OTROVALIU.toInt();
+        Serial.println(lvlsave);
+        ResetString=true;
+          break;
+
+        case 3:
+        savestruct=OTROVALIU.toInt();
+        Serial.println(savestruct);
+        ResetString=true;
+          break;
+        }
+        InfoPos++;
+      }
+
+=======
     if (ConvertString==true)
+<<<<<<< HEAD
       {
         ActualStruct=Individualdata[3].toInt();
         if (ActualStruct<=2 && ActualStruct>=0)
@@ -93,6 +144,21 @@ void Serial_Read_UNO(){
           }
         else Serial.println("error");
       }
+=======
+    {
+      ActualStruct=Individualdata[3].toInt();;
+      save[ActualStruct].hour=Individualdata[0].toInt();
+      Serial.println(save[ActualStruct].hour);
+      save[ActualStruct].temp=Individualdata[1].toInt();
+      Serial.println(save[ActualStruct].temp);
+      save[ActualStruct].level=Individualdata[2].toInt();
+      Serial.println(save[ActualStruct].level);
+      ActualIndividualDataPos=0;
+      StringTaked=false;
+      ConvertString=false;
+    }
+>>>>>>> 2d554643a7d21654259823a4e190981be575d8e5
+>>>>>>> e152052007854d2010991178542efd8ca8dc65d9
     break;
 
   case 'J':

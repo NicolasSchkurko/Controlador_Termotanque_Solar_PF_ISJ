@@ -16,6 +16,7 @@ no sean cripticos la concha de su madre*/
 
 //sensor de temperatura
 #define onewire 9
+#define TEMP_RESOLUTION 9
 void tomar_temperatura ();
 void limpiar_pantalla_y_escribir ();
 void control_de_temp_auto();
@@ -48,7 +49,7 @@ uint8_t  nivel = 0;
 uint8_t  mili_segundos = 0;
 uint8_t sumador_nivel = 25;
 uint8_t  milis_para_nivel = 0;
-uint8_t tiempo_para_nivel = 3000;
+uint16_t tiempo_para_nivel = 3000;
 bool confirmar_nivel = false;
 //
 
@@ -133,13 +134,12 @@ void setup()
 void loop() 
 {
   //now = RTC.now();
-  if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
+  /*if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
   {
-    control_de_temp_auto();
     milis_para_nivel= 0;
   }
-
-  if (milis_para_temperatura == tiempo_para_temperatura)
+*/
+  if (milis_para_temperatura == 5000)
   {
     control_de_temp_auto();
     milis_para_temperatura = 0;
@@ -174,7 +174,7 @@ void loop()
     Menu_secundario = menu_inicio;
     lcd.clear();
   }
-  if(mili_segundos >= tiempo_de_standby && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
+  if(mili_segundos >= 2000 && digitalRead(pulsador1) == HIGH && digitalRead(pulsador2) == HIGH && digitalRead(pulsador3) == HIGH && digitalRead(pulsador4) == HIGH && digitalRead(pulsador5) == HIGH && digitalRead(pulsador6) == HIGH)
   {
     Menu_principal = estado_standby;
     Menu_secundario = momento_standby; 
