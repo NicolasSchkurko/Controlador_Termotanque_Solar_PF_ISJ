@@ -6,52 +6,76 @@ String Device= "ARDUINO";
 //==================================
 void Serial_Read_UNO();
 String Serial_Input;
+<<<<<<< HEAD
 String ActualValue;
 String OTROVALIU;
 char input=0;
 uint8_t StringLength=0;
+=======
+String Individualdata[4];
+String IndividualValue;
 
-uint8_t InfoPos=0;
-bool ResetString=true;
+uint8_t StringLength=0;
+uint8_t ActualIndividualDataPos=0;
+uint8_t temp_a_calentar=0;
+uint8_t nivel_a_llenar=0;
+uint8_t ActualStruct=0;
+struct save_data{ char hour; char level; char temp;};
+save_data save[5]; 
+>>>>>>> 2d554643a7d21654259823a4e190981be575d8e5
+
 char Actualchar=0;
-uint8_t hora=0;
-uint8_t min=0;
-uint8_t horasave=0;
-uint8_t tempsave=0;
-uint8_t lvlsave=0;
-uint8_t savestruct=0;
+char input=0;
+
+bool ConvertString=false;
+bool StringTaked=false;
 
 void setup() {
 Serial.begin(9600);
 }
 
 void loop() {
-  Serial_Read_UNO();
+  while(Serial.available() > 0){Serial_Read_UNO();}
 }
 
 void Serial_Read_UNO(){
-  Serial_Input=Serial.readString();
-  StringLength= Serial_Input.length();
-  input=Serial_Input.charAt(0);
-  for (uint8_t CharPos = 2; CharPos < StringLength; CharPos++)
+  
+  Serial_Input=Serial.readString();// iguala el string del serial a un string imput
+  StringLength= Serial_Input.length();// saca el largo del string
+  Serial.println(Serial_Input);// Solo de verificacion (eliminar en el final)
+  input=Serial_Input.charAt(0); // toma el char de comando (el primer char usualmente una letra)
+
+  for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
-    if(CharPos==2)ActualValue=Serial_Input.charAt(CharPos);
-    else ActualValue+=Serial_Input.charAt(CharPos);
+      if(Serial_Input.charAt(CharPos)==':')ActualIndividualDataPos++; //si hay : divide los datos
+      if(Serial_Input.charAt(CharPos)!=':' && Serial_Input.charAt(CharPos)!='_' && Serial_Input.charAt(CharPos)!='/')// si no es nungun caracter especial:
+        {
+          if(Serial_Input.charAt(CharPos-1)==':' || Serial_Input.charAt(CharPos-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(CharPos);//si es el primer digito lo iguala
+          else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(CharPos);//si es el segundo en adelante lo suma
+        }
+      if(CharPos==StringLength)ConvertString=true;// activa el comando final (flag)
   }
 
-  switch (input)
+  switch (input)//dependiendo del char de comando
   {
   case 'H':
-    hora=ActualValue.toInt();
-    Serial.println(hora);
+    if (ConvertString==true)
+    {
+      temp_a_calentar=Individualdata[0].toInt();
+      //calentado manual();
+    }
     break;
 
-  case 'M':
-    min=ActualValue.toInt();
-    Serial.println(min);
+  case 'C':
+    if (ConvertString==true)
+    {
+      nivel_a_llenar=Individualdata[0].toInt();
+      //llenadomanual();
+    }
     break;
 
   case 'K':
+<<<<<<< HEAD
     
     for (uint8_t CharPos2 = 0; CharPos2 < StringLength-2; CharPos2++)
     {
@@ -93,11 +117,25 @@ void Serial_Read_UNO(){
         InfoPos++;
       }
 
+=======
+    if (ConvertString==true)
+    {
+      ActualStruct=Individualdata[3].toInt();;
+      save[ActualStruct].hour=Individualdata[0].toInt();
+      Serial.println(save[ActualStruct].hour);
+      save[ActualStruct].temp=Individualdata[1].toInt();
+      Serial.println(save[ActualStruct].temp);
+      save[ActualStruct].level=Individualdata[2].toInt();
+      Serial.println(save[ActualStruct].level);
+      ActualIndividualDataPos=0;
+      StringTaked=false;
+      ConvertString=false;
+    }
+>>>>>>> 2d554643a7d21654259823a4e190981be575d8e5
     break;
 
   default:
 
     break;
   }
-}
 }

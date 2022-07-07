@@ -4,7 +4,8 @@
 char conversionSave(char,const char*);
 String unconversionPrint(int,int,int);
 
-struct guardado{ char pos; char hour; char level; char temp;};
+struct guardado{ char hour; char level; char temp;};
+guardado[5]; // 3 de save normal, 2 de temp y lvl min y max
 String imprimir;
 
 void setup() {
