@@ -17,6 +17,8 @@ no sean cripticos la concha de su madre*/
 
 //sensor de temperatura
 OneWire sensor_temp(9);
+#define TEMP_RESOLUTION 12
+DallasTemperature Sensor_temp(&sensor_temp); 
 void tomar_temperatura ();
 void control_de_temp_auto();
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
@@ -25,13 +27,14 @@ uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cam
 uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
 uint8_t temperatura_final = 40;
 uint8_t min_temp_ini = 40;
+uint8_t temperatura_del_sensor;
 uint8_t maxima_temp_fin = 80;
 uint8_t milis_para_temperatura = 0;
 uint8_t umbral_de_temperatura = 5;
 uint8_t sumador_temperatura = 5;
 bool confirmar = false;
 bool encendido_de_temp_auto = true;
-
+char simbolo_de_grados = '°';
 //nivel de agua
 void sensar_nivel_de_agua();
 void sensar_nivel_actual();
@@ -125,9 +128,9 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   //
-  Wire.begin();  //iniccializacion del i2C
-  Serial.begin(9600); //iniccializacion del serial arduino-esp
-  rtc.begin();//iniccializacion del rtc arduino-esp
+  Wire.begin();  //inicializacion del i2C
+  Serial.begin(9600); //inicializacion del serial arduino-esp
+  rtc.begin();//inicializacion del rtc arduino-esp
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
   //Iniciacion del LCD//
   lcd.init();
@@ -139,7 +142,9 @@ void setup()
   pinMode(resistencia, OUTPUT);
   //
   //Sensr de temperatura
-  sensor_temp.search(addr);
+  Sensor_temp.begin();
+  Sensor_temp.requestTemperatures();
+  temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
   //
   //pulsadores pra manejar los menus//
   pinMode(pulsador1, INPUT_PULLUP);
@@ -155,19 +160,13 @@ void setup()
 
 void loop() 
 {
-  /*tomar_temperatura();
-  control_de_temp_auto();
+  tomar_temperatura();
+  /*control_de_temp_auto();
   sensar_nivel_actual();*/
-  sensar_nivel_actual();
   /*if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
   {
     control_de_temp_auto();
     milis_para_nivel= 0;
-  }
-  if (milis_para_temperatura == tiempo_para_temperatura)
-  {
-    control_de_temp_auto();
-    milis_para_temperatura = 0;
   }
   */
   switch (Estadoequipo)
@@ -211,6 +210,11 @@ void standby()
       lcd.print("100%");
       break;
   }
+  lcd.setCursor(0,1);
+  lcd.print("Temperatura: ");
+  tomar_temperatura();
+  lcd.print(temperatura_del_sensor);
+  lcd.print("C");
   //imprimir_hora();
   if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW ){
     while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW){}
@@ -355,13 +359,19 @@ ISR(TIMER2_OVF_vect){
   mili_segundos++;
   milis_para_nivel++;
   tiempo_de_standby++;
-  if(encendido_de_temp_auto == true) milis_para_temperatura++;
+  milis_para_temperatura++;
+  //if(encendido_de_temp_auto == true) 
 }
 /*======================PARA ADAPTAR=========================*/
 
 void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 {
-
+  if (milis_para_temperatura >= 1000)
+  {
+    Sensor_temp.requestTemperatures();
+    temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
+    milis_para_temperatura = 0;
+  }
 }
 
 void sensar_nivel_actual(){
