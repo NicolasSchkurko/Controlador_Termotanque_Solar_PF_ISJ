@@ -7,6 +7,7 @@ String Device= "ARDUINO";
 void Serial_Read_UNO();
 String Serial_Input;
 String ActualValue;
+String OTROVALIU;
 char input=0;
 uint8_t StringLength=0;
 
@@ -52,13 +53,13 @@ void Serial_Read_UNO(){
 
   case 'K':
     
-    for (uint8_t CharPos2 = 2; CharPos2 < StringLength; CharPos2++)
+    for (uint8_t CharPos2 = 0; CharPos2 < StringLength-2; CharPos2++)
     {
-      Actualchar=Serial_Input.charAt(CharPos2);
+      Actualchar=ActualValue.charAt(CharPos2);
       if (Actualchar != ':')
       {
-        if (ResetString==true){ActualValue=Actualchar; ResetString=false;}
-        else ActualValue+=Actualchar; 
+        if (ResetString==true){OTROVALIU=Actualchar; ResetString=false;}
+        else OTROVALIU+=Actualchar; 
         Serial.println(Actualchar);
       }
       else 
@@ -66,25 +67,25 @@ void Serial_Read_UNO(){
         switch (InfoPos)
         {
         case 0:
-        horasave=ActualValue.toInt();
+        horasave=OTROVALIU.toInt();
         Serial.println(horasave);
         ResetString=true;
           break;
 
         case 1:
-        tempsave=ActualValue.toInt();
+        tempsave=OTROVALIU.toInt();
         Serial.println(tempsave);
         ResetString=true;
           break;
 
         case 2:
-        lvlsave=ActualValue.toInt();
+        lvlsave=OTROVALIU.toInt();
         Serial.println(lvlsave);
         ResetString=true;
           break;
 
         case 3:
-        savestruct=ActualValue.toInt();
+        savestruct=OTROVALIU.toInt();
         Serial.println(savestruct);
         ResetString=true;
           break;
