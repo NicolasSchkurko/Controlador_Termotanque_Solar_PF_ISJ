@@ -34,7 +34,6 @@ uint8_t umbral_de_temperatura = 5;
 uint8_t sumador_temperatura = 5;
 bool confirmar = false;
 bool encendido_de_temp_auto = true;
-char simbolo_de_grados = '°';
 //nivel de agua
 void sensar_nivel_de_agua();
 void sensar_nivel_actual();
@@ -571,12 +570,8 @@ ISR(TIMER2_OVF_vect){
   Send_time++;
   //if(encendido_de_temp_auto == true) 
 }
-<<<<<<< HEAD
-=======
 
 /*======================PARA ADAPTAR=========================*/
-
->>>>>>> 92ed4bc6300413bcbe40cc8bf1f7d5c852995660
 void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 {
   if (milis_para_temperatura >= tiempo_para_temperatura)
@@ -733,9 +728,20 @@ void carga_por_nivel()
 
 /*=====================================LABURANDOLO==============================================*/
 void configuracionwifi(){  
+  
 }
 
-char Letra(uint8_t letranum, bool mayus){
+void login()
+{
+  uint8_t pulsaciones1 = 0;
+  bool mayus = false;
+  if(digitalRead(pulsador1) == LOW) pulsaciones1++;
+  if(digitalRead(pulsador2) == LOW) pulsaciones1--;
+  if(digitalRead(pulsador3) == LOW) mayus = !mayus;
+}
+
+char Letra(uint8_t letranum, bool mayus)
+{
   switch (mayus)
   {
     case true:
