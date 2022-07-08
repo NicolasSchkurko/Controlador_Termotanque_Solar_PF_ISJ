@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "..\\..\\..\\.."
+		},
+		{
+			"name": "Guardado rtc para automatizacion",
+			"path": "..\\..\\Guardado rtc para automatizacion"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"cstdlib": "cpp",
+			"random": "cpp",
+			"string": "cpp"
+		}
+	}
+}
