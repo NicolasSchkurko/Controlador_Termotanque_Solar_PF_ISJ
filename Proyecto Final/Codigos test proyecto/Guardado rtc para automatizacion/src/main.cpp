@@ -1,6 +1,9 @@
 #include <Arduino.h>
-void convercionhora1(char hora,char tempylvl);
-void convercionhora(int horas, int minuto,int nivel, int temp);
+#include <AT24CX.h>
+struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
+save_data save[5]; 
+String desconvercionhora(uint8_t,uint8_t,uint8_t,uint8_t);
+uint8_t convercionhora(uint8_t, String);
 /*HORARIOS EN BITS HORA /TEMP 40-80(5en5) Y LVL 50 a 100 (5en5)
   00:00=000             / 40° xx0           50%   00x                   null==255
   00:15=001             / 45° xx1           55%   02x
@@ -11,7 +14,7 @@ void convercionhora(int horas, int minuto,int nivel, int temp);
   01:30=006             / 70° xx6           80%   12x
   01:45=007             / 75° xx7           85%   14x 
   . . . .               / 80° xx8           90%   16x
-  23:45=094             /                   95%   18x
+  23:45=095             /                   95%   18x
     q                   /                   100%  20x
     */    
 void setup() {
@@ -21,74 +24,55 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 }
-void desconvercionhora(char hora,char tempylvl)
+String desconvercionhora(uint8_t function,uint8_t savehora,uint8_t temp, uint8_t lvl)
 {
-int minuto=0;
-int horas=0;
-int aux=0;
+  uint8_t resto_decovert=0;
+  uint8_t hora_decovert=0;
+  uint8_t minuto_decovert=0;
+  String returned;
 
-minuto=(hora*15)-aux;
-if (minuto==60)
-  {
-    aux=60;
-    horas++;
-  }
-
-int temp=0;
-int nivel=0;
-int aux2=0;
-int digito=0;
-int digito_cal=0;
-
-switch (tempylvl)
-{
-  case 255:
-    int temp=0;
-    int nivel=0;
-    int minuto=0;
-    int horas=0;
-    break;
-
-  default:
-   while(tempylvl!=0)
-{
-  digito=tempylvl%10;
-  tempylvl=tempylvl/10;
-  aux2++;
-  if(aux2==3)aux2=0;
-}
-if(aux2>=0 & aux2<=1)
-{
-  switch (aux2)
-  {
-    case 0:
-    digito_cal=digito*10;
+  switch (function)
+    {
+      case 1:
+        resto_decovert= savehora % 4;
+        hora_decovert= (savehora-resto_decovert)/4;
+        minuto_decovert= 15* resto_decovert;
+        returned= String(hora_decovert)+':'+String(minuto_decovert);
+        return returned;
       break;
+      case 2:
+        returned= String(temp);
+        return returned;
+      break;
+      case 3:
+        returned= String(lvl);
+        return returned;
+      break;
+      default:
+        break;
+    }
+}
+
+
+uint8_t convercionhora(uint8_t function, String toconvert)
+{
+  uint8_t hora_convert=0;
+  uint8_t minuto_convert=0;
+  uint8_t resto=0;
+  switch (function)
+  {
     case 1:
-    digito_cal=digito+digito_cal;
+      hora_convert=(toconvert.charAt(0)-'0')*10+(toconvert.charAt(1)-'0'); //agarra los primeros char (hora)
+      minuto_convert=(toconvert.charAt(3)-'0')*10+(toconvert.charAt(4)-'0'); //agarra los dos ultimos char (minutos)
+      hora_convert=hora_convert*4;//multiplica la hora x 4 (la igualacion esta en la documentacion boludin)
+      resto= minuto_convert%15; //saca el resto ejemplo 7/5 resto 2
+      if(resto<8) minuto_convert= minuto_convert-resto; //redondeapara abajo
+      else minuto_convert= minuto_convert+15-resto;// redondea para arriba
+      return hora_convert+minuto_convert;
+      break;
+    case 2:
+
+    default:
       break;
   }
-digito_cal=digito_cal/2;
-nivel=50+(digito_cal*5);
-}
-if(aux2==2)
-{
-temp=40+(digito*5);
-}
-
-    break;
-}
-
-}
-void convercionhora(int horas, int minuto,int nivel, int temp)
-{
-char hora=0;
-char tempylvl=0;
-int nivel_temp=0;
-int temp_temp=0;
-
-hora=(minuto/15)+(horas/15);
-nivel_temp=((nivel-50)/5)*20;
-temp_temp=(temp-40)/5;
-tempylvl=nivel_temp+temp_temp;
 }
