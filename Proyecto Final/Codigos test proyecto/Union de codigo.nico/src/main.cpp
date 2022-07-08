@@ -27,9 +27,9 @@ uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cam
 uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
 uint8_t temperatura_final = 40;
 uint8_t min_temp_ini = 40;
-uint8_t temperatura_del_sensor;
+int16_t temperatura_del_sensor;
 uint8_t maxima_temp_fin = 80;
-uint8_t milis_para_temperatura = 0;
+uint16_t milis_para_temperatura = 0;
 uint8_t umbral_de_temperatura = 5;
 uint8_t sumador_temperatura = 5;
 bool confirmar = false;
@@ -211,9 +211,11 @@ void standby()
       break;
   }
   lcd.setCursor(0,1);
-  lcd.print("Temperatura: ");
+  lcd.print("Temperatura:");
   tomar_temperatura();
+  lcd.setCursor(13,1);
   lcd.print(temperatura_del_sensor);
+  lcd.print((char)223);
   lcd.print("C");
   //imprimir_hora();
   if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW ){
@@ -362,18 +364,16 @@ ISR(TIMER2_OVF_vect){
   milis_para_temperatura++;
   //if(encendido_de_temp_auto == true) 
 }
-/*======================PARA ADAPTAR=========================*/
-
 void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 {
-  if (milis_para_temperatura >= 1000)
+  if (milis_para_temperatura >= tiempo_para_temperatura)
   {
     Sensor_temp.requestTemperatures();
     temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
     milis_para_temperatura = 0;
   }
 }
-
+/*======================PARA ADAPTAR=========================*/
 void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
     if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
@@ -518,50 +518,46 @@ void carga_por_nivel()
   }
 }
 
-
-
 /*=====================================LABURANDOLO==============================================*/
-
-void configuracionwifi(){
-  
+void configuracionwifi(){  
 }
 
 char Letra(uint8_t letranum, bool mayus){
   switch (mayus)
   {
-  case true:
-    if (letranum>=0 && letranum<=13)return letranum+65;
-    if (letranum==14)return 165;
-    if (letranum>=15 && letranum<=26)return letranum+64;
-    if (letranum==27) return 36;
-    if (letranum==28) return 37;
-    if (letranum==29) return 38;
-    if (letranum==30) return 47;
-    if (letranum==31) return 40;
-    if (letranum==32) return 41;
-    if (letranum==33) return 61;
-    if (letranum==34) return 59;
-    if (letranum==35) return 58;
-    if (letranum==36) return 94;
-    if (letranum==36) return 63;
-    if (letranum==37) return 168;
-    if (letranum==38) return 95;
-    if (letranum==39) return 35;
-    if (letranum==40) return 27;
-    if (letranum>40) return 0;
+    case true:
+      if (letranum>=0 && letranum<=13)return letranum+65;
+      if (letranum==14)return 165;
+      if (letranum>=15 && letranum<=26)return letranum+64;
+      if (letranum==27) return 36;
+      if (letranum==28) return 37;
+      if (letranum==29) return 38;
+      if (letranum==30) return 47;
+      if (letranum==31) return 40;
+      if (letranum==32) return 41;
+      if (letranum==33) return 61;
+      if (letranum==34) return 59;
+      if (letranum==35) return 58;
+      if (letranum==36) return 94;
+      if (letranum==36) return 63;
+      if (letranum==37) return 168;
+      if (letranum==38) return 95;
+      if (letranum==39) return 35;
+      if (letranum==40) return 27;
+      if (letranum>40) return 0;
     break;
 
-  case false:
-    if (letranum>=0 && letranum<=13)return letranum+97;
-    if (letranum==14)return 164;
-    if (letranum>=15 && letranum<=26)return letranum+96;
-    if (letranum>=26 && letranum<=35)return letranum+22;
-    if (letranum==36) return 33;
-    if (letranum==37) return 173;
-    if (letranum==38) return 45;
-    if (letranum==39) return 64;
-    if (letranum==40) return 0;
-    if (letranum>40) return 0;
+    case false:
+      if (letranum>=0 && letranum<=13)return letranum+97;
+      if (letranum==14)return 164;
+      if (letranum>=15 && letranum<=26)return letranum+96;
+      if (letranum>=26 && letranum<=35)return letranum+22;
+      if (letranum==36) return 33;
+      if (letranum==37) return 173;
+      if (letranum==38) return 45;
+      if (letranum==39) return 64;
+      if (letranum==40) return 0;
+      if (letranum>40) return 0;
     break;
   }
 }
