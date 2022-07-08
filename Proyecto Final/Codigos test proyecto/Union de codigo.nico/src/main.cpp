@@ -738,6 +738,11 @@ void login()
   if(digitalRead(pulsador1) == LOW) pulsaciones1++;
   if(digitalRead(pulsador2) == LOW) pulsaciones1--;
   if(digitalRead(pulsador3) == LOW) mayus = !mayus;
+  Letra(pulsaciones1, mayus);
+  lcd.setCursor(0,0);
+  lcd.print("Network SSID:");
+  lcd.setCursor(0,1);
+  
 }
 
 char Letra(uint8_t letranum, bool mayus)
