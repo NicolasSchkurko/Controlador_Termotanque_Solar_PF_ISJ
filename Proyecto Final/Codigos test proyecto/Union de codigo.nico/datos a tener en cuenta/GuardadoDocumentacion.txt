@@ -1,0 +1,25 @@
+Sos jere deja la miel
+
+El AT24C32 tiene 32Kbits o 4096 bytes de memoria eeprom (Electrically Erasable Programmable Read-Only Memory) // boee tirando magia (nico)
+
+por ende tenemos bocha de espacio para lo que vamos a usar (dos o 3 boludeces)
+
+Para la lista se utiliza el siguiente formato ( variable (posicion;espacio que ocupa en bytes) )
+Esta es la lista de las posiciones de memoria de los elementos que vamos a usar
+Guardado[1].Hora                    (1;1) 
+Guardado[1].Nivel                   (2;1) 
+Guardado[1].Temp                    (3;1) 
+Guardado[2].Hora                    (4;1) 
+Guardado[2].Nivel                   (5;1) 
+Guardado[2].Temp                    (6;1) 
+Guardado[3].Hora                    (7;1) 
+Guardado[3].Nivel                   (8;1) 
+Guardado[3].Temp                    (9;1) 
+Guardado[4].temp. minima            (10;1) 
+Guardado[4].Temp. maxima            (11;1) 
+Guardado[5].Nivel minimo            (12;1) 
+Guardado[5].Nivel maximo            (13;1) 
+String ssid                         (14;32)//el largo lo saque del protocolo wap2
+String ssid contraseña              (47;64)//el largo lo saque del protocolo wap2
+
+Siguiente posicion libre            (111)

@@ -49,18 +49,18 @@ Serial.println(horas);
 }
 String desconvercionhora(uint8_t function,uint8_t savehora,uint8_t temp, uint8_t lvl)
 {
-  uint8_t resto_decovert=0;
-  uint8_t hora_decovert=0;
-  uint8_t minuto_decovert=0;
+  uint8_t var1_deconvert=0;//solo una variable (_deconvert  nos evita modificar variables globales como bldos)
+  uint8_t var2_deconvert=0;
+  uint8_t resto_deconvert=0;
   String returned;
-
+  // todo el dia con la mielcita jere ¯\_(ツ)_/¯
   switch (function)
     {
       case 1:
-        resto_decovert= (savehora) % 4;
-        hora_decovert= (savehora-resto_decovert)/4;
-        minuto_decovert=resto_decovert*15;
-        returned= String(hora_decovert)+':'+String(minuto_decovert);
+        resto_deconvert= (savehora) % 4;
+        var1_deconvert= (savehora-resto_deconvert)/4;
+        var2_deconvert=resto_deconvert*15;
+        returned= String(var1_deconvert)+':'+String(var2_deconvert);
         return returned;
       break;
       case 2:
@@ -78,39 +78,32 @@ String desconvercionhora(uint8_t function,uint8_t savehora,uint8_t temp, uint8_t
 
 uint8_t convercionhora(uint8_t function, String toconvert)
 {
-  uint8_t var1_convert;
-  uint8_t var2_convert;
-  uint8_t resto;
-  char tempchar;
+  uint8_t var1_convert; // solo una variable (_convert  nos evita modificar variables globales como bldos)
+  uint8_t var2_convert; // solo una variable
+  uint8_t resto_convert; //guarda el resto del calculo de tiempo
   switch (function)
   {
     case 1:
-      tempchar=toconvert.charAt(0);
-      var1_convert=(tempchar - '0')*10;
-      tempchar=toconvert.charAt(1);
-      var1_convert=var1_convert+(tempchar-'0'); //agarra los primeros char (hora)
-      var1_convert=var1_convert*4;//multiplica la hora x 4 (la igualacion esta en la documentacion boludin)
+      var1_convert=(toconvert.charAt(0)- '0')*10;// toma el valor del primer digito del string y lo convierte en int (numero de base 10)
+      var1_convert+=(toconvert.charAt(1)-'0');// toma el valor del segundo digito
+      var1_convert=var1_convert*4;//multiplica la hora x 4 (la proporcionalidad esta en la documentacion)
 
-      tempchar=toconvert.charAt(3);
-      var2_convert=(tempchar - '0')*10;
-      tempchar=toconvert.charAt(4);
-      var2_convert=var2_convert+(tempchar-'0'); //agarra los primeros char (hora)
-    
-      resto=var2_convert%15; //saca el resto ejemplo 7/5 resto 2
-      if(resto<8) var2_convert= var2_convert-resto; //redondeapara abajo
-      else var2_convert=var2_convert+15-resto;// redondea para arriba
-      var2_convert=var2_convert/15;
+      var2_convert=(toconvert.charAt(3)- '0')*10;//lo mismo que en el var 1 pero con minutos (10:[puntero aca]0)
+      var2_convert+=(toconvert.charAt(4)-'0');//lo mismo que en el var 1 pero con minutos
+      resto_convert=var2_convert%15; //saca el resto (ejemplo 7/5 resto 2)
+      if(resto_convert<8) var2_convert= var2_convert-resto_convert; //utiliza el resto para redondear abajo (Esto se da pq en el propio diseño del sistema decidimos guardar todas las horas en un char)
+      else var2_convert=var2_convert+15-resto_convert;// utiliza el resto para redondear arriba
+      var2_convert=var2_convert/15;// convierte los minutos en la proporcion del char (1 entero = 15 minutos)
 
-
-      var1_convert+=var2_convert;
+      var1_convert+=var2_convert;// suma horas y minutos
       return var1_convert;
       break;
     case 2:
-      var1_convert= toconvert.toInt();
+      var1_convert= toconvert.toInt();// hace magia y despues de tirar magia convierte el string en un int (fua ta dificil la conversion de ete)
       return var1_convert;
       break;
     default:
-      var2_convert= toconvert.toInt();
+      var2_convert= toconvert.toInt();// mismo sistema
       return var2_convert;
       break;
   }
