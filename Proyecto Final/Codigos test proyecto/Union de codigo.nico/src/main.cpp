@@ -388,8 +388,7 @@ void Serial_Read_UNO(){
           else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(CharPos);//si es el segundo en adelante lo suma
         }
       if(CharPos==StringLength)ConvertString=true;// activa el comando final (flag)
-  }
-
+  } 
   switch (input)//dependiendo del char de comando
   {
   case 'H':
@@ -579,6 +578,7 @@ void tomar_temperatura () //Sexo y adaptarlo para no usar delay
     milis_para_temperatura = 0;
   }
 }
+
 void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
     if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
