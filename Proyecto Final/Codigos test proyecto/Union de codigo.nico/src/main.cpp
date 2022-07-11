@@ -25,6 +25,7 @@ RTC_DS1307 rtc;
   uint64_t tiempo_actual;   
   const uint8_t sumador_temperatura = 5; 
   const uint16_t tiempo_de_espera = 5000;
+  const uint8_t maxima_temp = 80;
 
 void menu_basico();
 void menu_avanzado();
@@ -442,7 +443,7 @@ void menu_de_calefaccion_auto(){
   const uint8_t sumador_temperatura = 5;
   const uint16_t tiempo_de_espera = 5000;
   const uint8_t min_temp = 40;
-  const uint8_t maxima_temp = 80;
+
 
     switch (Flag)
     {
