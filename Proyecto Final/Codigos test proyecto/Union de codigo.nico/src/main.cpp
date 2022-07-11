@@ -1143,7 +1143,7 @@ void configuracionwifi(){
   
 }
 
-void login()
+void login() //incompleto
 {
   uint8_t pulsaciones1 = 0;
   bool mayus = false;
