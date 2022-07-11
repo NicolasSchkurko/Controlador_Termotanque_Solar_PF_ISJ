@@ -21,7 +21,10 @@ AT24C32 eep;
 RTC_DS1307 rtc;
 
   uint8_t temperatura_a_calentar;
-  uint64_t tiempo_actual;
+  uint64_t tiempo_actual;   //comparten de aca para abajo con calef. manual y auto
+  uint64_t tiempo_actual;   
+  const uint8_t sumador_temperatura = 5; 
+  const uint16_t tiempo_de_espera = 5000;
 
 void menu_basico();
 void menu_avanzado();
@@ -367,10 +370,8 @@ void menu_avanzado()
 }
 
 // VERIFICAR EN FISICO
-void menu_de_calefaccion_manual()
-{
-  const uint8_t sumador_temperatura = 5;
-  const uint16_t tiempo_de_espera = 5000;
+void menu_de_calefaccion_manual(){
+
   const uint8_t maxima_temp = 80;
 
     switch (Flag)
@@ -437,15 +438,12 @@ void menu_de_calefaccion_manual()
     }
 }
 
-void menu_de_calefaccion_auto()
-  {
+void menu_de_calefaccion_auto(){
   const uint8_t sumador_temperatura = 5;
   const uint16_t tiempo_de_espera = 5000;
   const uint8_t min_temp = 40;
   const uint8_t maxima_temp = 80;
-  uint64_t tiempo_actual;
 
-    
     switch (Flag)
     {
       case 2:
@@ -662,8 +660,7 @@ uint64_t tiempo_actual;
   }
 }
 
-void menu_de_llenado_manual()
-{
+void menu_de_llenado_manual(){
   const uint8_t sumador_nivel = 5;
   const uint16_t tiempo_de_espera = 5000;
   const uint8_t min_percent = 40;
@@ -671,7 +668,6 @@ void menu_de_llenado_manual()
   uint8_t nivel_a_llenar;
   uint64_t tiempo_actual;
 
-    
     switch (Flag)
     {
       case 2:
@@ -777,8 +773,7 @@ void modificar_hora_rtc()
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_hora--;}
         if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=6;fix_max_uint=0;lcd.clear();}
 
-        break;
-      
+        break;            
       case 6:
         lcd.setCursor(0,0);
         lcd.print("Hour:");
@@ -1121,17 +1116,19 @@ void tomar_temperatura () //Sexo y adaptarlo para no usar delay
   }
 }
 
-void sensar_nivel_actual(){
-   /* if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
-    if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
-    if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = tanque_al_50;
-    if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
-    if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;*/
+void sensar_nivel_actual()
+{
+  if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
+  if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
+  if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = tanque_al_50;
+  if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
+  if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)nivel_actual = tanque_al_100;
 }
 
-void nivel_auto (){//modificar
-    if (nivel_actual <= nivel_inicial)    digitalWrite(electrovalvula, HIGH);
-    if (nivel_actual == nivel_final)    digitalWrite(electrovalvula, LOW);
+void nivel_auto () //modificar
+{
+  if (nivel_actual <= nivel_inicial)    digitalWrite(electrovalvula, HIGH);
+  if (nivel_actual == nivel_final)    digitalWrite(electrovalvula, LOW);
 }
 
 void control_de_temp_auto(){
@@ -1140,8 +1137,22 @@ void control_de_temp_auto(){
 
 /*=====================================LABURANDOLO==============================================*/
 void configuracionwifi(){  
+String SSID;
+String SSID_pass;
+
   
-}
+  switch (Flag)
+  {
+  case 2:
+    SSID=" ";
+    SSID_pass=" ";
+    Flag=3;
+    break;
+  case 3:
+   
+    break;
+    
+    
 
 void login() //incompleto
 {
@@ -1197,5 +1208,8 @@ char Letra(uint8_t letranum, bool mayus)
     break;
   }
 }
+
+
+  
 
 
