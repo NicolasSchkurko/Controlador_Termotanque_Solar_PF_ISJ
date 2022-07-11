@@ -7,7 +7,7 @@ LiquidCrystal_I2C lcd(0x20,16,2);
 //LiquidCrystal lcd(12,11,10,9,8,7);
 //tiene que cambiar de estado cada 1.25v
 const int sensado_de_nivel = A0;
-int mili_segundos = 0;
+uint32_t mili_segundos = 0;
 
 typedef enum{tanque_vacio,tanque_al_25, tanque_al_50, tanque_al_75, tanque_al_100} niveles; 
 niveles nivel;
