@@ -20,12 +20,24 @@ no sean cripticos la concha de su madre*/
 AT24C32 eep;
 RTC_DS1307 rtc;
 
-  uint8_t temperatura_a_calentar;
-  uint64_t tiempo_actual;   //comparten de aca para abajo con calef. manual y auto
+  uint8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
+  //comparten de aca para abajo con calef. manual y auto
   const uint8_t sumador_temperatura = 5; 
   const uint16_t tiempo_de_espera = 5000; //puede hacerse un DEFINE porque no se modifica
   const uint8_t maxima_temp = 80;
   const uint8_t min_temp = 40;            //puede hacerse un DEFINE porque no se modifica
+
+  //vals that share in level funcions //Jere: ??
+  const uint8_t sumador_nivel = 5;
+  //const uint16_t tiempo_de_espera = 5000; Aparece 2 veces esta variable che
+  
+  //vals that need the levels funcions
+  uint8_t nivel_a_llenar;             //(used in manual)
+  uint64_t tiempo_actual;             //(used in temperature funcions and in llenado auto to showw a confirm output)
+  const uint8_t min_percent = 40;     //can be a DEFINE because doesnt change (used in manual)
+  const uint8_t maxima_percent = 80;  //can be a DEFINE because doesnt change (used in manual)
+  const uint8_t min_nivel = 20;       //can be a DEFINE because doesnt change (used in auto)
+  const uint8_t maxima_nivel = 100;   //can be a DEFINE because doesnt change (used in auto)
 
 void menu_basico();
 void menu_avanzado();
@@ -44,6 +56,8 @@ void menu_de_llenado_auto();
 void menu_de_llenado_manual();
 void Actualizar_hora ();
 void modificar_hora_rtc();
+void checklvl();
+void checktemp();
 uint8_t menuposY(uint8_t , uint8_t, uint8_t);
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
 String desconvercionhora(uint8_t,uint8_t,uint8_t,uint8_t);
@@ -51,7 +65,8 @@ uint8_t convercionhora(uint8_t, String);
 void sensar_nivel_actual();
 #define onewire 9
 OneWire sensor_t(onewire);
-DallasTemperature Sensor_temp(&sensor_t); 
+DallasTemperature Sensor_temp(&sensor_t);
+bool flag_f = false;
 uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
 uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
 uint8_t temperatura_final = 40;
@@ -183,6 +198,10 @@ void loop()
   tomar_temperatura();
   Actualizar_hora ();
   sensar_nivel_actual();
+
+  checklvl();
+  checktemp();
+
   if (Serial.available()>0)Serial_Read_UNO();
   /*control_de_temp_auto();
   sensar_nivel_actual();*/
@@ -227,6 +246,7 @@ void standby()
   lcd.print("Nivel: ");
   lcd.setCursor(8,0);
   lcd.print(nivel_actual);
+  lcd.print("%");
   lcd.setCursor(0,1);
   lcd.print("Temperatura:");
   tomar_temperatura();
@@ -449,11 +469,11 @@ switch (Flag)
     lcd.print("Temperatura min:");
     lcd.print(temperatura_inicial);
     lcd.setCursor(0,1);
-    lcd.print("Sumar 5 con: 1 ");
+    lcd.print("Sumar 5 con: 1");
     lcd.setCursor(0,2);
     lcd.print("Restar 5 con: 2");
     lcd.setCursor(0,3);
-    lcd.print("Confirmar con 3");
+    lcd.print("Confirmar con: 3");
 
     if(digitalRead(pulsador1) == LOW && temperatura_inicial<maxima_temp-sumador_temperatura)
       {
@@ -542,91 +562,84 @@ switch (Flag)
   }
 }
 
-void menu_de_llenado_auto(){
-const uint8_t sumador_nivel = 5;
-const uint16_t tiempo_de_espera = 5000;
-const uint8_t min_nivel = 20;
-const uint8_t maxima_nivel = 100;
-uint64_t tiempo_actual;
-
-  
+void menu_de_llenado_auto()
+{
   switch (Flag)
   {
-  case 2:
-    nivel_inicial=60;
-    Flag=3;
-    break;
-  case 3:
-    lcd.setCursor(0,0);
-    lcd.print("Nivel min:");
-    lcd.print(nivel_inicial);
-    lcd.setCursor(0,1);
-    lcd.print("Sumar 5 con: 1 ");
-    lcd.setCursor(0,2);
-    lcd.print("Restar 5 con: 2");
-    lcd.setCursor(0,3);
-    lcd.print("Confirmar con 3");
-
-    if(digitalRead(pulsador1) == LOW && nivel_inicial<maxima_nivel-sumador_nivel)
-      {
-        while(digitalRead(pulsador1) == LOW){}
-        nivel_inicial += sumador_nivel;
-        mili_segundos = 0;
-        lcd.setCursor(11,0); lcd.print("       ");
-      }
-    
-    if(digitalRead(pulsador2) == LOW && min_nivel<nivel_inicial)
-      {
-        while(digitalRead(pulsador2) == LOW){}
-        nivel_inicial -= sumador_nivel;
-        mili_segundos = 0;
-        lcd.setCursor(11,0); lcd.print("       ");
-      }
-
-    if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
-        Flag=4;
-        nivel_final=nivel_inicial+sumador_nivel;
-        lcd.clear();
-      }
-    break;
-    
-    case 4:
-          lcd.setCursor(0,0);
-    lcd.print("Temperatura max:");
-    lcd.print(nivel_final);
-    lcd.setCursor(0,1);
-    lcd.print("Sumar 5 con: 1 ");
-    lcd.setCursor(0,2);
-    lcd.print("Restar 5 con: 2");
-    lcd.setCursor(0,3);
-    lcd.print("Confirmar con 3");
-
-
-    if(digitalRead(pulsador1) == LOW && nivel_final < maxima_nivel)
-      {
-        while(digitalRead(pulsador1) == LOW){}
-        nivel_final += sumador_nivel;
-        mili_segundos = 0;
-        lcd.setCursor(11,0); lcd.print("       ");
-      }
-    
-    if(digitalRead(pulsador2) == LOW && nivel_final>nivel_inicial+sumador_nivel)
-      {
-        while(digitalRead(pulsador2) == LOW){}
-        nivel_final -= sumador_nivel;
-        mili_segundos = 0;
-        lcd.setCursor(11,0); lcd.print("       ");
-      }
-
-    if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
-        Flag=5;
-        lcd.clear();
-      }
+    case 2:
+      nivel_inicial=60;
+      Flag=3;
       break;
-    case 5:
-  
+    case 3:
+      lcd.setCursor(0,0);
+      lcd.print("Nivel min:");
+      lcd.print(nivel_inicial);
+      lcd.setCursor(0,1);
+      lcd.print("Sumar 5 con: 1 ");
+      lcd.setCursor(0,2);
+      lcd.print("Restar 5 con: 2");
+      lcd.setCursor(0,3);
+      lcd.print("Confirmar con 3");
+
+      if(digitalRead(pulsador1) == LOW && nivel_inicial<maxima_nivel-sumador_nivel)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          nivel_inicial += sumador_nivel;
+          mili_segundos = 0;
+          lcd.setCursor(11,0); lcd.print("       ");
+        }
+    
+      if(digitalRead(pulsador2) == LOW && min_nivel<nivel_inicial)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          nivel_inicial -= sumador_nivel;
+          mili_segundos = 0;
+          lcd.setCursor(11,0); lcd.print("       ");
+        }
+
+      if(digitalRead(pulsador3) == LOW){
+          while(digitalRead(pulsador3) == LOW){}
+          Flag=4;
+          nivel_final=nivel_inicial+sumador_nivel;
+          lcd.clear();
+        }
+      break;
+      
+    case 4:
+      lcd.setCursor(0,0);
+      lcd.print("Temperatura max:");
+      lcd.print(nivel_final);
+      lcd.setCursor(0,1);
+      lcd.print("Sumar 5 con: 1 ");
+      lcd.setCursor(0,2);
+      lcd.print("Restar 5 con: 2");
+      lcd.setCursor(0,3);
+      lcd.print("Confirmar con 3");
+
+      if(digitalRead(pulsador1) == LOW && nivel_final < maxima_nivel)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          nivel_final += sumador_nivel;
+          mili_segundos = 0;
+          lcd.setCursor(11,0); lcd.print("       ");
+        }
+    
+      if(digitalRead(pulsador2) == LOW && nivel_final>nivel_inicial+sumador_nivel)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          nivel_final -= sumador_nivel;
+          mili_segundos = 0;
+          lcd.setCursor(11,0); lcd.print("       ");
+        }
+
+      if(digitalRead(pulsador3) == LOW){
+          while(digitalRead(pulsador3) == LOW){}
+          Flag=5;
+          lcd.clear();
+        }
+      break;
+
+    case 5: 
       lcd.setCursor(0,0);
       lcd.print("Minima guardada:");
       lcd.print(nivel_inicial);
@@ -648,19 +661,13 @@ uint64_t tiempo_actual;
     case 6:
       lcd.setCursor(0,0);
       lcd.print("Guardando...");
-      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;lcd.clear();}
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial; Flag=0; funcionActual=0; lcd.clear();}
       break;
       
   }
 }
 
 void menu_de_llenado_manual(){
-  const uint8_t sumador_nivel = 5;
-  const uint16_t tiempo_de_espera = 5000;
-  const uint8_t min_percent = 40;
-  const uint8_t maxima_percent = 80;
-  uint8_t nivel_a_llenar;
-  uint64_t tiempo_actual;
 
     switch (Flag)
     {
@@ -737,8 +744,7 @@ void modificar_hora_rtc()
   const uint16_t tiempo_de_espera = 5000;
   const uint8_t hora_max = 23;
   const uint8_t min_max = 45;
-  uint64_t tiempo_actual;
-  uint8_t hora_to_modify;
+  uint8_t hora_to_modify; //I kit actual time because in used in other sites and here didnt work
   uint8_t minuto_to_modify;
 
     switch (Flag)
@@ -1040,7 +1046,7 @@ String desconvercionhora(uint8_t function,uint8_t savehora,uint8_t temp, uint8_t
   uint8_t var2_deconvert=0;
   uint8_t resto_deconvert=0;
   String returned;
-  // todo el dia con la mielcita jere ¯\_(ツ)_/¯
+  // todo el dia con la mielcita jere ¯\_(ツ)_/¯ //??
   switch (function)
     {
       case 1:
@@ -1105,18 +1111,25 @@ void tomar_temperatura () //Sexo y adaptarlo para no usar delay
   if (milis_para_temperatura >= tiempo_para_temperatura)
   {
     Sensor_temp.requestTemperatures();
-    temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
+    if(flag_f == false)
+    {
+      temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
+    }
+    else
+    {
+      temperatura_del_sensor = Sensor_temp.getTempFByIndex(0);
+    }
     milis_para_temperatura = 0;
   }
 }
 
 void sensar_nivel_actual()
 {
-  /*if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
-  if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
-  if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = tanque_al_50;
-  if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
-  if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)nivel_actual = tanque_al_100;*/
+  if (analogRead(nivel_del_tanque) < 100) nivel_actual = 0;  
+  if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = 25;
+  if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = 50;
+  if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
+  if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
 }
 
 void nivel_auto () //modificar
@@ -1200,7 +1213,16 @@ char Letra(uint8_t letranum, bool mayus)
   }
 }
 
+void checktemp()
+{
+  /*=========Compara nivel actual con el minimo seteado============
+  if(nivel_actual < min_nivel) digitalWrite(electrovalvula == HIGH);
+  =================================================================*/
+}
 
-  
-
-
+void checklvl()
+{
+  /*======Compara temperatura actual con el minimo seteado=========
+  if(temperatura_del_sensor < temperatura_a_calentar) digitalWrite(resistencia == HIGH);
+  =================================================================*/
+}
