@@ -22,7 +22,6 @@ RTC_DS1307 rtc;
 
   uint8_t temperatura_a_calentar;
   uint64_t tiempo_actual;   //comparten de aca para abajo con calef. manual y auto
-  uint64_t tiempo_actual;   
   const uint8_t sumador_temperatura = 5; 
   const uint16_t tiempo_de_espera = 5000;
   const uint8_t maxima_temp = 80;
@@ -211,6 +210,7 @@ void loop()
     case funciones:
       if(funcionActual==1)menu_de_llenado_manual();
       if(funcionActual==2)menu_de_calefaccion_manual();
+      //if(funcionActual == 3) seteo_hora();
       if(funcionActual==4)menu_de_llenado_auto();
       if(funcionActual==5)menu_de_calefaccion_auto();
       if(funcionActual==6)modificar_hora_rtc();
@@ -1119,11 +1119,11 @@ void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 
 void sensar_nivel_actual()
 {
-  if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
+  /*if (analogRead(nivel_del_tanque) < 100) nivel_actual = tanque_vacio;  
   if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = tanque_al_25;
   if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = tanque_al_50;
   if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
-  if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)nivel_actual = tanque_al_100;
+  if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)nivel_actual = tanque_al_100;*/
 }
 
 void nivel_auto () //modificar
@@ -1153,10 +1153,10 @@ String SSID_pass;
    
     break;
     
-    
+  }
+}
 
-void login() //incompleto
-{
+void login() {
   uint8_t pulsaciones1 = 0;
   bool mayus = false;
   if(digitalRead(pulsador1) == LOW) pulsaciones1++;
@@ -1166,7 +1166,6 @@ void login() //incompleto
   lcd.setCursor(0,0);
   lcd.print("Network SSID:");
   lcd.setCursor(0,1);
-  
 }
 
 char Letra(uint8_t letranum, bool mayus)
