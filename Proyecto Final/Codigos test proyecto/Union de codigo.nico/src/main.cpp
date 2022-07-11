@@ -20,6 +20,8 @@ no sean cripticos la concha de su madre*/
 AT24C32 eep;
 RTC_DS1307 rtc;
 
+  uint8_t temperatura_a_calentar;
+  uint64_t tiempo_actual;
 
 void menu_basico();
 void menu_avanzado();
@@ -43,7 +45,9 @@ int control_de_temp_por_menu_manual(int temp_a_alcanzar);
 String desconvercionhora(uint8_t,uint8_t,uint8_t,uint8_t);
 uint8_t convercionhora(uint8_t, String);
 void sensar_nivel_actual();
-
+#define onewire 9
+OneWire sensor_t(onewire);
+DallasTemperature Sensor_temp(&sensor_t); 
 uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
 uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
 uint8_t temperatura_final = 40;
@@ -98,7 +102,7 @@ String WIFISSID;
 String WIFIPASS;
 //Cosas necesarias para el menu
 
-LiquidCrystal_I2C lcd(0x20,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
+LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
 typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF;  
 estadoMEF Estadoequipo = estado_inicial;
 const uint8_t maxY_menu1=7;
@@ -154,10 +158,10 @@ void setup()
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
   //Sensr de temperatura
-  /*Sensor_temp.begin();
+  Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
   temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
-  */
+  
   //pulsadores pra manejar los menus//
   pinMode(pulsador1, INPUT_PULLUP);
   pinMode(pulsador2, INPUT_PULLUP);
@@ -288,6 +292,7 @@ void menu_basico()
     case 2:
       Estadoequipo=funciones;
       funcionActual=2;
+      Flag=2;
       break;
     case 3:
       // cal y carg segun hora
@@ -366,22 +371,18 @@ void menu_de_calefaccion_manual()
 {
   const uint8_t sumador_temperatura = 5;
   const uint16_t tiempo_de_espera = 5000;
-  const uint8_t min_temp = 40;
   const uint8_t maxima_temp = 80;
-  uint8_t temperatura_a_calentar;
-  uint64_t tiempo_actual;
 
-    
     switch (Flag)
     {
       case 2:
-        if (min_temp>temperatura_del_sensor)temperatura_a_calentar=min_temp;
-        else temperatura_a_calentar=temperatura_del_sensor;
+        temperatura_a_calentar = temperatura_del_sensor;
         Flag=3;
         break;
       case 3:
         lcd.setCursor(0,0);
         lcd.print("Temp. a calentar:");
+        lcd.setCursor(17,0);
         lcd.print(temperatura_a_calentar);
         lcd.setCursor(0,1);
         lcd.print("Sumar 5 con: 1");
@@ -397,7 +398,7 @@ void menu_de_calefaccion_manual()
             lcd.setCursor(17,0); lcd.print("   ");
           }
         
-        if(digitalRead(pulsador2) == LOW && temperatura_a_calentar>min_temp || temperatura_a_calentar>temperatura_del_sensor)
+        if(digitalRead(pulsador2) == LOW && temperatura_a_calentar>temperatura_del_sensor)
           {
             while(digitalRead(pulsador2) == LOW){}
             temperatura_a_calentar -= sumador_temperatura;
@@ -674,7 +675,7 @@ void menu_de_llenado_manual()
     switch (Flag)
     {
       case 2:
-        if (min_percent>nivel_actual)nivel_a_llenar=min_percent;
+        if (min_percent > nivel_actual) nivel_a_llenar=min_percent;
         else nivel_a_llenar=nivel_actual;
         Flag=3;
         break;
@@ -696,7 +697,7 @@ void menu_de_llenado_manual()
             lcd.setCursor(17,0); lcd.print("   ");
           }
         
-        if(digitalRead(pulsador2) == LOW && nivel_a_llenar>min_percent || nivel_a_llenar>temperatura_del_sensor)
+        if(digitalRead(pulsador2) == LOW && (nivel_a_llenar>min_percent || nivel_a_llenar>temperatura_del_sensor))
           {
             while(digitalRead(pulsador2) == LOW){}
             nivel_a_llenar -= sumador_nivel;
@@ -720,16 +721,20 @@ void menu_de_llenado_manual()
           if(digitalRead(pulsador3) == LOW)
             {
               while(digitalRead(pulsador3) == LOW){}
-              Flag=5;
-              tiempo_actual=mili_segundos;
+              tiempo_actual=millis();//corregir porque no hace la espera
               lcd.clear();
+              Flag=5;
+
             }
           break;
 
         case 5:
           lcd.setCursor(0,0);
           lcd.print("Guardando...");
-          if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
+          while(millis()<tiempo_actual+tiempo_de_espera){}
+          Estadoequipo=estado_inicial;
+          Flag=0;
+          funcionActual=0;
           break;
           
     }
@@ -1108,12 +1113,12 @@ uint8_t convercionhora(uint8_t function, String toconvert)
 
 void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 {
-  /*if (milis_para_temperatura >= tiempo_para_temperatura)
+  if (milis_para_temperatura >= tiempo_para_temperatura)
   {
     Sensor_temp.requestTemperatures();
     temperatura_del_sensor = Sensor_temp.getTempCByIndex(0);
     milis_para_temperatura = 0;
-  }*/
+  }
 }
 
 void sensar_nivel_actual(){
@@ -1123,6 +1128,7 @@ void sensar_nivel_actual(){
     if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = tanque_al_75;
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)    nivel_actual = tanque_al_100;*/
 }
+
 void nivel_auto (){//modificar
     if (nivel_actual <= nivel_inicial)    digitalWrite(electrovalvula, HIGH);
     if (nivel_actual == nivel_final)    digitalWrite(electrovalvula, LOW);
