@@ -21,11 +21,12 @@ AT24C32 eep;
 RTC_DS1307 rtc;
 
   uint8_t temperatura_a_calentar;
-  uint64_t tiempo_actual;   //comparten de aca para abajo con calef. manual y auto
+  uint64_t tiempo_actual;                 //comparten de aca para abajo con calef. manual y auto
   uint64_t tiempo_actual;   
   const uint8_t sumador_temperatura = 5; 
-  const uint16_t tiempo_de_espera = 5000;
+  const uint16_t tiempo_de_espera = 5000; //puede hacerse un DEFINE porque no se modifica
   const uint8_t maxima_temp = 80;
+  const uint8_t min_temp = 40;            //puede hacerse un DEFINE porque no se modifica
 
 void menu_basico();
 void menu_avanzado();
@@ -370,11 +371,8 @@ void menu_avanzado()
   }
 }
 
-// VERIFICAR EN FISICO
+// VERIFICAR EN FISICO...
 void menu_de_calefaccion_manual(){
-
-  const uint8_t maxima_temp = 80;
-
     switch (Flag)
     {
       case 2:
@@ -440,114 +438,109 @@ void menu_de_calefaccion_manual(){
 }
 
 void menu_de_calefaccion_auto(){
-  const uint8_t sumador_temperatura = 5;
-  const uint16_t tiempo_de_espera = 5000;
-  const uint8_t min_temp = 40;
+switch (Flag)
+{
+  case 2:
+    temperatura_inicial=60;
+    Flag=3;
+    break;
+  case 3:
+    lcd.setCursor(0,0);
+    lcd.print("Temperatura min:");
+    lcd.print(temperatura_inicial);
+    lcd.setCursor(0,1);
+    lcd.print("Sumar 5 con: 1 ");
+    lcd.setCursor(0,2);
+    lcd.print("Restar 5 con: 2");
+    lcd.setCursor(0,3);
+    lcd.print("Confirmar con 3");
 
+    if(digitalRead(pulsador1) == LOW && temperatura_inicial<maxima_temp-sumador_temperatura)
+      {
+        while(digitalRead(pulsador1) == LOW){}
+        temperatura_inicial += sumador_temperatura;
+        mili_segundos = 0;
+        lcd.setCursor(17,0); lcd.print("    ");
+      }
+    
+    if(digitalRead(pulsador2) == LOW && min_temp<temperatura_inicial)
+      {
+        while(digitalRead(pulsador2) == LOW){}
+        temperatura_inicial -= sumador_temperatura;
+        mili_segundos = 0;
+        lcd.setCursor(17,0); lcd.print("    ");
+      }
 
-    switch (Flag)
-    {
-      case 2:
-        temperatura_inicial=60;
-        Flag=3;
-        break;
-      case 3:
-        lcd.setCursor(0,0);
-        lcd.print("Temperatura min:");
-        lcd.print(temperatura_inicial);
-        lcd.setCursor(0,1);
-        lcd.print("Sumar 5 con: 1 ");
-        lcd.setCursor(0,2);
-        lcd.print("Restar 5 con: 2");
-        lcd.setCursor(0,3);
-        lcd.print("Confirmar con 3");
+    if(digitalRead(pulsador3) == LOW)
+      {
+        while(digitalRead(pulsador3) == LOW){}
+        Flag=4;
+        lcd.setCursor(17,0); lcd.print("    ");
+        temperatura_final=temperatura_inicial+sumador_temperatura;
+      }
+    break; 
+  case 4:
+    lcd.setCursor(0,0);
+    lcd.print("Temperatura max:");
+    lcd.print(temperatura_final);
+    lcd.setCursor(0,1);
+    lcd.print("Sumar 5 con: 1 ");
+    lcd.setCursor(0,2);
+    lcd.print("Restar 5 con: 2");
+    lcd.setCursor(0,3);
+    lcd.print("Confirmar con 3");
 
-        if(digitalRead(pulsador1) == LOW && temperatura_inicial<maxima_temp-sumador_temperatura)
-          {
-            while(digitalRead(pulsador1) == LOW){}
-            temperatura_inicial += sumador_temperatura;
-            mili_segundos = 0;
-            lcd.setCursor(17,0); lcd.print("    ");
-          }
-        
-        if(digitalRead(pulsador2) == LOW && min_temp<temperatura_inicial)
-          {
-            while(digitalRead(pulsador2) == LOW){}
-            temperatura_inicial -= sumador_temperatura;
-            mili_segundos = 0;
-            lcd.setCursor(17,0); lcd.print("    ");
-          }
+    if(digitalRead(pulsador1) == LOW && temperatura_final < maxima_temp)
+      {
+        while(digitalRead(pulsador1) == LOW){}
+        temperatura_final += sumador_temperatura;
+        mili_segundos = 0;
+        lcd.setCursor(17,0); lcd.print("    ");
+      }
+    
+    if(digitalRead(pulsador2) == LOW && temperatura_final>temperatura_inicial+sumador_temperatura)
+      {
+        while(digitalRead(pulsador2) == LOW){}
+        temperatura_final -= sumador_temperatura;
+        mili_segundos = 0;
+        lcd.setCursor(17,0); lcd.print("    ");
+      }
 
-        if(digitalRead(pulsador3) == LOW)
-          {
-            while(digitalRead(pulsador3) == LOW){}
-            Flag=4;
-            lcd.setCursor(17,0); lcd.print("    ");
-            temperatura_final=temperatura_inicial+sumador_temperatura;
-          }
-        break; 
-      case 4:
-        lcd.setCursor(0,0);
-        lcd.print("Temperatura max:");
-        lcd.print(temperatura_final);
-        lcd.setCursor(0,1);
-        lcd.print("Sumar 5 con: 1 ");
-        lcd.setCursor(0,2);
-        lcd.print("Restar 5 con: 2");
-        lcd.setCursor(0,3);
-        lcd.print("Confirmar con 3");
+    if(digitalRead(pulsador3) == LOW){
+        while(digitalRead(pulsador3) == LOW){}
+        Flag=5;
+        lcd.clear();
+      }
+      break;
 
-        if(digitalRead(pulsador1) == LOW && temperatura_final < maxima_temp)
-          {
-            while(digitalRead(pulsador1) == LOW){}
-            temperatura_final += sumador_temperatura;
-            mili_segundos = 0;
-            lcd.setCursor(17,0); lcd.print("    ");
-          }
-        
-        if(digitalRead(pulsador2) == LOW && temperatura_final>temperatura_inicial+sumador_temperatura)
-          {
-            while(digitalRead(pulsador2) == LOW){}
-            temperatura_final -= sumador_temperatura;
-            mili_segundos = 0;
-            lcd.setCursor(17,0); lcd.print("    ");
-          }
+    case 5:
+      lcd.setCursor(0,0);
+      lcd.print("Minima guardada:");
+      lcd.print(temperatura_inicial);
+      lcd.setCursor(0,1);
+      lcd.print("Maxima guardada:");
+      lcd.print(temperatura_final);
+      lcd.setCursor(0,3);
+      lcd.print("     Confirmar?    ");
+      if(digitalRead(pulsador3) == LOW)
+        {
+          while(digitalRead(pulsador3) == LOW){}
+          Flag=6;
+          eep.write(10,temperatura_inicial);
+          eep.write(11,temperatura_final);
+          tiempo_actual=mili_segundos;
+          lcd.clear();
+        }
+      break;
 
-        if(digitalRead(pulsador3) == LOW){
-            while(digitalRead(pulsador3) == LOW){}
-            Flag=5;
-            lcd.clear();
-          }
-          break;
+    case 6:
+      lcd.setCursor(0,0);
+      lcd.print("Guardando...");
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
+      break;
 
-        case 5:
-          lcd.setCursor(0,0);
-          lcd.print("Minima guardada:");
-          lcd.print(temperatura_inicial);
-          lcd.setCursor(0,1);
-          lcd.print("Maxima guardada:");
-          lcd.print(temperatura_final);
-          lcd.setCursor(0,3);
-          lcd.print("     Confirmar?    ");
-          if(digitalRead(pulsador3) == LOW)
-            {
-              while(digitalRead(pulsador3) == LOW){}
-              Flag=6;
-              eep.write(10,temperatura_inicial);
-              eep.write(11,temperatura_final);
-              tiempo_actual=mili_segundos;
-              lcd.clear();
-            }
-          break;
-
-        case 6:
-          lcd.setCursor(0,0);
-          lcd.print("Guardando...");
-          if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
-          break;
-          
-    }
   }
+}
 
 void menu_de_llenado_auto(){
 const uint8_t sumador_nivel = 5;
@@ -1152,8 +1145,8 @@ String SSID_pass;
   case 3:
    
     break;
-    
-    
+  }    
+}  
 
 void login() //incompleto
 {
