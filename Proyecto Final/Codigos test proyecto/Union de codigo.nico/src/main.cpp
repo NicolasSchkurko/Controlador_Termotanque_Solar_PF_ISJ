@@ -17,8 +17,8 @@
 no sean cripticos la concha de su madre*/
 
 
-AT24C32 eep;
-RTC_DS1307 rtc;
+  AT24C32 eep;
+  RTC_DS1307 rtc;
 
   uint8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
   //comparten de aca para abajo con calef. manual y auto
@@ -108,6 +108,11 @@ bool StringTaked=false;
 bool stateheating=false;
 bool ComunicationError=false;
 bool InitComunication;
+uint8_t hora_to_modify;
+uint8_t minuto_to_modify;
+uint8_t sumador_hora;
+uint8_t sumador_minuto;
+bool mayusculas=false;
 //cosas del mennu avanzado
 //funciones para el RTC se cionecta directamente a los pines SCL Y SDA
 /*RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
@@ -739,14 +744,9 @@ void menu_de_llenado_manual(){
 
 void modificar_hora_rtc()
   {
-  uint8_t sumador_hora;
-  uint8_t sumador_minuto;
   const uint16_t tiempo_de_espera = 5000;
   const uint8_t hora_max = 23;
-  const uint8_t min_max = 45;
-  uint8_t hora_to_modify; //I kit actual time because in used in other sites and here didnt work
-  uint8_t minuto_to_modify;
-
+  const uint8_t min_max = 45; //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
     switch (Flag)
     {
       case 4:
@@ -767,7 +767,7 @@ void modificar_hora_rtc()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        hora_to_modify= menuposY(hora+sumador_hora,hora_max,23);
+        hora_to_modify = menuposY(hora+sumador_hora,hora_max,24);
 
         if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_hora++;}
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_hora--;}
@@ -779,17 +779,15 @@ void modificar_hora_rtc()
         lcd.print("Hour:");
         lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
         lcd.setCursor(0,1);
-        lcd.print("aumentar minuto con: 1 ");
+        lcd.print("aumentar con: 1 ");
         lcd.setCursor(0,2);
-        lcd.print("disminuir minuto con: 2");
+        lcd.print("disminuir con: 2");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
-
-        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max,45);
-
-        if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_minuto+=15;}
-        if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto-=15;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;lcd.clear();}
+        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max,60);
+        if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
+        if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto--;}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;fix_max_uint=0;lcd.clear();}
         break;
       case 7:
         lcd.setCursor(0,0);
@@ -1142,73 +1140,128 @@ void control_de_temp_auto(){
 
 }
 
-/*=====================================LABURANDOLO==============================================*/
+/*========================Ññ¡¿=============LABURANDOLO==============================================*/
 void configuracionwifi(){  
-String SSID;
-String SSID_pass;
 
-  
   switch (Flag)
   {
-  case 2:
-    SSID=" ";
-    SSID_pass=" ";
-    Flag=3;
+  case 4:
+    WIFISSID="                                 ";
+    WIFIPASS="                                   ";
+    Ypos=0;
+    Actualchar=0;
+    Flag=5;
+    fix_max_uint=0;
     break;
-  case 3:
-   
+  case 5:
+    lcd.setCursor(0,0);
+    lcd.print("Nombre Wifi:");
+    lcd.setCursor(0,1);
+    lcd.print(WIFISSID);
+    WIFISSID.setCharAt(Ypos,Letra(menuposY (Actualchar, 40, 240), mayusculas));
+
+    if(digitalRead(pulsador1) == LOW )
+      {
+        while(digitalRead(pulsador1) == LOW){}
+        Actualchar++;
+      }
+    if(digitalRead(pulsador2) == LOW )
+      {
+        while(digitalRead(pulsador2) == LOW){}
+        mayusculas=!mayusculas;
+      }
+    if(digitalRead(pulsador3) == LOW )
+      {
+        while(digitalRead(pulsador3) == LOW){}
+        Ypos ++;
+        Actualchar=0;
+      }
+    if(digitalRead(pulsador4) == LOW )
+      {
+        while(digitalRead(pulsador4) ){}
+        lcd.clear();
+        fix_max_uint=0;
+        Flag=6;
+        Ypos=0;
+        Actualchar=0;
+      }
     break;
+      case 6:
+    lcd.setCursor(0,0);
+    lcd.print("Pass Wifi:");
+    lcd.setCursor(0,1);
+    lcd.print(WIFIPASS);
+    WIFIPASS.setCharAt(Ypos,Letra(menuposY (Actualchar, 40, 240), mayusculas));
+
+    if(digitalRead(pulsador1) == LOW )
+      {
+        while(digitalRead(pulsador1) == LOW){}
+        Actualchar++;
+      }
+    if(digitalRead(pulsador2) == LOW )
+      {
+        while(digitalRead(pulsador2) == LOW){}
+        mayusculas=!mayusculas;
+      }
+    if(digitalRead(pulsador3) == LOW )
+      {
+        while(digitalRead(pulsador3) == LOW){}
+        Ypos ++;
+        Actualchar=0;
+      }
+    if(digitalRead(pulsador4) == LOW )
+      {
+        while(digitalRead(pulsador4) ){}
+        lcd.clear();
+        fix_max_uint=0;
+        tiempo_actual=mili_segundos;
+        Flag=7;
+        Ypos=0;
+        Actualchar=0;
+
+      }
+    break;
+      case 7:
+      lcd.setCursor(0,0);
+      lcd.print("Guardando...");
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial; Flag=0; funcionActual=0; lcd.clear();}
+      break;
   }
+
 }
-void login() {
-  uint8_t pulsaciones1 = 0;
-  bool mayus = false;
-  if(digitalRead(pulsador1) == LOW) pulsaciones1++;
-  if(digitalRead(pulsador2) == LOW) pulsaciones1--;
-  if(digitalRead(pulsador3) == LOW) mayus = !mayus;
-  Letra(pulsaciones1, mayus);
-  lcd.setCursor(0,0);
-  lcd.print("Network SSID:");
-  lcd.setCursor(0,1);
-}
+
 
 char Letra(uint8_t letranum, bool mayus)
 {
   switch (mayus)
   {
     case true:
-      if (letranum>=0 && letranum<=13)return letranum+65;
-      if (letranum==14)return 165;
-      if (letranum>=15 && letranum<=26)return letranum+64;
-      if (letranum==27) return 36;
-      if (letranum==28) return 37;
-      if (letranum==29) return 38;
-      if (letranum==30) return 47;
-      if (letranum==31) return 40;
-      if (letranum==32) return 41;
-      if (letranum==33) return 61;
-      if (letranum==34) return 59;
-      if (letranum==35) return 58;
-      if (letranum==36) return 94;
+      if (letranum>=0 && letranum<=25)return letranum+65;
+      if (letranum==26) return 36;
+      if (letranum==27) return 37;
+      if (letranum==28) return 38;
+      if (letranum==29) return 47;
+      if (letranum==30) return 40;
+      if (letranum==31) return 41;
+      if (letranum==32) return 61;
+      if (letranum==33) return 59;
+      if (letranum==34) return 58;
+      if (letranum==35) return 94;
       if (letranum==36) return 63;
-      if (letranum==37) return 168;
-      if (letranum==38) return 95;
-      if (letranum==39) return 35;
-      if (letranum==40) return 27;
-      if (letranum>40) return 0;
+      if (letranum==37) return 95;
+      if (letranum==38) return 35;
+      if (letranum==39) return 27;
+      if (letranum>39) return 0;
     break;
 
     case false:
-      if (letranum>=0 && letranum<=13)return letranum+97;
-      if (letranum==14)return 164;
-      if (letranum>=15 && letranum<=26)return letranum+96;
+      if (letranum>=0 && letranum<=25)return letranum+97;
       if (letranum>=26 && letranum<=35)return letranum+22;
       if (letranum==36) return 33;
-      if (letranum==37) return 173;
-      if (letranum==38) return 45;
-      if (letranum==39) return 64;
-      if (letranum==40) return 0;
-      if (letranum>40) return 0;
+      if (letranum==37) return 45;
+      if (letranum==38) return 64;
+      if (letranum==39) return 0;
+      if (letranum>39) return 0;
     break;
   }
 }
