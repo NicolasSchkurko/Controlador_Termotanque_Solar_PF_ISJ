@@ -28,15 +28,15 @@ no sean cripticos la concha de su madre*/
   const uint8_t min_temp = 40;            //puede hacerse un DEFINE porque no se modifica
 
   //vals that share in level funcions //Jere: ?? // Chuco: ??
-  const uint8_t sumador_nivel = 5;
+  const uint8_t sumador_nivel = 25;
   //const uint16_t tiempo_de_espera = 5000; Aparece 2 veces esta variable che
   
   //vals that need the levels funcions
-  uint8_t nivel_a_llenar;             //(used in manual)
+  int8_t nivel_a_llenar;             //(used in manual)
   uint64_t tiempo_actual;             //(used in temperature funcions and in llenado auto to showw a confirm output)
-  const uint8_t min_percent = 40;     //can be a DEFINE because doesnt change (used in manual)
-  const uint8_t maxima_percent = 80;  //can be a DEFINE because doesnt change (used in manual)
-  const uint8_t min_nivel = 20;       //can be a DEFINE because doesnt change (used in auto)
+  const uint8_t min_percent = 25;     //can be a DEFINE because doesnt change (used in manual)
+  const uint8_t maxima_percent = 100; //can be a DEFINE because doesnt change (used in manual)
+  const uint8_t min_nivel = 0;        //can be a DEFINE because doesnt change (used in auto)
   const uint8_t maxima_nivel = 100;   //can be a DEFINE because doesnt change (used in auto)
 
 void menu_basico();
@@ -67,12 +67,13 @@ void sensar_nivel_actual();
 #define onewire 9
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t);
-bool flag_f = false;
+bool flag_f = false;  //true para tomar temperatura en farenheit
 uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
 uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
 uint8_t temperatura_final = 40;
 int16_t temperatura_del_sensor=0;
 uint16_t milis_para_temperatura = 0;
+
 //nivel de agua
 uint8_t nivel_inicial;
 uint8_t nivel_final; 
@@ -84,17 +85,21 @@ uint8_t  nivel = 0;
 uint64_t  mili_segundos = 0;// ayy milii BOCHA DE SEGUNDOS LOL 
 uint16_t  milis_para_nivel = 0;
 uint16_t tiempo_para_nivel = 3000;
+
 //cosas guardado y rtc
 struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
 save_data save[5]; 
 uint8_t ActualStruct=0;
+
 //cosas del menu princial
 uint8_t funcionActual=0;
 uint16_t tiempo_de_standby = 0;
-uint8_t opcionmenu1=0;
+typedef enum{posicion_menu_de_llenado_manual,posicion_menu_de_calefaccion_manual,posicion_seteo_hora,posicion_menu_de_llenado_auto,posicion_menu_de_calefaccion_auto,posicion_modificar_hora_rtc,posicion_configuracionwifi} Control_De_posicion_de_menu1;  
+Control_De_posicion_de_menu1 opcionmenu1=posicion_menu_de_calefaccion_manual;
 uint8_t opcionmenu2=0;
 uint8_t Flag=0;
 uint8_t fix_max_uint;
+
 // Comunicacion esp/arduino
 String Serial_Input;
 String Individualdata[4];
@@ -127,7 +132,7 @@ String WIFISSID;
 String WIFIPASS;
 //Cosas necesarias para el menu
 
-LiquidCrystal_I2C lcd(0x20,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
+LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
 typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF;  
 estadoMEF Estadoequipo = estado_inicial;
 const uint8_t maxY_menu1=7;
@@ -177,11 +182,14 @@ void setup()
   Serial.begin(9600); //inicializacion del serial arduino-esp
   rtc.begin();//inicializacion del rtc arduino-esp
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
-  lcd.init();//Iniciacion del LCD
+  
+  //Iniciacion del LCD
+  lcd.init();
   lcd.backlight();
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
+  
   //Sensr de temperatura
   Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
@@ -210,7 +218,6 @@ void loop()
 
   if (Serial.available()>0)Serial_Read_UNO();
   /*control_de_temp_auto();
-  sensar_nivel_actual();*/
   /*if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
   {
     control_de_temp_auto();
@@ -236,11 +243,13 @@ void loop()
     case funciones:
       if(funcionActual==1)menu_de_llenado_manual();
       if(funcionActual==2)menu_de_calefaccion_manual();
-      if(funcionActual==3) seteo_hora();
+      if(funcionActual==3)seteo_hora();
       if(funcionActual==4)menu_de_llenado_auto();
       if(funcionActual==5)menu_de_calefaccion_auto();
       if(funcionActual==6)modificar_hora_rtc();
-      if(funcionActual==9)configuracionwifi();
+      //7
+      //8
+      if(funcionActual==9)configuracionwifi();//avanzado
       break;
   }
  
@@ -252,34 +261,39 @@ void standby()
   lcd.print("Nivel: ");
   lcd.setCursor(8,0);
   lcd.print(nivel_actual);
-  lcd.print("%");
+  lcd.print("% ");
   lcd.setCursor(0,1);
   lcd.print("Temperatura:");
   tomar_temperatura();
   lcd.setCursor(13,1);
   lcd.print(temperatura_del_sensor);
-  lcd.print((char)223);
+  lcd.print((char)223); //imprime °
   lcd.print("C");
-  //imprimir_hora();
-  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW ){
+  lcd.setCursor(0,2);
+  lcd.print("Hora: ");
+  lcd.print(hora, DEC);
+  lcd.print(":");
+  lcd.print(minutos, DEC);
+  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW )
+  {
     while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW){}
     switch (Estadoequipo)
     {
-    case estado_standby:
-      Estadoequipo = estado_inicial;
-      lcd.backlight();
-      tiempo_de_standby=0;
-      break;
-    case estado_inicial:
-      Flag=1;
-      Estadoequipo =menu1;
-      lcd.backlight();
-      break;
-    default:
-      Estadoequipo = estado_standby;
-      break;
+      case estado_standby:
+        Estadoequipo = estado_inicial;
+        lcd.backlight();
+        tiempo_de_standby=0;
+        break;
+      case estado_inicial:
+        Flag=1;
+        Estadoequipo = menu1;
+        lcd.backlight();
+        break;
+      default:
+        Estadoequipo = estado_standby;
+        break;
     }   
-    }
+  }
   if(tiempo_de_standby>=5000 && Estadoequipo  == estado_inicial)
   {
     Estadoequipo = estado_standby;
@@ -615,7 +629,7 @@ void menu_de_llenado_auto()
       
     case 4:
       lcd.setCursor(0,0);
-      lcd.print("Temperatura max:");
+      lcd.print("Nivel max:");
       lcd.print(nivel_final);
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con: 1 ");
@@ -649,10 +663,10 @@ void menu_de_llenado_auto()
 
     case 5: 
       lcd.setCursor(0,0);
-      lcd.print("Minima guardada:");
+      lcd.print("Minimo guardada:");
       lcd.print(nivel_inicial);
       lcd.setCursor(0,1);
-      lcd.print("Maxima guardada:");
+      lcd.print("Maximo guardada:");
       lcd.print(nivel_final);
       lcd.setCursor(0,3);
       lcd.print("     Confirmar?    ");
@@ -676,7 +690,6 @@ void menu_de_llenado_auto()
 }
 
 void menu_de_llenado_manual(){
-
     switch (Flag)
     {
       case 2:
@@ -686,8 +699,9 @@ void menu_de_llenado_manual(){
         break;
       case 3:
         lcd.setCursor(0,0);
-        lcd.print("Temp. a calentar:");
-        lcd.print(nivel_a_llenar);
+        lcd.print("Nivel a llenar: ");
+        lcd.print(nivel_a_llenar );
+        lcd.print(" ");
         lcd.setCursor(0,1);
         lcd.print("Sumar 5 con: 1");
         lcd.setCursor(0,2);
@@ -695,18 +709,20 @@ void menu_de_llenado_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        if(digitalRead(pulsador1) == LOW && nivel_a_llenar<maxima_percent)
+        if(digitalRead(pulsador1) == LOW)
           {
             while(digitalRead(pulsador1) == LOW){}
             nivel_a_llenar += sumador_nivel;
-            lcd.setCursor(17,0); lcd.print("   ");
+            if(nivel_a_llenar > maxima_nivel) nivel_a_llenar = maxima_nivel;
+            //lcd.setCursor(17,0); lcd.print("   ");
           }
         
-        if(digitalRead(pulsador2) == LOW && (nivel_a_llenar>min_percent || nivel_a_llenar>temperatura_del_sensor))
+        if(digitalRead(pulsador2) == LOW)
           {
             while(digitalRead(pulsador2) == LOW){}
             nivel_a_llenar -= sumador_nivel;
-            lcd.setCursor(17,0); lcd.print("  ");
+            if(nivel_a_llenar < min_nivel) nivel_a_llenar = min_nivel;
+            //lcd.setCursor(17,0); lcd.print("  ");
           }
 
         if(digitalRead(pulsador3) == LOW)
@@ -719,8 +735,9 @@ void menu_de_llenado_manual(){
 
         case 4:
           lcd.setCursor(0,0);
-          lcd.print("Calentar hasta:");
+          lcd.print("Lenar hasta:");
           lcd.print(nivel_a_llenar);
+          lcd.print("      ");
           lcd.setCursor(0,3);
           lcd.print("     Confirmar?    ");
           if(digitalRead(pulsador3) == LOW)
@@ -979,6 +996,7 @@ void seteo_hora()
 
     }
   }
+
 //==============================FUNCIONES ESCONDIDAS===================
 
 void Actualizar_hora ()
@@ -1287,11 +1305,15 @@ void tomar_temperatura () //Sexo y adaptarlo para no usar delay
 
 void sensar_nivel_actual()
 {
-  if (analogRead(nivel_del_tanque) < 100) nivel_actual = 0;  
-  if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = 25;
-  if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = 50;
-  if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
-  if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
+  if (milis_para_nivel > tiempo_para_nivel)
+  {
+    if (analogRead(nivel_del_tanque) < 100) nivel_actual = 0;  
+    if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = 25;
+    if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = 50;
+    if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
+    if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
+    milis_para_nivel = 0;
+  }
 }
 
 void nivel_auto () //modificar
