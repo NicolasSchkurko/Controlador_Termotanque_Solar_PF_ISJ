@@ -27,7 +27,7 @@ no sean cripticos la concha de su madre*/
   const uint8_t maxima_temp = 80;
   const uint8_t min_temp = 40;            //puede hacerse un DEFINE porque no se modifica
 
-  //vals that share in level funcions //Jere: ??
+  //vals that share in level funcions //Jere: ?? // Chuco: ??
   const uint8_t sumador_nivel = 5;
   //const uint16_t tiempo_de_espera = 5000; Aparece 2 veces esta variable che
   
@@ -58,9 +58,10 @@ void Actualizar_hora ();
 void modificar_hora_rtc();
 void checklvl();
 void checktemp();
+void seteo_hora();
 uint8_t menuposY(uint8_t , uint8_t, uint8_t);
 int control_de_temp_por_menu_manual(int temp_a_alcanzar);
-String desconvercionhora(uint8_t,uint8_t,uint8_t,uint8_t);
+String desconvercionhora(uint8_t,uint8_t);
 uint8_t convercionhora(uint8_t, String);
 void sensar_nivel_actual();
 #define onewire 9
@@ -126,7 +127,7 @@ String WIFISSID;
 String WIFIPASS;
 //Cosas necesarias para el menu
 
-LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
+LiquidCrystal_I2C lcd(0x20,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
 typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF;  
 estadoMEF Estadoequipo = estado_inicial;
 const uint8_t maxY_menu1=7;
@@ -235,7 +236,7 @@ void loop()
     case funciones:
       if(funcionActual==1)menu_de_llenado_manual();
       if(funcionActual==2)menu_de_calefaccion_manual();
-      //if(funcionActual == 3) seteo_hora();
+      if(funcionActual==3) seteo_hora();
       if(funcionActual==4)menu_de_llenado_auto();
       if(funcionActual==5)menu_de_calefaccion_auto();
       if(funcionActual==6)modificar_hora_rtc();
@@ -325,7 +326,9 @@ void menu_basico()
       Flag=2;
       break;
     case 3:
-      // cal y carg segun hora
+      Estadoequipo=funciones;
+      funcionActual=3;
+      Flag=2;
       break;
     case 4:
       Estadoequipo=funciones;
@@ -463,107 +466,107 @@ void menu_de_calefaccion_manual(){
 }
 
 void menu_de_calefaccion_auto(){
-switch (Flag)
-{
-  case 2:
-    temperatura_inicial=60;
-    Flag=3;
-    break;
-  case 3:
-    lcd.setCursor(0,0);
-    lcd.print("Temperatura min:");
-    lcd.print(temperatura_inicial);
-    lcd.setCursor(0,1);
-    lcd.print("Sumar 5 con: 1");
-    lcd.setCursor(0,2);
-    lcd.print("Restar 5 con: 2");
-    lcd.setCursor(0,3);
-    lcd.print("Confirmar con: 3");
-
-    if(digitalRead(pulsador1) == LOW && temperatura_inicial<maxima_temp-sumador_temperatura)
-      {
-        while(digitalRead(pulsador1) == LOW){}
-        temperatura_inicial += sumador_temperatura;
-        mili_segundos = 0;
-        lcd.setCursor(17,0); lcd.print("    ");
-      }
-    
-    if(digitalRead(pulsador2) == LOW && min_temp<temperatura_inicial)
-      {
-        while(digitalRead(pulsador2) == LOW){}
-        temperatura_inicial -= sumador_temperatura;
-        mili_segundos = 0;
-        lcd.setCursor(17,0); lcd.print("    ");
-      }
-
-    if(digitalRead(pulsador3) == LOW)
-      {
-        while(digitalRead(pulsador3) == LOW){}
-        Flag=4;
-        lcd.setCursor(17,0); lcd.print("    ");
-        temperatura_final=temperatura_inicial+sumador_temperatura;
-      }
-    break; 
-  case 4:
-    lcd.setCursor(0,0);
-    lcd.print("Temperatura max:");
-    lcd.print(temperatura_final);
-    lcd.setCursor(0,1);
-    lcd.print("Sumar 5 con: 1 ");
-    lcd.setCursor(0,2);
-    lcd.print("Restar 5 con: 2");
-    lcd.setCursor(0,3);
-    lcd.print("Confirmar con 3");
-
-    if(digitalRead(pulsador1) == LOW && temperatura_final < maxima_temp)
-      {
-        while(digitalRead(pulsador1) == LOW){}
-        temperatura_final += sumador_temperatura;
-        mili_segundos = 0;
-        lcd.setCursor(17,0); lcd.print("    ");
-      }
-    
-    if(digitalRead(pulsador2) == LOW && temperatura_final>temperatura_inicial+sumador_temperatura)
-      {
-        while(digitalRead(pulsador2) == LOW){}
-        temperatura_final -= sumador_temperatura;
-        mili_segundos = 0;
-        lcd.setCursor(17,0); lcd.print("    ");
-      }
-
-    if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
-        Flag=5;
-        lcd.clear();
-      }
+  switch (Flag)
+  {
+    case 2:
+      temperatura_inicial=60;
+      Ypos=0;
+      Flag=3;
       break;
-
-    case 5:
+    case 3:
       lcd.setCursor(0,0);
-      lcd.print("Minima guardada:");
+      lcd.print("Temperatura min:");
       lcd.print(temperatura_inicial);
       lcd.setCursor(0,1);
-      lcd.print("Maxima guardada:");
-      lcd.print(temperatura_final);
+      lcd.print("Sumar 5 con: 1");
+      lcd.setCursor(0,2);
+      lcd.print("Restar 5 con: 2");
       lcd.setCursor(0,3);
-      lcd.print("     Confirmar?    ");
+      lcd.print("Confirmar con: 3");
+
+      if(digitalRead(pulsador1) == LOW && temperatura_inicial<maxima_temp)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          temperatura_inicial += sumador_temperatura;
+          mili_segundos = 0;
+          lcd.setCursor(17,0); lcd.print("    ");
+        }
+      
+      if(digitalRead(pulsador2) == LOW && min_temp<temperatura_inicial)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          temperatura_inicial -= sumador_temperatura;
+          mili_segundos = 0;
+          lcd.setCursor(17,0); lcd.print("    ");
+        }
+
       if(digitalRead(pulsador3) == LOW)
         {
           while(digitalRead(pulsador3) == LOW){}
-          Flag=6;
-          eep.write(10,temperatura_inicial);
-          eep.write(11,temperatura_final);
-          tiempo_actual=mili_segundos;
+          Flag=4;
+          lcd.setCursor(17,0); lcd.print("    ");
+          temperatura_final=temperatura_inicial+sumador_temperatura;
+        }
+      break; 
+    case 4:
+      lcd.setCursor(0,0);
+      lcd.print("Temperatura max:");
+      lcd.print(temperatura_final);
+      lcd.setCursor(0,1);
+      lcd.print("Sumar 5 con: 1 ");
+      lcd.setCursor(0,2);
+      lcd.print("Restar 5 con: 2");
+      lcd.setCursor(0,3);
+      lcd.print("Confirmar con 3");
+
+      if(digitalRead(pulsador1) == LOW && temperatura_final < maxima_temp)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          temperatura_final += sumador_temperatura;
+          mili_segundos = 0;
+          lcd.setCursor(17,0); lcd.print("    ");
+        }
+      
+      if(digitalRead(pulsador2) == LOW && temperatura_final>temperatura_inicial+sumador_temperatura)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          temperatura_final -= sumador_temperatura;
+          mili_segundos = 0;
+          lcd.setCursor(17,0); lcd.print("    ");
+        }
+
+      if(digitalRead(pulsador3) == LOW){
+          while(digitalRead(pulsador3) == LOW){}
+          Flag=5;
           lcd.clear();
         }
-      break;
+        break;
 
-    case 6:
-      lcd.setCursor(0,0);
-      lcd.print("Guardando...");
-      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
-      break;
+      case 5:
+        lcd.setCursor(0,0);
+        lcd.print("Minima guardada:");
+        lcd.print(temperatura_inicial);
+        lcd.setCursor(0,1);
+        lcd.print("Maxima guardada:");
+        lcd.print(temperatura_final);
+        lcd.setCursor(0,3);
+        lcd.print("     Confirmar?    ");
+        if(digitalRead(pulsador3) == LOW)
+          {
+            while(digitalRead(pulsador3) == LOW){}
+            Flag=6;
+            eep.write(10,temperatura_inicial);
+            eep.write(11,temperatura_final);
+            tiempo_actual=mili_segundos;
+            lcd.clear();
+          }
+        break;
 
+      case 6:
+        lcd.setCursor(0,0);
+        lcd.print("Guardando...");
+        if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
+        break;
   }
 }
 
@@ -814,7 +817,168 @@ void modificar_hora_rtc()
     }
   }
 
+void seteo_hora()
+{
+  const uint16_t tiempo_de_espera = 5000;
+  const uint8_t hora_max = 23;
+  const uint8_t min_max = 45;
+    switch (Flag)
+  {
+    case 2:
+      temperatura_inicial=60;
+      Flag=3;
+      sumador_hora=0;
+      sumador_minuto=0;
+      fix_max_uint=0;
+      break;
+    case 3:
+      lcd.setCursor(0,0);
+      lcd.print("Seleccionar:");
+      lcd.print(ActualStruct);
+      lcd.setCursor(0,1);
+      lcd.print("1:");
+      lcd.print(desconvercionhora(1,save[1].hour));
+      lcd.setCursor(0,2);
+      lcd.print("2:");
+      lcd.print(desconvercionhora(1,save[2].hour));
+      lcd.setCursor(0,3);
+      lcd.print("3:");
+      lcd.print(desconvercionhora(1,save[3].hour));
+      lcd.setCursor(0,4);
 
+      ActualStruct = menuposY(Ypos,3,255)+1;
+
+      if(digitalRead(pulsador1) == LOW)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          Ypos++;
+        }
+      
+      if(digitalRead(pulsador2) == LOW)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          Ypos--;
+        }
+
+      if(digitalRead(pulsador3) == LOW)
+        {
+          while(digitalRead(pulsador3) == LOW){}
+          save[ActualStruct].temp=min_temp;
+          save[ActualStruct].level=min_nivel;
+          Flag=4;
+        }
+      break; 
+    case 4:
+      lcd.setCursor(0,0);
+      lcd.print("Temperatura max:");
+      lcd.print(save[ActualStruct].temp);
+      lcd.setCursor(0,1);
+      lcd.print("Sumar 5 con: 1 ");
+      lcd.setCursor(0,2);
+      lcd.print("Restar 5 con: 2");
+      lcd.setCursor(0,3);
+      lcd.print("Confirmar con 3");
+
+      if(digitalRead(pulsador1) == LOW && save[ActualStruct].temp < maxima_temp)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          save[ActualStruct].temp += sumador_temperatura;
+          lcd.setCursor(17,0); lcd.print("    ");
+        }
+      
+      if(digitalRead(pulsador2) == LOW && save[ActualStruct].temp> min_temp)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          save[ActualStruct].temp -= sumador_temperatura;
+          lcd.setCursor(17,0); lcd.print("    ");
+        }
+
+      if(digitalRead(pulsador3) == LOW){
+          while(digitalRead(pulsador3) == LOW){}
+          Flag=5;
+                    fix_max_uint=0;
+          lcd.clear();
+        }
+        break;
+
+      case 5:
+       lcd.setCursor(0,0);
+      lcd.print("Nivel max:");
+      lcd.print(save[ActualStruct].level);
+      lcd.setCursor(0,1);
+      lcd.print("Sumar 5 con: 1 ");
+      lcd.setCursor(0,2);
+      lcd.print("Restar 5 con: 2");
+      lcd.setCursor(0,3);
+      lcd.print("Confirmar con 3");
+
+      if(digitalRead(pulsador1) == LOW && save[ActualStruct].level<maxima_nivel)
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          save[ActualStruct].level += sumador_nivel;
+        }
+    
+      if(digitalRead(pulsador2) == LOW && save[ActualStruct].level>min_nivel)
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          save[ActualStruct].level -= sumador_nivel;
+        }
+
+      if(digitalRead(pulsador3) == LOW){
+          while(digitalRead(pulsador3) == LOW){}
+          Flag=6;
+          fix_max_uint=0;
+          lcd.clear();
+        }
+        break;
+
+      case 6:
+        lcd.setCursor(0,0);
+        lcd.print("Hour:");
+        lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
+        lcd.setCursor(0,1);
+        lcd.print("aumentar con: 1 ");
+        lcd.setCursor(0,2);
+        lcd.print("disminuir con: 2");
+        lcd.setCursor(0,3);
+        lcd.print("Confirmar con 3");
+
+        hora_to_modify = menuposY(hora+sumador_hora,hora_max+1,239);
+
+        if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_hora++;}
+        if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_hora--;}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;fix_max_uint=0;lcd.clear();}
+          break;
+      case 7:
+        lcd.setCursor(0,0);
+        lcd.print("Hour:");
+        lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
+        lcd.setCursor(0,1);
+        lcd.print("aumentar con: 1 ");
+        lcd.setCursor(0,2);
+        lcd.print("disminuir con: 2");
+        lcd.setCursor(0,3);
+        lcd.print("Confirmar con 3");
+        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max+1,224);
+        if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
+        if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto--;}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=8;fix_max_uint=0;lcd.clear();}
+        break;
+      case 8:
+      lcd.setCursor(0,0);
+      lcd.print("Guardando...");
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera)
+      {
+        Estadoequipo=estado_inicial; 
+        Flag=0; 
+        funcionActual=0; 
+        save[ActualStruct].hour=convercionhora(1,String(hora_to_modify)+ ":"+String(minuto_to_modify));
+        lcd.clear();
+      }
+      break;
+
+    }
+  }
 //==============================FUNCIONES ESCONDIDAS===================
 
 void Actualizar_hora ()
@@ -1038,7 +1202,7 @@ return actualpos;
 }
 }
 
-String desconvercionhora(uint8_t function,uint8_t savehora,uint8_t temp, uint8_t lvl)
+String desconvercionhora(uint8_t function,uint8_t save)
 {
   uint8_t var1_deconvert=0;//solo una variable (_deconvert  nos evita modificar variables globales como bldos)
   uint8_t var2_deconvert=0;
@@ -1048,18 +1212,18 @@ String desconvercionhora(uint8_t function,uint8_t savehora,uint8_t temp, uint8_t
   switch (function)
     {
       case 1:
-        resto_deconvert= (savehora) % 4;
-        var1_deconvert= (savehora-resto_deconvert)/4;
+        resto_deconvert= (save) % 4;
+        var1_deconvert= (save-resto_deconvert)/4;
         var2_deconvert=resto_deconvert*15;
         returned= String(var1_deconvert)+':'+String(var2_deconvert);
         return returned;
       break;
       case 2:
-        returned= String(temp);
+        returned= String(save);
         return returned;
       break;
       case 3:
-        returned= String(lvl);
+        returned= String(save);
         return returned;
       break;
       default:
@@ -1229,7 +1393,6 @@ void configuracionwifi(){
   }
 
 }
-
 
 char Letra(uint8_t letranum, bool mayus)
 {
