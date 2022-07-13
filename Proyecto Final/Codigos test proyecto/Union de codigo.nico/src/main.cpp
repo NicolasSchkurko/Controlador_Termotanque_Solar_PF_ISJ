@@ -94,8 +94,9 @@ uint8_t ActualStruct=0;
 //cosas del menu princial
 uint8_t funcionActual=0;
 uint16_t tiempo_de_standby = 0;
-typedef enum{posicion_menu_de_llenado_manual,posicion_menu_de_calefaccion_manual,posicion_seteo_hora,posicion_menu_de_llenado_auto,posicion_menu_de_calefaccion_auto,posicion_modificar_hora_rtc,posicion_configuracionwifi} Control_De_posicion_de_menu1;  
-Control_De_posicion_de_menu1 opcionmenu1=posicion_menu_de_calefaccion_manual;
+typedef enum{movimiento_de_menu, posicion_menu_de_llenado_manual, posicion_menu_de_calefaccion_manual, posicion_seteo_hora, posicion_menu_de_llenado_auto, posicion_menu_de_calefaccion_auto, posicion_para_ir_a_menu_avanzado, posicion_para_ir_a_standby} Control_De_posicion_de_menu1;  
+Control_De_posicion_de_menu1 posicion_de_menu=posicion_menu_de_calefaccion_manual;
+uint8_t opcionmenu1=0;
 uint8_t opcionmenu2=0;
 uint8_t Flag=0;
 uint8_t fix_max_uint;
@@ -241,15 +242,15 @@ void loop()
       menu_avanzado();
       break;
     case funciones:
-      if(funcionActual==1)menu_de_llenado_manual();
-      if(funcionActual==2)menu_de_calefaccion_manual();
-      if(funcionActual==3)seteo_hora();
-      if(funcionActual==4)menu_de_llenado_auto();
-      if(funcionActual==5)menu_de_calefaccion_auto();
-      if(funcionActual==6)modificar_hora_rtc();
+      if(funcionActual==1)menu_de_llenado_manual();     //Menu principal
+      if(funcionActual==2)menu_de_calefaccion_manual(); //Menu principal
+      if(funcionActual==3)seteo_hora();                 //Menu principal
+      if(funcionActual==4)menu_de_llenado_auto();       //Menu principal 
+      if(funcionActual==5)menu_de_calefaccion_auto();   //Menu principal
+      if(funcionActual==6)modificar_hora_rtc();         //Menu avanzado
       //7
       //8
-      if(funcionActual==9)configuracionwifi();//avanzado
+      if(funcionActual==9)configuracionwifi();          //Menu avanzado
       break;
   }
  
@@ -310,7 +311,8 @@ void menu_basico()
     Flag=2;
     lcd.clear();
     Ypos=0;
-    opcionmenu1=0;
+    opcionmenu1= 0;
+    posicion_de_menu=movimiento_de_menu;
     fix_max_uint=0;
   }
   if (Flag==2){
@@ -318,9 +320,11 @@ void menu_basico()
   if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=Ypos-1; lcd.clear(); }
   if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu1=menuposY(Ypos+1,maxY_menu1,251); lcd.clear(); }
 
-  switch (opcionmenu1)
+  posicion_de_menu = opcionmenu1;//hacer esto pero para cada caso de opcionmenu1 se iguala a cada caso de posision de menu
+
+  switch (posicion_de_menu)
   {
-    case 0:
+    case movimiento_de_menu:
       lcd.setCursor(1,0); 
       lcd.print(Menuprincipal[menuposY(Ypos,maxY_menu1,251)]); 
       lcd.setCursor(1,1); 
@@ -330,33 +334,33 @@ void menu_basico()
       lcd.setCursor(1,3); 
       lcd.print(Menuprincipal[menuposY(Ypos+3,maxY_menu1,251)]);
       break;
-    case 1:
+    case posicion_menu_de_llenado_manual:
       Estadoequipo=funciones;
       funcionActual=1;
       break;
-    case 2:
+    case posicion_menu_de_calefaccion_manual:
       Estadoequipo=funciones;
       funcionActual=2;
       Flag=2;
       break;
-    case 3:
+    case posicion_seteo_hora:
       Estadoequipo=funciones;
       funcionActual=3;
       Flag=2;
       break;
-    case 4:
+    case posicion_menu_de_llenado_auto:
       Estadoequipo=funciones;
       funcionActual=4;
       break;
-    case 5:
+    case posicion_menu_de_calefaccion_auto:
    Estadoequipo=funciones;
       funcionActual=5;
       break;
-    case 6:
+    case posicion_para_ir_a_menu_avanzado:
       Estadoequipo=menu2;
       Flag=3;
       break;
-    case 7:
+    case posicion_para_ir_a_standby:
       Estadoequipo=estado_inicial;
       tiempo_de_standby=0;
       Flag=0;
