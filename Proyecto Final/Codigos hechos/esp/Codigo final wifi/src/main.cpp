@@ -5,6 +5,7 @@
 #include <FS.h>
 #include <LittleFS.h>
 
+void Serial_Send_UNO(uint8_t);
 String processor(const String& var);
 //█████████████████████████████████████████████████████████████████████████████████
 
@@ -25,6 +26,9 @@ bool HEATING_STATE=0;
 uint8_t AUTOTEMP_STATE=0;
 uint8_t AUTOLVL_STATE=0;
 
+uint8_t InitComunication=false;
+uint8_t ComunicationError=false;
+
 //█████████████████████████████████████████████████████████████████████████████████
 // Asigna el webserver al puerto 80 de la red wifi
 AsyncWebServer server(80);
@@ -41,6 +45,7 @@ void setup(){
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.println("Connecting to WiFi..");
+    InitComunication=true;
   }
 
   // Print ESP32 Local IP Address
@@ -61,6 +66,7 @@ void setup(){
       request->send(LittleFS, "/index.html", String(), false, processor);
     }
   });
+
   server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) {   
     String inputMessage;
     //Toma datos del slider temp
@@ -82,31 +88,56 @@ void setup(){
   });
   
   //detectaa cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
-  server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request){HEATING_STATE= !HEATING_STATE; request->send(LittleFS, "/index.html", String(), false, processor);}); 
+  server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request){
+    HEATING_STATE= !HEATING_STATE; 
+    Serial_Send_UNO(65);
+    request->send(LittleFS, "/index.html", String(), false, processor);
+  }); 
 
-  server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request){CHARGING_STATE= !CHARGING_STATE; request->send(LittleFS, "/index.html", String(), false, processor);});
+  server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request){
+    CHARGING_STATE= !CHARGING_STATE;
+    Serial_Send_UNO(65); 
+    request->send(LittleFS, "/index.html", String(), false, processor);
+  });
 
-  server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request){AUTOTEMP_STATE++; if(AUTOTEMP_STATE>3)AUTOTEMP_STATE=0; request->send(LittleFS, "/index.html", String(), false, processor);});
+  server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request){
+    AUTOTEMP_STATE++; 
+    Serial_Send_UNO(65);
+    if(AUTOTEMP_STATE>3)AUTOTEMP_STATE=0; 
+    request->send(LittleFS, "/index.html", String(), false, processor);
+  });
 
-  server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request){AUTOLVL_STATE++; if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; request->send(LittleFS, "/index.html", String(), false, processor);});
+  server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request){
+    AUTOLVL_STATE++; 
+    Serial_Send_UNO(65);
+    if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; 
+    request->send(LittleFS, "/index.html", String(), false, processor);
+  });
 
-  server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request){ request->send(LittleFS, "/config.html", String(), false, processor);});
+  server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request){ 
+    Serial_Send_UNO(65);
+    request->send(LittleFS, "/config.html", String(), false, processor);
+  });
 
 
   server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request){
-     request->send(LittleFS, "/config.html", String(), false, processor);
+    Serial_Send_UNO(65);
+    request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
   server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request){
-     request->send(LittleFS, "/config.html", String(), false, processor);
+    Serial_Send_UNO(65);
+    request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
   server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request){
-     request->send(LittleFS, "/config.html", String(), false, processor);
+    Serial_Send_UNO(65);
+    request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request){ 
-   request->send(LittleFS, "/index.html", String(), false, processor);
+    Serial_Send_UNO(65);
+    request->send(LittleFS, "/index.html", String(), false, processor);
   });
   server.begin();
 }
@@ -115,8 +146,77 @@ void setup(){
 
 void loop() 
 {
+
 }
 
+void Serial_Send_UNO(uint8_t WhatSend)
+  {
+    uint8_t MessagePoss;
+    if (InitComunication==true)MessagePoss=0;
+    switch (WhatSend){
+      case 1:
+        if (ComunicationError==false && InitComunication==true && MessagePoss<=5)//&&Send_time>=1000) BUSCAR INTERRUPCIONES EN ESP
+        {
+            switch (MessagePoss)
+            {
+              case 0:
+                Serial.println("S_""SSID"":""Pass");
+                 MessagePoss++;
+                 //Send_time=0;
+                break;
+              case 1:
+                Serial.println("K_HORA:TEMP:LVL:0");
+                MessagePoss++;
+                //Send_time=0;
+                break;
+              case 2:
+                Serial.println("K_HORA:TEMP:LVL:1");
+                MessagePoss++;
+                //Send_time=0;
+                break;
+              case 3:
+                Serial.println("K_HORA:TEMP:LVL:2");
+                MessagePoss++;
+                //Send_time=0;
+                break;
+              case 4:
+                Serial.println("J_255:TEMPMIN:TEMPMAX:3");
+                MessagePoss++;
+                //Send_time=0;
+                break;
+              case 5:
+                Serial.println("V_255:TEMPMIN:TEMPMAX:3");
+                InitComunication=false;
+                MessagePoss=0;
+                //Send_time=0;
+                break;
+            // delay de 1 seg
+            } //Send_time =0;
+        }
+        break;
+      case 2:
+        if (ComunicationError==false && InitComunication==false)
+          {
+              Serial.println("U_TEMP:LVL:HORA:STATE");
+          }
+      case 3:
+        if (ComunicationError==false && InitComunication==false)
+          {
+            Serial.println("K_HORA:TEMP:LVL:STRUCTPOS");
+          }
+      case 4:
+        if (ComunicationError==false && InitComunication==false)
+          {
+            Serial.println("J_255:TEMPMIN:TEMPMAX:3");
+          }
+      case 5:
+        if (ComunicationError==false && InitComunication==false)
+          {
+            Serial.println("V_255:LVLMIN:LVLMAX:4");
+          }
+    }
+    
+  }
 //█████████████████████████████████████████████████████████████████████████████████
 // Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
 String processor(const String& var){
