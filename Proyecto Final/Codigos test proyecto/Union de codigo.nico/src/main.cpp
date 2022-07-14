@@ -24,7 +24,10 @@ no sean cripticos la concha de su madre*/
   //comparten de aca para abajo con calef. manual y auto
   const uint8_t sumador_temperatura = 5; 
   const uint16_t tiempo_de_espera = 5000; //puede hacerse un DEFINE porque no se modifica
-  const uint8_t maxima_temp = 80;
+  const uint8_t maxima_temp_f = 176;
+  const uint8_t min_temp_f = 68;
+  const uint8_t maxima_temp = 80;            //puede hacerse un DEFINE porque no se modifica
+
   const uint8_t min_temp = 40;            //puede hacerse un DEFINE porque no se modifica
 
   //vals that share in level funcions //Jere: ?? // Chuco: ??
@@ -238,7 +241,7 @@ void loop()
     case menu1:
       menu_basico();
       break;
-    case menu2:
+    case menu2: 
       menu_avanzado();
       break;
     case funciones:
@@ -269,7 +272,14 @@ void standby()
   lcd.setCursor(13,1);
   lcd.print(temperatura_del_sensor);
   lcd.print((char)223); //imprime °
-  lcd.print("C");
+  if(flag_f == false)
+    {
+      lcd.print("C");
+    }
+  else
+    {
+     lcd.print("F");
+    }
   lcd.setCursor(0,2);
   lcd.print("Hora: ");
   lcd.print(hora, DEC);
@@ -301,8 +311,6 @@ void standby()
     lcd.noBacklight();
     tiempo_de_standby = 0;
   }
-
-
 }
 
 void menu_basico()
@@ -322,9 +330,9 @@ void menu_basico()
 
   posicion_de_menu = opcionmenu1;//hacer esto pero para cada caso de opcionmenu1 se iguala a cada caso de posision de menu
 
-  switch (posicion_de_menu)
+  switch (opcionmenu1)
   {
-    case movimiento_de_menu:
+    case 0:
       lcd.setCursor(1,0); 
       lcd.print(Menuprincipal[menuposY(Ypos,maxY_menu1,251)]); 
       lcd.setCursor(1,1); 
@@ -334,33 +342,33 @@ void menu_basico()
       lcd.setCursor(1,3); 
       lcd.print(Menuprincipal[menuposY(Ypos+3,maxY_menu1,251)]);
       break;
-    case posicion_menu_de_llenado_manual:
+    case 1:
       Estadoequipo=funciones;
       funcionActual=1;
       break;
-    case posicion_menu_de_calefaccion_manual:
+    case 2:
       Estadoequipo=funciones;
       funcionActual=2;
       Flag=2;
       break;
-    case posicion_seteo_hora:
+    case 3:
       Estadoequipo=funciones;
       funcionActual=3;
       Flag=2;
       break;
-    case posicion_menu_de_llenado_auto:
+    case 4:
       Estadoequipo=funciones;
       funcionActual=4;
       break;
-    case posicion_menu_de_calefaccion_auto:
+    case 5:
    Estadoequipo=funciones;
       funcionActual=5;
       break;
-    case posicion_para_ir_a_menu_avanzado:
+    case 6:
       Estadoequipo=menu2;
       Flag=3;
       break;
-    case posicion_para_ir_a_standby:
+    case 7:
       Estadoequipo=estado_inicial;
       tiempo_de_standby=0;
       Flag=0;
@@ -436,27 +444,54 @@ void menu_de_calefaccion_manual(){
         lcd.print("Restar 5 con: 2");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
+        if(flag_f == false)
+        {
+          if(digitalRead(pulsador1) == LOW && temperatura_a_calentar<maxima_temp)
+            {
+              while(digitalRead(pulsador1) == LOW){}
+              temperatura_a_calentar += sumador_temperatura;
+              lcd.setCursor(17,0); lcd.print("   ");
+            }
+          
+          if(digitalRead(pulsador2) == LOW && temperatura_a_calentar>temperatura_del_sensor)
+            {
+              while(digitalRead(pulsador2) == LOW){}
+              temperatura_a_calentar -= sumador_temperatura;
+              lcd.setCursor(17,0); lcd.print("   ");
+            }
 
-        if(digitalRead(pulsador1) == LOW && temperatura_a_calentar<maxima_temp)
-          {
-            while(digitalRead(pulsador1) == LOW){}
-            temperatura_a_calentar += sumador_temperatura;
-            lcd.setCursor(17,0); lcd.print("   ");
-          }
-        
-        if(digitalRead(pulsador2) == LOW && temperatura_a_calentar>temperatura_del_sensor)
-          {
-            while(digitalRead(pulsador2) == LOW){}
-            temperatura_a_calentar -= sumador_temperatura;
-            lcd.setCursor(17,0); lcd.print("   ");
-          }
+          if(digitalRead(pulsador3) == LOW)
+            {
+              while(digitalRead(pulsador3) == LOW){}
+              Flag=4;
+              lcd.setCursor(17,0); lcd.print("   ");
+            }
+        }
+        else
+        {
+          if(digitalRead(pulsador1) == LOW && temperatura_a_calentar<maxima_temp_f)
+            {
+              while(digitalRead(pulsador1) == LOW){}
+              temperatura_a_calentar += sumador_temperatura;
 
-        if(digitalRead(pulsador3) == LOW)
-          {
-            while(digitalRead(pulsador3) == LOW){}
-            Flag=4;
-            lcd.setCursor(17,0); lcd.print("   ");
-          }
+              lcd.setCursor(17,0); lcd.print("   ");
+            }
+          
+          if(digitalRead(pulsador2) == LOW && temperatura_a_calentar>temperatura_del_sensor)
+            {
+              while(digitalRead(pulsador2) == LOW){}
+              temperatura_a_calentar -= sumador_temperatura;
+              lcd.setCursor(17,0); lcd.print("   ");
+            }
+
+          if(digitalRead(pulsador3) == LOW)
+            {
+              while(digitalRead(pulsador3) == LOW){}
+              Flag=4;
+              lcd.setCursor(17,0); lcd.print("   ");
+            }
+        }
+
         break; 
 
         case 4:
@@ -1289,8 +1324,42 @@ uint8_t convercionhora(uint8_t function, String toconvert)
 
 /*======================PARA ADAPTAR=========================*/
 
+void menu_farenheit_celsius()
+{
+  lcd.setCursor(0,0);
+  lcd.print("Seleccione Farenheit");
+  lcd.print(" o Celsius");
+  lcd.setCursor(5,2);
+  lcd.print((char)223); //imprime °
+  lcd.print("F");
+  lcd.setCursor(11,2);
+  lcd.print((char)223); //imprime °
+  lcd.print("C");
+  lcd.setCursor(5,3);
+  lcd.print("1");
+  lcd.setCursor(11,3);
+  lcd.print("2");
+  if(digitalRead(pulsador2) == LOW )
+    {
+      while(digitalRead(pulsador2) == LOW){}
+      flag_f = false;
+    }
+  if(digitalRead(pulsador1) == LOW )
+    {
+      while(digitalRead(pulsador1) == LOW){}
+      flag_f = true;
+    }
+    Flag=5;
+    tiempo_actual=mili_segundos;
+    lcd.clear();
 
-void tomar_temperatura () //Sexo y adaptarlo para no usar delay
+    lcd.setCursor(0,0);
+    lcd.print("Guardando...");
+    if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
+  
+}
+
+void tomar_temperatura () //Sexo y adaptarlo para no usar delay farenheit
 {
   if (milis_para_temperatura >= tiempo_para_temperatura)
   {
