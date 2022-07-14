@@ -30,7 +30,7 @@ no sean cripticos la concha de su madre*/
 
   const uint8_t min_temp = 40;            //puede hacerse un DEFINE porque no se modifica
 
-  //vals that share in level funcions //Jere: ?? // Chuco: ??
+  //vals that share in level funciones //Jere: ?? // Chuco: ??
   const uint8_t sumador_nivel = 25;
   //const uint16_t tiempo_de_espera = 5000; Aparece 2 veces esta variable che
   
@@ -41,7 +41,7 @@ no sean cripticos la concha de su madre*/
   const uint8_t maxima_percent = 100; //can be a DEFINE because doesnt change (used in manual)
   const uint8_t min_nivel = 0;        //can be a DEFINE because doesnt change (used in auto)
   const uint8_t maxima_nivel = 100;   //can be a DEFINE because doesnt change (used in auto)
-
+//
 void menu_basico();
 void menu_avanzado();
 void standby();
@@ -59,6 +59,7 @@ void menu_de_llenado_auto();
 void menu_de_llenado_manual();
 void Actualizar_hora ();
 void modificar_hora_rtc();
+void menu_farenheit_celsius();
 void checklvl();
 void checktemp();
 void seteo_hora();
@@ -93,6 +94,13 @@ uint16_t tiempo_para_nivel = 3000;
 struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
 save_data save[5]; 
 uint8_t ActualStruct=0;
+
+//guardado 1/hora/level/temp
+//guardado 2/hora/level/temp
+//guardado 3/hora/level/temp
+//guarda auto temp = 255/temp_min/temp_max
+//guarda auto lvl = 255/level_min/level_max
+
 
 //cosas del menu princial
 uint8_t funcionActual=0;
@@ -213,6 +221,7 @@ void setup()
 
 void loop() 
 {
+  
   tomar_temperatura();
   Actualizar_hora ();
   sensar_nivel_actual();
@@ -251,7 +260,7 @@ void loop()
       if(funcionActual==4)menu_de_llenado_auto();       //Menu principal 
       if(funcionActual==5)menu_de_calefaccion_auto();   //Menu principal
       if(funcionActual==6)modificar_hora_rtc();         //Menu avanzado
-      //7
+      if(funcionActual==7)menu_farenheit_celsius();     
       //8
       if(funcionActual==9)configuracionwifi();          //Menu avanzado
       break;
@@ -324,21 +333,19 @@ void menu_basico()
     fix_max_uint=0;
   }
   if (Flag==2){
-  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=Ypos+1; lcd.clear(); }
-  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=Ypos-1; lcd.clear(); }
-  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu1=menuposY(Ypos+1,maxY_menu1,251); lcd.clear(); }
-
-  posicion_de_menu = opcionmenu1;//hacer esto pero para cada caso de opcionmenu1 se iguala a cada caso de posision de menu
+  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=Ypos-1; lcd.clear(); }
+  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=Ypos+1; lcd.clear(); }
+  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu1=menuposY(Ypos,maxY_menu1,251)+1; lcd.clear(); }
 
   switch (opcionmenu1)
   {
     case 0:
       lcd.setCursor(1,0); 
-      lcd.print(Menuprincipal[menuposY(Ypos,maxY_menu1,251)]); 
+      lcd.print(Menuprincipal[menuposY(Ypos,maxY_menu1,251)]);
       lcd.setCursor(1,1); 
-      lcd.print(Menuprincipal[menuposY(Ypos+1,maxY_menu1,251)]); 
+      lcd.print(Menuprincipal[menuposY(Ypos+1,maxY_menu1,251)]);
       lcd.setCursor(1,2); 
-      lcd.print(Menuprincipal[menuposY(Ypos+2,maxY_menu1,251)]); 
+      lcd.print(Menuprincipal[menuposY(Ypos+2,maxY_menu1,251)]);
       lcd.setCursor(1,3); 
       lcd.print(Menuprincipal[menuposY(Ypos+3,maxY_menu1,251)]);
       break;
@@ -407,7 +414,8 @@ void menu_avanzado()
       funcionActual=6;
       break;
     case 2: 
-      // formato grados
+      Estadoequipo=funciones;
+      funcionActual=7;
       break;
     case 3:
       // Activar bomba
@@ -893,13 +901,13 @@ void seteo_hora()
       lcd.print(ActualStruct);
       lcd.setCursor(0,1);
       lcd.print("1:");
-      lcd.print(desconvercionhora(1,save[1].hour));
+      lcd.print(desconvercionhora(1,save[0].hour));
       lcd.setCursor(0,2);
       lcd.print("2:");
-      lcd.print(desconvercionhora(1,save[2].hour));
+      lcd.print(desconvercionhora(1,save[1].hour));
       lcd.setCursor(0,3);
       lcd.print("3:");
-      lcd.print(desconvercionhora(1,save[3].hour));
+      lcd.print(desconvercionhora(1,save[2].hour));
       lcd.setCursor(0,4);
 
       ActualStruct = menuposY(Ypos,3,255)+1;
@@ -1099,8 +1107,11 @@ void Serial_Read_UNO(){
           {
             input=ActualStruct*3;
             eep.write(input+1, Individualdata[0].toInt());
+            save[ActualStruct].hour=Individualdata[0].toInt();
             eep.write(input+2, Individualdata[1].toInt());
+            save[ActualStruct].temp=Individualdata[0].toInt();
             eep.write(input+3, Individualdata[2].toInt());
+            save[ActualStruct].level=Individualdata[0].toInt();
             ActualIndividualDataPos=0;
             StringTaked=false;
             ConvertString=false;
@@ -1235,7 +1246,6 @@ void Serial_Send_UNO(uint8_t WhatSend)
     
   }
 
-
 //===============================FUNCIONES DE SOPORTE===================
 
 ISR(TIMER2_OVF_vect){
@@ -1246,12 +1256,12 @@ ISR(TIMER2_OVF_vect){
   Send_time++;
 }
 
-uint8_t menuposY (uint8_t actualpos, uint8_t maxpos, uint8_t maxuintvalue){
+uint8_t menuposY (uint8_t actualpos, uint8_t maxpos, uint8_t maxuintvalue){ 
 uint8_t realvalue;
 
 if (actualpos>=maxpos){
-  if(actualpos==255) fix_max_uint=actualpos-maxuintvalue;
-  realvalue = (actualpos-fix_max_uint) % maxpos;
+  if(actualpos==255) fix_max_uint=actualpos-maxuintvalue;  //cambiar para que en vez hacer esto hacer que si 
+  realvalue = (actualpos-fix_max_uint) % maxpos;           //es igual a 255 sea igual a la maxima del string
   return realvalue;
 }
 else{
@@ -1265,7 +1275,7 @@ String desconvercionhora(uint8_t function,uint8_t save)
   uint8_t var2_deconvert=0;
   uint8_t resto_deconvert=0;
   String returned;
-  // todo el dia con la mielcita jere ¯\_(ツ)_/¯ //??
+  // todo el dia con la mielcita jere ¯\_(ツ)_/¯ 
   switch (function)
     {
       case 1:
@@ -1326,36 +1336,49 @@ uint8_t convercionhora(uint8_t function, String toconvert)
 
 void menu_farenheit_celsius()
 {
-  lcd.setCursor(0,0);
-  lcd.print("Seleccione Farenheit");
-  lcd.print(" o Celsius");
-  lcd.setCursor(5,2);
-  lcd.print((char)223); //imprime °
-  lcd.print("F");
-  lcd.setCursor(11,2);
-  lcd.print((char)223); //imprime °
-  lcd.print("C");
-  lcd.setCursor(5,3);
-  lcd.print("1");
-  lcd.setCursor(11,3);
-  lcd.print("2");
-  if(digitalRead(pulsador2) == LOW )
-    {
-      while(digitalRead(pulsador2) == LOW){}
-      flag_f = false;
-    }
-  if(digitalRead(pulsador1) == LOW )
-    {
-      while(digitalRead(pulsador1) == LOW){}
-      flag_f = true;
-    }
-    Flag=5;
-    tiempo_actual=mili_segundos;
-    lcd.clear();
+  switch (Flag)
+  {
+    case 4:
+      lcd.setCursor(0,0);
+      lcd.print("Seleccione Farenheit");
+      lcd.setCursor(5,1);
+      lcd.print(" o Celsius");
+      lcd.setCursor(5,2);
+      lcd.print((char)223); //imprime °
+      lcd.print("F");
+      lcd.setCursor(11,2);
+      lcd.print((char)223); //imprime °
+      lcd.print("C");
+      lcd.setCursor(5,3);
+      lcd.print("1");
+      lcd.setCursor(11,3);
+      lcd.print("2");
+      if(digitalRead(pulsador2) == LOW )
+        {
+          while(digitalRead(pulsador2) == LOW){}
+          flag_f = false;
+          Flag=5;
+        }
+      if(digitalRead(pulsador1) == LOW )
+        {
+          while(digitalRead(pulsador1) == LOW){}
+          flag_f = true;
+          Flag=5;
+        }
+    break;
 
-    lcd.setCursor(0,0);
-    lcd.print("Guardando...");
-    if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
+    case 5:
+      lcd.clear();
+      tiempo_actual=mili_segundos;
+      Flag=6;
+    break;
+
+    case 6:
+      lcd.setCursor(0,0);
+      lcd.print("Guardando...");
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=estado_inicial;Flag=0;funcionActual=0;}
+    break;
+  }
   
 }
 
