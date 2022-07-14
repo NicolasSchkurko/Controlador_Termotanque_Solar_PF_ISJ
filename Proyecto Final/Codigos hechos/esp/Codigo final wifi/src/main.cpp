@@ -10,8 +10,8 @@ String processor(const String& var);
 //█████████████████████████████████████████████████████████████████████████████████
 
 struct save{uint8_t hora;uint8_t temp;uint8_t lvl;};
-String ssid = "Jere";
-String password = "chucotest";
+String ssid = "ProyectosTecnologicos";
+String password = "proy.Tec";
 //█████████████████████████████████████████████████████████████████████████████████
 
 String TVal = "60";
