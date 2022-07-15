@@ -77,7 +77,7 @@ uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si n
 uint8_t temperatura_final = 40;
 int16_t temperatura_del_sensor=0;
 uint16_t milis_para_temperatura = 0;
-
+//pa
 //nivel de agua
 uint8_t nivel_inicial;
 uint8_t nivel_final; 
