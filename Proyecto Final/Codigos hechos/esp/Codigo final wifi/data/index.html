@@ -22,10 +22,11 @@
     <div class="rectangulo"></div>
     <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="TSV">%TVAL%</h1>
 
-    <input type="range" id="temp"  min="30"  class="slider" max="90" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+    <input type="range" id="temp"  min="40"  class="slider" max="90" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
 
     <div id="auto">
+        <h5> %
         <h5> Automatic temp start min: %TMIN% </h5>
         <h5> Automatic temp max: %TMAX% </h5>
     </div>

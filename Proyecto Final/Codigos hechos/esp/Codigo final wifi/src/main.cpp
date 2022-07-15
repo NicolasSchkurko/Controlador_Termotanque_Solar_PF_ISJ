@@ -5,6 +5,8 @@
 #include <FS.h>
 #include <LittleFS.h>
 
+
+void Serial_Read_NODEMCU();
 void Serial_Send_NODEMCU(uint8_t);
 String processor(const String& var);
 String desconvercionhora(uint8_t,uint8_t);
@@ -21,6 +23,10 @@ save_data save[3];
 String TVal = "60";
 String LVal = "70";
 String HVal = "12:30";
+String errorS= "     ";
+String errorLVL= "    ";
+String errorTEMP= "    ";
+
 uint8_t TEMP_VAL=0;
 uint8_t LVL_VAL=0;
 uint8_t HOUR_VAL=0;
@@ -31,6 +37,8 @@ uint8_t Temp_Max=0;
 uint8_t Temp_Min=0;
 uint8_t Level_Max=0;
 uint8_t Level_Min=0;
+uint8_t Actual_temp=0;
+uint8_t Actual_level=0;
 
 
 bool CHARGING_STATE=0;
@@ -137,7 +145,11 @@ void setup(){
     save[0].level=convercionhora(2, LVal);
     save[0].temp=convercionhora(2, TVal);
     Struct=0;
-    Serial_Send_NODEMCU(3);
+    if (save[0].hour == save[1].hour || save[0].hour == save[2].hour)
+    {
+      errorS = "No podes guardar dos variables en la misma hora";
+    }
+    else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
@@ -146,7 +158,11 @@ void setup(){
     save[1].level=convercionhora(2, LVal);
     save[1].temp=convercionhora(2, TVal);
     Struct=1;
-    Serial_Send_NODEMCU(3);
+    if (save[1].hour == save[0].hour || save[1].hour == save[2].hour)
+    {
+      errorS = "No podes guardar dos variables en la misma hora";
+    }
+    else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
@@ -155,7 +171,11 @@ void setup(){
     save[2].level=convercionhora(2, LVal);
     save[2].temp=convercionhora(2, TVal);
     Struct=2;
-    Serial_Send_NODEMCU(3);
+    if (save[2].hour == save[0].hour || save[2].hour == save[1].hour)
+    {
+      errorS = "No podes guardar dos variables en la misma hora";
+    }
+    else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
 
@@ -169,52 +189,36 @@ void setup(){
 
 void loop() 
 {
-
+   Serial_Read_NODEMCU();
 }
 
-void Serial_Send_NODEMCU(uint8_t WhatSend)
-  {
-    String message;
-    switch (WhatSend){
-      case 1:
-        if (HEATING_STATE == true)message = "ON";
-        if (HEATING_STATE == false)message = "OFF";
-        Serial.println("H_"+TVal+":"+message);
-        break;
-      case 2:
-        if (CHARGING_STATE == true)message = "ON";
-        if (CHARGING_STATE == false)message = "OFF";
-        Serial.println("C_"+LVal+":"+message);
-        break;
-      case 3:
-    
-        Serial.println("K_"+String(save[Struct].hour)+":"+desconvercionhora(2,save[Struct].temp)+":"+desconvercionhora(3,save[Struct].level)+":"+String(Struct));
-        break;
-      case 4:
-        Serial.println("J_255:"+String(Temp_Min)+":"+String(Temp_Max)+":3");
-        break;
-      case 5:
-        Serial.println("V_255:"+String(Level_Min)+":"+String(Level_Max)+":3");
-        break;
-      case 6:
-        Serial.println("E_ERROR");// Si no entiende un mensaje envia error
-        break;
-      case 7:
-        Serial.println("O_OK");// Si entiende el mensaje manda ok
-        break;
-    }
-    
-  }
+
 //█████████████████████████████████████████████████████████████████████████████████
 // Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
 String processor(const String& var){
-
 //Devuelve numeros
 if(var == "TVAL")return TVal;
-
-
 if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
+if(var == "ERRORSAVE")return errorS;
+if(var == "ERRORLVL")return errorLVL;
+if(var == "ERRORTEMP")return errorTEMP;
+if(var == "LMAX")return String(Level_Max);
+if(var == "LMIN")return String(Level_Min);
+if(var == "TMAX")return String(Temp_Max);
+if(var == "TMIN")return String(Temp_Min);
+
+if(var == "H1")return String(save[0].hour);
+if(var == "L1")return String(save[0].level);
+if(var == "T1")return String(save[0].temp);
+
+if(var == "H2")return String(save[1].hour);
+if(var == "L2")return String(save[1].level);
+if(var == "T2")return String(save[1].temp);
+
+if(var == "H3")return String(save[2].hour);
+if(var == "L3")return String(save[2].level);
+if(var == "T3")return String(save[2].temp);
 
 //Devuelve un texto
 if(var == "BTNT"){
@@ -240,11 +244,43 @@ if(var == "STLA"){
   if(AUTOLVL_STATE==2)return "Setear llenado a calentar";
   if(AUTOLVL_STATE==3)return "Confirmar seteo";
 }
-
 return String();
 }
 
-void Serial_Read_UNO(){
+void Serial_Send_NODEMCU(uint8_t WhatSend)
+  {
+    String message;
+    switch (WhatSend){
+      case 1:
+        if (HEATING_STATE == true)message = "1";
+        if (HEATING_STATE == false)message = "0";
+        Serial.println("H_"+TVal+":"+message);
+        break;
+      case 2:
+        if (CHARGING_STATE == true)message = "1";
+        if (CHARGING_STATE == false)message = "0";
+        Serial.println("C_"+LVal+":"+message);
+        break;
+      case 3:
+        Serial.println("K_"+String(save[Struct].hour)+":"+desconvercionhora(2,save[Struct].temp)+":"+desconvercionhora(3,save[Struct].level)+":"+String(Struct));
+        break;
+      case 4:
+        Serial.println("J_255:"+String(Temp_Min)+":"+String(Temp_Max));
+        break;
+      case 5:
+        Serial.println("V_255:"+String(Level_Min)+":"+String(Level_Max));
+        break;
+      case 6:
+        Serial.println("E_ERROR");// Si no entiende un mensaje envia error
+        break;
+      case 7:
+        Serial.println("O_OK");// Si entiende el mensaje manda ok
+        break;
+    }
+    
+  }
+
+void Serial_Read_NODEMCU(){
   String Serial_Input;
   uint8_t StringLength;
   String Individualdata[4];
@@ -279,49 +315,62 @@ void Serial_Read_UNO(){
             save[Struct].temp=Individualdata[2].toInt();
             ActualIndividualDataPos=0;
             ConvertString=false;
-            ComunicationError=false;
+            Serial_Send_NODEMCU(7);
           }
-        else Serial.println("error");
+      }
+       else Serial.println("E_ERROR");
+    break;
+  case 'S':
+  if (ConvertString==true)
+    {
+          ssid=Individualdata[0].toInt();
+          password=Individualdata[1].toInt();
+          ConvertString=false;
+          Serial_Send_NODEMCU(7);
+    }
+      else Serial.println("E_ERROR");
+
+  break;
+  case 'U':
+    if (ConvertString==true)
+      {
+        HVal=Individualdata[0];
+        LVal=Individualdata[1];
+        TVal=Individualdata[2];
+        ActualIndividualDataPos=0;
+        ConvertString=false;
       }
     break;
-
   case 'J':
     if (ConvertString==true)
       {
         Temp_Min=Individualdata[1].toInt();// tempin
-        Temp_Max=Individualdata[1].toInt();// tempmax
+        Temp_Max=Individualdata[2].toInt();// tempmax
         ActualIndividualDataPos=0;
         ConvertString=false;
-        ComunicationError=false;
+        Serial_Send_NODEMCU(7);
       }
+    else Serial.println("E_ERROR");
     break;
-      case 'V':
-    if (ConvertString==true)
-      {
-        Level_Min=Individualdata[0].toInt();// lvlmin
-        Level_Max=Individualdata[1].toInt();// lvlmax
-        ActualIndividualDataPos=0;
-        ConvertString=false;
-        ComunicationError=false;
-      }
-    break;
-    case '?':
-    if (ConvertString==true)
-      {
-        if(Individualdata[0]=="ERROR")
+  case 'V':
+      if (ConvertString==true)
         {
-              Serial.println("?_RESET");
-              ComunicationError=true;
+          Level_Min=Individualdata[1].toInt();// lvlmin
+          Level_Max=Individualdata[2].toInt();// lvlmax
+          ActualIndividualDataPos=0;
+          ConvertString=false;
+          Serial_Send_NODEMCU(7);
         }
-        if(Individualdata[0]=="NOTHING TO READ")
-        {
-              Serial.println("?_RESET");
-              ComunicationError=true;
-        }
-        ActualIndividualDataPos=0;
-        ConvertString=false;
-      }
+      else Serial.println("E_ERROR");
     break;
+  case '?':
+      if (ConvertString==true)
+        {
+          // RESET INO
+          ActualIndividualDataPos=0;
+          ConvertString=false;
+        }
+      break;
   default:
     Serial.println("?_NOTHING TO READ");
     break;

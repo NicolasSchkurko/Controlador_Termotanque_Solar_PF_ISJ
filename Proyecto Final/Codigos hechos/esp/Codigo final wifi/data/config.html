@@ -11,11 +11,11 @@
 <body>
     <h1>Set by hour at:</h1>
     <h4 class="titl"><span id="HSV">%HVAL%</span>hs</h4>
-    <h4 class="titl"><span id="TSV">%TVAL%</span>°C⠀⠀⠀⠀<span id="LSV">%LVAL%</span>℅</h4>
+    <h4 class="titl"><span id="TSV">%TVAL%</span>°C<span id="LSV">%LVAL%</span>℅</h4>
 
   <div class="elbicho">
     <div class="bloqueset">
-    <input type="range" id="temp"  min="40"  class="slider" max="80" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+    <input type="range" id="temp"  min="40"  class="slider" max="90" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     </div>
     <script>
     function updateSliderTEMP(element) {
@@ -57,6 +57,7 @@
       }
       </script>
       </div>
+      <div class="bloqueset"><h5>%ERRORSAVE%</h5> </div>
       <div class="bloqueset"><p><button class="button" onclick=location.href="/S1" >Save in slot 1</button></p> </div>
       <div class="bloqueset"><p><button class="button" onclick=location.href="/S2" >Save in slot 2</button></p> </div>
       <div class="bloqueset"><p><button class="button" onclick=location.href="/S3" >Save in slot 3</button></p> </div>
