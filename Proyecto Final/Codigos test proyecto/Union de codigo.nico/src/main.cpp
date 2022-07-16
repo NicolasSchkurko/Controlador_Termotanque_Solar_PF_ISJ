@@ -757,9 +757,9 @@ void seteo_hora()
         lcd.print("Hour:");
         lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
         lcd.setCursor(0,1);
-        lcd.print("aumentar con: 1 ");
+        lcd.print("aumentar con 1 ");
         lcd.setCursor(0,2);
-        lcd.print("disminuir con: 2");
+        lcd.print("disminuir con 2");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
@@ -774,9 +774,9 @@ void seteo_hora()
         lcd.print("Hour:");
         lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
         lcd.setCursor(0,1);
-        lcd.print("aumentar con: 1  ");
+        lcd.print("aumentar con 1  ");
         lcd.setCursor(0,2);
-        lcd.print("disminuir con: 2  ");
+        lcd.print("disminuir con 2  ");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3  ");
         minuto_to_modify = menuposY(minutos+sumador_minuto,min_max+1,224);
@@ -1064,9 +1064,9 @@ void modificar_hora_rtc()
         lcd.print("Hour:");
         lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
         lcd.setCursor(0,1);
-        lcd.print("aumentar con: 1 ");
+        lcd.print("aumentar con 1 ");
         lcd.setCursor(0,2);
-        lcd.print("disminuir con: 2");
+        lcd.print("disminuir con 2");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
@@ -1175,7 +1175,7 @@ void menu_farenheit_celsius()
     case 6:
       lcd.setCursor(4,0);
       lcd.print("Guardando...");
-      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=menu1; Flag=1 ;funcionActual=posicion_inicial; lcd.clear();}
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=menu1; Flag=1 ; funcionActual=posicion_inicial; lcd.clear();}
     break;
   }
   
