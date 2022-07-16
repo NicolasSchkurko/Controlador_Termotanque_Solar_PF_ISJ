@@ -13,9 +13,8 @@ String desconvercionhora(uint8_t,uint8_t);
 uint8_t convercionhora(uint8_t, String);
 //█████████████████████████████████████████████████████████████████████████████████
 
-struct save{uint8_t hora;uint8_t temp;uint8_t lvl;};
-String ssid = "Jere";
-String password = "chucotest";
+String ssid = "WifiChuco";
+String password = "AloAmbAr!";
 //█████████████████████████████████████████████████████████████████████████████████
 
 struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
@@ -64,8 +63,8 @@ void setup(){
  
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  while (WiFi.status() == WL_CONNECTED) {}
-
+  while (WiFi.status() != WL_CONNECTED){Serial.println(" ");}
+  Serial.println(WiFi.localIP()); 
   // Print ESP32 Local IP Address
 
 
@@ -113,25 +112,25 @@ void setup(){
 
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request){
     CHARGING_STATE= !CHARGING_STATE;
-    Serial_Send_NODEMCU(65); 
+    Serial_Send_NODEMCU(2); 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
 
   server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request){
     AUTOTEMP_STATE++; 
-    if (AUTOTEMP_STATE==1)Temp_Min=TEMP_VAL;
-    if (AUTOTEMP_STATE==2)Temp_Max=TEMP_VAL;
-    if (AUTOTEMP_STATE==3)Serial_Send_NODEMCU(4);
-    if(AUTOTEMP_STATE>3)AUTOTEMP_STATE=0; 
+    if (AUTOTEMP_STATE==2)Temp_Min=TEMP_VAL;
+    if (AUTOTEMP_STATE==3)Temp_Max=TEMP_VAL;
+    if (AUTOTEMP_STATE==4)Serial_Send_NODEMCU(4);
+    if(AUTOTEMP_STATE>4)AUTOTEMP_STATE=0; 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
 
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request){
     AUTOLVL_STATE++; 
-    if (AUTOLVL_STATE==1)Level_Min=TEMP_VAL;
-    if (AUTOLVL_STATE==2)Level_Max=TEMP_VAL;
-    if (AUTOLVL_STATE==3)Serial_Send_NODEMCU(5);
-    if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; 
+    if (AUTOLVL_STATE==2)Level_Min=TEMP_VAL;
+    if (AUTOLVL_STATE==3)Level_Max=TEMP_VAL;
+    if (AUTOLVL_STATE==4)Serial_Send_NODEMCU(5);
+    if(AUTOLVL_STATE>4)AUTOLVL_STATE=0; 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
 
@@ -189,7 +188,7 @@ void setup(){
 
 void loop() 
 {
-   Serial_Read_NODEMCU();
+  if(Serial.available( ) > 0) {Serial_Read_NODEMCU();}
 }
 
 
@@ -200,9 +199,11 @@ String processor(const String& var){
 if(var == "TVAL")return TVal;
 if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
+
 if(var == "ERRORSAVE")return errorS;
 if(var == "ERRORLVL")return errorLVL;
 if(var == "ERRORTEMP")return errorTEMP;
+
 if(var == "LMAX")return String(Level_Max);
 if(var == "LMIN")return String(Level_Min);
 if(var == "TMAX")return String(Temp_Max);
@@ -323,8 +324,8 @@ void Serial_Read_NODEMCU(){
   case 'S':
   if (ConvertString==true)
     {
-          ssid=Individualdata[0].toInt();
-          password=Individualdata[1].toInt();
+          ssid=Individualdata[0];
+          password=Individualdata[1];
           ConvertString=false;
           Serial_Send_NODEMCU(7);
     }
@@ -372,7 +373,6 @@ void Serial_Read_NODEMCU(){
         }
       break;
   default:
-    Serial.println("?_NOTHING TO READ");
     break;
   }
 }
