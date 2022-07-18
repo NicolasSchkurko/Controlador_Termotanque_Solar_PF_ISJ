@@ -5,16 +5,17 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-
-void Serial_Read_NODEMCU();
-void Serial_Send_NODEMCU(uint8_t);
 String processor(const String& var);
 String desconvercionhora(uint8_t,uint8_t);
 uint8_t convercionhora(uint8_t, String);
+void Serial_Read_NODEMCU();
+void Serial_Send_NODEMCU(uint8_t);
+
 //█████████████████████████████████████████████████████████████████████████████████
 
-String ssid = "WifiChuco";
-String password = "AloAmbAr!";
+String ssid = "Jere";
+String password = "chucotest";
+
 //█████████████████████████████████████████████████████████████████████████████████
 
 struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
@@ -30,7 +31,6 @@ uint8_t TEMP_VAL=0;
 uint8_t LVL_VAL=0;
 uint8_t HOUR_VAL=0;
 uint8_t MINUTE_VAL=0;
-
 uint8_t Struct=0;
 uint8_t Temp_Max=0;
 uint8_t Temp_Min=0;
@@ -38,7 +38,6 @@ uint8_t Level_Max=0;
 uint8_t Level_Min=0;
 uint8_t Actual_temp=0;
 uint8_t Actual_level=0;
-
 
 bool CHARGING_STATE=0;
 bool HEATING_STATE=0;
@@ -62,7 +61,6 @@ void setup(){
   LittleFS.begin();
  
   // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED){Serial.println(" ");}
   Serial.println(WiFi.localIP()); 
   // Print ESP32 Local IP Address
@@ -104,41 +102,41 @@ void setup(){
   });
   
   //detectaa cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
+  //Activa el calentamiento de manera manual
   server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request){
     HEATING_STATE= !HEATING_STATE; 
     Serial_Send_NODEMCU(1);
     request->send(LittleFS, "/index.html", String(), false, processor);
   }); 
-
+  //Activa el llenado de agua manual
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request){
     CHARGING_STATE= !CHARGING_STATE;
     Serial_Send_NODEMCU(2); 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
-
+  //Setea el calentamiento de manera automatica
   server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request){
     AUTOTEMP_STATE++; 
-    if (AUTOTEMP_STATE==2)Temp_Min=TEMP_VAL;
-    if (AUTOTEMP_STATE==3)Temp_Max=TEMP_VAL;
-    if (AUTOTEMP_STATE==4)Serial_Send_NODEMCU(4);
-    if(AUTOTEMP_STATE>4)AUTOTEMP_STATE=0; 
+    if (AUTOTEMP_STATE==1)Temp_Min=TEMP_VAL;
+    if (AUTOTEMP_STATE==2)Temp_Max=TEMP_VAL;
+    if (AUTOTEMP_STATE==3)Serial_Send_NODEMCU(4);
+    if(AUTOTEMP_STATE>3)AUTOTEMP_STATE=0; 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
-
+  //Setea el llenado de manera automatica
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request){
     AUTOLVL_STATE++; 
-    if (AUTOLVL_STATE==2)Level_Min=TEMP_VAL;
-    if (AUTOLVL_STATE==3)Level_Max=TEMP_VAL;
-    if (AUTOLVL_STATE==4)Serial_Send_NODEMCU(5);
-    if(AUTOLVL_STATE>4)AUTOLVL_STATE=0; 
+    if (AUTOLVL_STATE==1)Level_Min=TEMP_VAL;
+    if (AUTOLVL_STATE==2)Level_Max=TEMP_VAL;
+    if (AUTOLVL_STATE==3)Serial_Send_NODEMCU(5);
+    if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
-
+  //Redirige a pagina de automatico por tiempo
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request){ 
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
-
-
+  //Guarda en el primer slot de guardado por tiempo
   server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request){
     save[0].hour=convercionhora(1, HVal);
     save[0].level=convercionhora(2, LVal);
@@ -151,7 +149,7 @@ void setup(){
     else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
-
+  //Guarda en el segundo slot de guardado por tiempo
   server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request){
     save[1].hour=convercionhora(1, HVal);
     save[1].level=convercionhora(2, LVal);
@@ -164,7 +162,7 @@ void setup(){
     else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
-
+  //Guarda en el tercer slot de guardado por tiempo
   server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request){
     save[2].hour=convercionhora(1, HVal);
     save[2].level=convercionhora(2, LVal);
@@ -177,7 +175,7 @@ void setup(){
     else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
-
+  //Redirige a pagina principal (index)
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request){ 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
@@ -188,50 +186,51 @@ void setup(){
 
 void loop() 
 {
-  if(Serial.available( ) > 0) {Serial_Read_NODEMCU();}
+if (Serial.available()>0)Serial_Read_NODEMCU();
 }
 
 
 //█████████████████████████████████████████████████████████████████████████████████
-// Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
 String processor(const String& var){
-//Devuelve numeros
+// Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
+//entrega numeros de temperatura actual a la pagina
 if(var == "TVAL")return TVal;
 if(var == "LVAL")return LVal;
 if(var == "HVAL")return HVal;
-
+//entrega strings de error
 if(var == "ERRORSAVE")return errorS;
 if(var == "ERRORLVL")return errorLVL;
 if(var == "ERRORTEMP")return errorTEMP;
-
+//entrega numeros de temperatura y nivel maxima y minima
 if(var == "LMAX")return String(Level_Max);
 if(var == "LMIN")return String(Level_Min);
 if(var == "TMAX")return String(Temp_Max);
 if(var == "TMIN")return String(Temp_Min);
-
+//entrega datos de horas seteadas (primer slot)
 if(var == "H1")return String(save[0].hour);
 if(var == "L1")return String(save[0].level);
 if(var == "T1")return String(save[0].temp);
-
+//entrega datos de horas seteadas (segundo slot)
 if(var == "H2")return String(save[1].hour);
 if(var == "L2")return String(save[1].level);
 if(var == "T2")return String(save[1].temp);
-
+//entrega datos de horas seteadas (tercer slot)
 if(var == "H3")return String(save[2].hour);
 if(var == "L3")return String(save[2].level);
 if(var == "T3")return String(save[2].temp);
-
-//Devuelve un texto
+//Devuelve un texto (Activar calentamiento)
 if(var == "BTNT"){
-if(HEATING_STATE==1)return "llenado encendido"; 
-else return "llenado apagado";
+if(HEATING_STATE==1)return "Calentamiento encendido"; 
+else return "Calentamiento apagado";
 }
 
+//Devuelve un texto (Activar llenado)
 if(var == "BTNL"){
 if(CHARGING_STATE==1)return "llenado encendido"; 
 else return "llenado apagado";
 }
 
+//Devuelve un texto (Activar calentamiento automatico)
 if(var == "STTA"){
   if(AUTOTEMP_STATE==0)return "Setear calentamiento automatico";
   if(AUTOTEMP_STATE==1)return "Setear temperatura minima";
@@ -239,12 +238,14 @@ if(var == "STTA"){
   if(AUTOTEMP_STATE==3)return "Confirmar seteo";
 }
 
+//Devuelve un texto (Activar llenado automatico)
 if(var == "STLA"){
   if(AUTOLVL_STATE==0)return "Setear llenado automatico";
   if(AUTOLVL_STATE==1)return "Setear llenado minima";
   if(AUTOLVL_STATE==2)return "Setear llenado a calentar";
   if(AUTOLVL_STATE==3)return "Confirmar seteo";
 }
+
 return String();
 }
 
@@ -253,16 +254,17 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
     String message;
     switch (WhatSend){
       case 1:
-        if (HEATING_STATE == true)message = "1";
-        if (HEATING_STATE == false)message = "0";
+        if (HEATING_STATE == true)message = "ON";
+        if (HEATING_STATE == false)message = "OFF";
         Serial.println("H_"+TVal+":"+message);
         break;
       case 2:
-        if (CHARGING_STATE == true)message = "1";
-        if (CHARGING_STATE == false)message = "0";
+        if (CHARGING_STATE == true)message = "ON";
+        if (CHARGING_STATE == false)message = "OFF";
         Serial.println("C_"+LVal+":"+message);
         break;
       case 3:
+    
         Serial.println("K_"+String(save[Struct].hour)+":"+desconvercionhora(2,save[Struct].temp)+":"+desconvercionhora(3,save[Struct].level)+":"+String(Struct));
         break;
       case 4:
