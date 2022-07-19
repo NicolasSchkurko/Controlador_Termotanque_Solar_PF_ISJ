@@ -1647,7 +1647,7 @@ char Letra(uint8_t letranum, bool mayus)
 
 void checktemp()
 {
-  //=========Compara nivel actual con el minimo seteado============
+  //=========Compara temperatura actual con el minimo seteado============
   if(temperatura_del_sensor < temperatura_a_calentar) digitalWrite(resistencia, HIGH);
   //=================================================================
 }
@@ -1655,7 +1655,7 @@ void checktemp()
 void checklvl()
 
 {
-  //======Compara temperatura actual con el minimo seteado=========
+  //======Compara nivel actual con el minimo seteado=========
   if(nivel_actual < min_nivel) digitalWrite(electrovalvula, HIGH);
   //=================================================================
 }
