@@ -1,4 +1,4 @@
-//optimizar
+//Libs
 #include <Arduino.h>
 #include "AT24CX.h"
 #include <Wire.h>
@@ -8,178 +8,175 @@
 #include <OneWire.h>
 #include "RTClib.h"
 
-/* para ordenar declaraciones usar el siguiente orden Definitons
-                                                      Functions
-                                                      Library declarations
-                                                      Type def 
-                                                      Const declarations
-                                                      Variable declarations according to value
-no sean cripticos la concha de su madre*/
+//█████████████████████████████████████████████████████████████████████████████████
+//Defines
+  //Control de temp
+  #define sumador_temperatura 5 
+  #define tiempo_de_espera 5000 //puede hacerse un DEFINE porque no se modifica
+  #define maxima_temp_f 176
+  #define min_temp_f 68
+  #define maxima_temp 90           //puede hacerse un DEFINE porque no se modifica
+  #define temp_threshold 5
+  #define min_temp 20    
 
+  //Control de nivel
+  #define sumador_nivel 25
+  #define min_percent 25     //can be a DEFINE because doesnt change (used in manual)
+  #define maxima_percent 100 //can be a DEFINE because doesnt change (used in manual)
+  #define min_nivel 0        //can be a DEFINE because doesnt change (used in auto)
+  #define maxima_nivel 100 
 
+  //Entradas y salidas
+  #define nivel_del_tanque A0 
+  #define electrovalvula 10
+  #define resistencia 11
+  #define onewire 9 // pin del onewire
+  #define pulsador1 2
+  #define pulsador2 3
+  #define pulsador3 4
+  #define pulsador4 5
+
+  //Datos del Menu
+  #define maxY_menu1 7
+  #define maxY_menu2 5
+
+  //Datos horas
+  #define hora_max 23
+  #define min_max 45 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
+
+//█████████████████████████████████████████████████████████████████████████████████
+//Prototipos
+  // funciones del menu (ordenadas segun su lugar de inicio)
+  void standby();
+  void menu_basico();
+  void menu_de_calefaccion_auto();
+  void menu_de_calefaccion_manual();
+  void menu_de_llenado_auto();
+  void menu_de_llenado_manual();
+  void seteo_hora();
+  void menu_avanzado();
+  void modificar_hora_rtc();
+  void menu_farenheit_celsius();
+  void configuracionwifi();
+
+  //Funciones control temperatura
+  void tomar_temperatura ();
+  void control_de_temp_auto();
+  void checktemp();
+
+  //Funciones control nivel
+  void sensar_nivel_actual();
+  void nivel_auto(bool);  //terminar
+  void checklvl();
+
+  //Funciones conexion arduino/esp
+  void Serial_Read_UNO();
+  void Serial_Send_UNO(uint8_t);
+
+  //Funciones hora
+  void Actualizar_hora ();
+  String desconversionhora(uint8_t,uint8_t);
+  uint8_t conversionhora(uint8_t, String);
+
+  //Otras Funciones
+  uint8_t menuposY(uint8_t , uint8_t, uint8_t);
+  char Letra(uint8_t , bool);
+
+//█████████████████████████████████████████████████████████████████████████████████
+//Declaraciones de libs
   AT24C32 eep;
   RTC_DS1307 rtc;
+  LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
+  OneWire sensor_t(onewire);
+  DallasTemperature Sensor_temp(&sensor_t);
 
+//█████████████████████████████████████████████████████████████████████████████████
+//Variables 
+  //Variables de temp (ordenados segun peso)
+  bool flag_f = false; 
   int8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
-  //comparten de aca para abajo con calef. manual y auto
-  const uint8_t sumador_temperatura = 5; 
-  const uint16_t tiempo_de_espera = 5000; //puede hacerse un DEFINE porque no se modifica
-  const uint8_t maxima_temp_f = 176;
-  const uint8_t min_temp_f = 68;
-  const uint8_t maxima_temp = 90;            //puede hacerse un DEFINE porque no se modifica
-  const uint8_t temp_threshold = 5;
-  const uint8_t min_temp = 20;            //puede hacerse un DEFINE porque no se modifica
+  uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100   THE MEME 
+  uint8_t temperatura_final = 40;
+  int16_t temperatura_del_sensor=0;
+  uint16_t milis_para_temperatura = 0;
+  uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
 
-  //vals that share in level funciones //Jere: ?? // Chuco: ??
-  const uint8_t sumador_nivel = 25;
-  //const uint16_t tiempo_de_espera = 5000; Aparece 2 veces esta variable che
-  
-  //vals that need the levels funcions
+  //Variables de nivel          Para teo: vals that share in level funciones //Jere: ?? // Chuco: ??
   int8_t nivel_a_llenar;             //(used in manual)
+  uint8_t nivel_inicial;
+  uint8_t nivel_final; 
+  uint8_t nivel_actual;
+  uint8_t nivel = 0;
+  uint16_t milis_para_nivel = 0;
+  uint16_t tiempo_para_nivel = 3000;
+
+  //Variables de hora
   unsigned long tiempo_actual;             //(used in temperature funcions and in llenado auto to showw a confirm output)
-  const uint8_t min_percent = 25;     //can be a DEFINE because doesnt change (used in manual)
-  const uint8_t maxima_percent = 100; //can be a DEFINE because doesnt change (used in manual)
-  const uint8_t min_nivel = 0;        //can be a DEFINE because doesnt change (used in auto)
-  const uint8_t maxima_nivel = 100;   //can be a DEFINE because doesnt change (used in auto)
-//
-void menu_basico();
-void menu_avanzado();
-void standby();
-void imprimir_en_pantalla();
-void limpiar_pantalla_y_escribir_nivel();
-void tomar_temperatura ();
-void control_de_temp_auto();
-void sensar_nivel_de_agua();
-void nivel_auto(bool);
-void Serial_Read_UNO();
-void Serial_Send_UNO(uint8_t);
-void menu_de_calefaccion_auto();
-void menu_de_calefaccion_manual();
-void menu_de_llenado_auto();
-void menu_de_llenado_manual();
-void Actualizar_hora ();
-void modificar_hora_rtc();
-void menu_farenheit_celsius();
-void checklvl();
-void checktemp();
-void seteo_hora();
-uint8_t menuposY(uint8_t , uint8_t, uint8_t);
-int control_de_temp_por_menu_manual(int temp_a_alcanzar);
-String desconversionhora(uint8_t,uint8_t);
-uint8_t conversionhora(uint8_t, String);
-void sensar_nivel_actual();
-#define onewire 9
-OneWire sensor_t(onewire);
-DallasTemperature Sensor_temp(&sensor_t);
-bool flag_f = false;  //true para tomar temperatura en farenheit
-uint16_t tiempo_para_temperatura = 5000; // 2 bytes mas 60k si necesitan mas cambien a 36 (4 bytes), le puse unsigned si necesitan negativos saquen la u
-uint8_t temperatura_inicial = 40; // byte 0-255 ¿Para que chota usamos int si no necesitamos 60k opciones? solo 0-100 
-uint8_t temperatura_final = 40;
-int16_t temperatura_del_sensor=0;
-uint16_t milis_para_temperatura = 0;
+  uint64_t  mili_segundos = 0;
+  uint8_t hora_to_modify;
+  uint8_t minuto_to_modify;
+  uint8_t sumador_hora;
+  uint8_t sumador_minuto;
+  uint16_t anio;
+  uint8_t mes,dia,hora,minutos,segundos;
+  uint8_t correccionh,correccionmin, correccionseg;
 
-//nivel de agua
-uint8_t nivel_inicial;
-uint8_t nivel_final; 
-uint8_t nivel_actual;
-const uint8_t nivel_del_tanque = A0; 
-const uint8_t electrovalvula = 10;
-const uint8_t resistencia = 11;
-uint8_t  nivel = 0;
-uint64_t  mili_segundos = 0;// ayy milii BOCHA DE SEGUNDOS LOL 
-uint16_t  milis_para_nivel = 0;
-uint16_t tiempo_para_nivel = 3000;
+  //Variables EEPROM
+  struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};            //guardado 1/hora/level/temp
+  uint8_t ActualStruct=0;                                                   //guardado 2/hora/level/temp
+  save_data save[5];                                                        //guardado 3/hora/level/temp
+                                                                            //guarda auto temp = 255/temp_min/temp_max
+                                                                            //guarda auto lvl = 255/level_min/level_max
 
-//cosas guardado y rtc
-struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
-save_data save[5]; 
-uint8_t ActualStruct=0;
-
-//guardado 1/hora/level/temp
-//guardado 2/hora/level/temp
-//guardado 3/hora/level/temp
-//guarda auto temp = 255/temp_min/temp_max
-//guarda auto lvl = 255/level_min/level_max
-
-
-//cosas del menu princial
-typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_seteo_hora, llenado_auto, calefaccion_auto, funcion_de_modificar_hora_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_configuracionwifi} Seleccionar_Funciones;  
-Seleccionar_Funciones funcionActual = posicion_inicial;
-uint16_t tiempo_de_standby = 0;
-uint8_t opcionmenu1=0;
-uint8_t opcionmenu2=0;
-uint8_t Flag=0;
-uint8_t fix_max_uint;
-
-// Comunicacion esp/arduino
-String Serial_Input;
-String Individualdata[4];
-String IndividualValue;
-uint16_t Send_time=0;
-uint8_t StringLength=0;
-uint8_t ActualIndividualDataPos=0;
-char Actualchar=0;
-char input=0;
-bool ConvertString=false;
-bool StringTaked=false;
-bool stateheating=false;
-bool ComunicationError=false;
-bool InitComunication;
-uint8_t hora_to_modify;
-uint8_t minuto_to_modify;
-uint8_t sumador_hora;
-uint8_t sumador_minuto;
-bool mayusculas=false;
-//cosas del mennu avanzado
-//funciones para el RTC se cionecta directamente a los pines SCL Y SDA
-/*RTC_DS1307 RTC; //variable que se usa para comunicarse con el Sensor DS1307 via I2C 
-DateTime now; */
-void imprimir_hora ();
-//
-// cosas del wifi
-void configuracionwifi();
-char Letra(uint8_t , bool);
-String WIFISSID;
-String WIFIPASS;
-//Cosas necesarias para el menu
-
-LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
-typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF;  
-estadoMEF Estadoequipo = estado_inicial;
-const uint8_t maxY_menu1=7;
-const uint8_t maxY_menu2=5;
-const uint8_t pulsador1 = 2;
-const uint8_t pulsador2 = 3;
-const uint8_t pulsador3 = 4;
-const uint8_t pulsador4 = 5;
-const uint8_t pulsador5 = 6;
-const uint8_t pulsador6 = 7; //pulsador de retorno
-const uint8_t pulsador7 = 8;
-String Menuprincipal[maxY_menu1] = {
-  "C manual",
-  "H manual",
-  "H & F in H",
-  "C segun lleno",
-  "H segun temp",
-  "menu avanzado",
-  "volver"
-};
-String menuavanzado[maxY_menu2] = {
-    "Setear hora",
-    "c° o F°",
-    "Activar la bomba",
-    "conexion wifi",
+  //Variables menu
+  typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_seteo_hora, llenado_auto, calefaccion_auto, funcion_de_modificar_hora_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_configuracionwifi} Seleccionar_Funciones;  
+  typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF; 
+  bool flag_menu_avanzado = false;
+  bool borrar_display = false; 
+  uint8_t opcionmenu1=0;
+  uint8_t opcionmenu2=0;
+  uint8_t Flag=0;
+  uint8_t fix_max_uint;
+  uint8_t Ypos;
+  uint16_t tiempo_de_standby = 0;
+  String Menuprincipal[maxY_menu1] = {
+    "C manual",
+    "H manual",
+    "H & F in H",
+    "C segun lleno",
+    "H segun temp",
+    "menu avanzado",
     "volver"
-};
-bool flag_menu_avanzado = false;
-bool borrar_display = false;
-uint8_t Ypos;
+  };
+  String menuavanzado[maxY_menu2] = {
+      "Setear hora",
+      "c° o F°",
+      "Activar la bomba",
+      "conexion wifi",
+      "volver"
+  };
+  Seleccionar_Funciones funcionActual = posicion_inicial;
+  estadoMEF Estadoequipo = estado_inicial;
 
-// Cosas rtc y reajustes 
-uint16_t anio;
-uint8_t mes,dia,hora,minutos,segundos;
-uint8_t correccionh,correccionmin, correccionseg;
+  //Variables Comunicacion esp/arduino
+  bool ConvertString=false;
+  bool StringTaked=false;
+  bool stateheating=false;
+  bool ComunicationError=false;
+  bool InitComunication;  
+  bool mayusculas=false;
+  uint8_t StringLength=0;
+  uint8_t ActualIndividualDataPos=0;
+  char Actualchar=0;
+  char input=0;
+  uint16_t Send_time=0;
+  String Serial_Input;
+  String Individualdata[4];
+  String IndividualValue;
+  String WIFISSID;
+  String WIFIPASS;
 
+//█████████████████████████████████████████████████████████████████████████████████
 
 void setup() 
 {
@@ -211,9 +208,6 @@ void setup()
   pinMode(pulsador2, INPUT_PULLUP);
   pinMode(pulsador3, INPUT_PULLUP);
   pinMode(pulsador4, INPUT_PULLUP);
-  pinMode(pulsador5, INPUT_PULLUP);
-  pinMode(pulsador6, INPUT_PULLUP);
-  pinMode(pulsador7, INPUT_PULLUP);
   //
   InitComunication=true;
 }
@@ -278,7 +272,7 @@ void standby()
   tomar_temperatura();
   lcd.setCursor(13,1);
   lcd.print(temperatura_del_sensor);
-  lcd.print((char)223); //imprime °
+  lcd.print((char)223); //imprime  el simbolo de °
   if(flag_f == false)
     {
       lcd.print("C  ");
@@ -292,9 +286,10 @@ void standby()
   lcd.print(hora, DEC);
   lcd.print(":");
   lcd.print(minutos, DEC);
-  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW )
+
+  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW)
   {
-    while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW || digitalRead(pulsador5)==LOW || digitalRead(pulsador6)==LOW || digitalRead(pulsador7)==LOW){}
+    while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){}
     switch (Estadoequipo)
     {
       case estado_standby:
@@ -630,9 +625,6 @@ void menu_de_calefaccion_manual(){
 
 void seteo_hora()
 {
-  const uint16_t tiempo_de_espera = 5000;
-  const uint8_t hora_max = 23;
-  const uint8_t min_max = 45;
     switch (Flag)
   {
     case 2:
@@ -1047,9 +1039,7 @@ void menu_de_calefaccion_auto(){
 
 void modificar_hora_rtc()
   {
-  const uint16_t tiempo_de_espera = 5000;
-  const uint8_t hora_max = 23;
-  const uint8_t min_max = 45; //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
+
     switch (Flag)
     {
       case 4:
@@ -1322,7 +1312,7 @@ void Serial_Send_UNO(uint8_t WhatSend)
             switch (MessagePoss)
             {
               case 0:
-                Serial.println("S_""SSID"":""Pass");
+                Serial.println("S_"+WIFISSID+":"+WIFIPASS);
                  MessagePoss++;
                  Send_time=0;
                 break;
@@ -1376,7 +1366,7 @@ void Serial_Send_UNO(uint8_t WhatSend)
       case 5:
         if (ComunicationError==false && InitComunication==false)
           {
-            Serial.println("U_"+"ACAVALAHORA"+":"+String(nivel_actual)+":"+String(temperatura_del_sensor));
+            Serial.println("U_"+String(conversionhora(1,String(hora)+":"+String(minutos)))+":"+String(nivel_actual)+":"+String(temperatura_del_sensor));
           }
       case 6:
         if (ComunicationError==true && InitComunication==false)
@@ -1397,7 +1387,7 @@ ISR(TIMER2_OVF_vect){
   Send_time++;
 }
 
-  uint8_t menuposY (uint8_t actualpos, uint8_t maxpos, uint8_t maxuintvalue)
+uint8_t menuposY (uint8_t actualpos, uint8_t maxpos, uint8_t maxuintvalue)
 { 
   uint8_t realvalue;
 
@@ -1473,8 +1463,6 @@ uint8_t conversionhora(uint8_t function, String toconvert) //// ya arregle lo de
   }
 }
 
-/*======================PARA ADAPTAR=========================*/
-
 void tomar_temperatura () //Sexo y adaptarlo para no usar delay farenheit
 {
   if (milis_para_temperatura >= tiempo_para_temperatura)
@@ -1520,7 +1508,6 @@ void control_de_temp_auto() //modificar para que se haga y no bloquee el codigo
   if(temperatura_actual >= temperatura_final + temp_threshold) digitalWrite(resistencia, LOW);
 }
 
-/*========================Ññ¡¿=============LABURANDOLO==============================================*/
 void configuracionwifi(){  
 
   switch (Flag)
@@ -1647,7 +1634,7 @@ char Letra(uint8_t letranum, bool mayus)
 
 void checktemp()
 {
-  //=========Compara temperatura actual con el minimo seteado============
+  //=========Compara nivel actual con el minimo seteado============
   if(temperatura_del_sensor < temperatura_a_calentar) digitalWrite(resistencia, HIGH);
   //=================================================================
 }
@@ -1655,7 +1642,7 @@ void checktemp()
 void checklvl()
 
 {
-  //======Compara nivel actual con el minimo seteado=========
+  //======Compara temperatura actual con el minimo seteado=========
   if(nivel_actual < min_nivel) digitalWrite(electrovalvula, HIGH);
   //=================================================================
 }
