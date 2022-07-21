@@ -1183,10 +1183,10 @@ void Actualizar_hora ()
 
 void Serial_Read_UNO(){
   
-  Serial_Input=Serial.readString();// iguala el string del serial a un string imput
-  StringLength= Serial_Input.length();// saca el largo del string
-  Serial.println(Serial_Input);// Solo de verificacion (eliminar en el final)
-  input=Serial_Input.charAt(0); // toma el char de comando (el primer char usualmente una letra)
+  Serial_Input=Serial.readString();     // iguala el string del serial a un string imput
+  StringLength= Serial_Input.length();  // saca el largo del string
+  Serial.println(Serial_Input);         // Solo de verificacion (eliminar en el final)
+  input=Serial_Input.charAt(0);         // toma el char de comando (el primer char usualmente una letra)
 
   for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
