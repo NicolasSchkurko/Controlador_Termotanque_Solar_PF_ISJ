@@ -138,41 +138,46 @@ void setup(){
   });
   //Guarda en el primer slot de guardado por tiempo
   server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request){
+
+    if (convercionhora(1, HVal) == save[1].hour || convercionhora(1, HVal) == save[2].hour){
+      errorS = "No podes guardar dos variables en la misma hora";
+    }
+    else{
     save[0].hour=convercionhora(1, HVal);
     save[0].level=convercionhora(2, LVal);
     save[0].temp=convercionhora(2, TVal);
     Struct=0;
-    if (save[0].hour == save[1].hour || save[0].hour == save[2].hour)
-    {
-      errorS = "No podes guardar dos variables en la misma hora";
+    Serial_Send_NODEMCU(3);
     }
-    else Serial_Send_NODEMCU(3);
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
   //Guarda en el segundo slot de guardado por tiempo
   server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request){
-    save[1].hour=convercionhora(1, HVal);
-    save[1].level=convercionhora(2, LVal);
-    save[1].temp=convercionhora(2, TVal);
-    Struct=1;
-    if (save[1].hour == save[0].hour || save[1].hour == save[2].hour)
-    {
+    
+    if (convercionhora(1, HVal) == save[0].hour || convercionhora(1, HVal) == save[2].hour){
       errorS = "No podes guardar dos variables en la misma hora";
     }
-    else Serial_Send_NODEMCU(3);
+    else{
+    save[0].hour=convercionhora(1, HVal);
+    save[0].level=convercionhora(2, LVal);
+    save[0].temp=convercionhora(2, TVal);
+    Struct=0;
+    Serial_Send_NODEMCU(3);
+    }
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
   //Guarda en el tercer slot de guardado por tiempo
   server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request){
-    save[2].hour=convercionhora(1, HVal);
-    save[2].level=convercionhora(2, LVal);
-    save[2].temp=convercionhora(2, TVal);
-    Struct=2;
-    if (save[2].hour == save[0].hour || save[2].hour == save[1].hour)
-    {
+    if (convercionhora(1, HVal) == save[0].hour || convercionhora(1, HVal) == save[1].hour){
       errorS = "No podes guardar dos variables en la misma hora";
     }
-    else Serial_Send_NODEMCU(3);
+    else{
+    save[0].hour=convercionhora(1, HVal);
+    save[0].level=convercionhora(2, LVal);
+    save[0].temp=convercionhora(2, TVal);
+    Struct=0;
+    Serial_Send_NODEMCU(3);
+    }
     request->send(LittleFS, "/config.html", String(), false, processor);
   });
   //Redirige a pagina principal (index)

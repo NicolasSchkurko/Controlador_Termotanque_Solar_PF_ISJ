@@ -177,7 +177,7 @@
   String WIFIPASS;
 
 //█████████████████████████████████████████████████████████████████████████████████
-
+//Codigo
 void setup() 
 {
   //Interrupcion cada 1 mili
@@ -378,14 +378,14 @@ void menu_basico()
 
 void menu_avanzado()
 {
-  if (Flag==3)
-  {
+  if (Flag==3){
     Ypos=0;
     opcionmenu2=0;
     lcd.clear();
     Flag=4;
     fix_max_uint=0;
   }
+  
   if (Flag==4){
   if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=Ypos+1; lcd.clear(); }
   if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=Ypos-1; lcd.clear(); }
@@ -428,7 +428,6 @@ void menu_avanzado()
   }
 }
 
-// VERIFICAR EN FISICO...
 void menu_de_llenado_manual(){
     switch (Flag)
     {
@@ -1171,9 +1170,6 @@ void menu_farenheit_celsius()
   
 }
 
-
-//==============================FUNCIONES ESCONDIDAS===================
-
 void Actualizar_hora ()
   {
     DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
@@ -1376,8 +1372,6 @@ void Serial_Send_UNO(uint8_t WhatSend)
     }
     
   }
-
-//===============================FUNCIONES DE SOPORTE===================
 
 ISR(TIMER2_OVF_vect){
   mili_segundos++;
@@ -1640,7 +1634,6 @@ void checktemp()
 }
 
 void checklvl()
-
 {
   //======Compara temperatura actual con el minimo seteado=========
   if(nivel_actual < min_nivel) digitalWrite(electrovalvula, HIGH);
