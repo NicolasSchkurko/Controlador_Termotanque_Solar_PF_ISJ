@@ -1226,7 +1226,6 @@ void configuracionwifi(){
 
 }
 
-//Funciones que no tienen que ver con el menu
 
 void Actualizar_hora ()
   {
@@ -1245,18 +1244,9 @@ void Actualizar_hora ()
   }
 
 void Serial_Read_UNO(){
-  
-<<<<<<< HEAD
   Serial_Input=Serial.readString();// iguala el string del serial a un string input
   StringLength= Serial_Input.length();// saca el largo del string
   input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
-=======
-  Serial_Input=Serial.readString();     // iguala el string del serial a un string imput
-  StringLength= Serial_Input.length();  // saca el largo del string
-  Serial.println(Serial_Input);         // Solo de verificacion (eliminar en el final)
-  input=Serial_Input.charAt(0);         // toma el char de comando (el primer char usualmente una letra)
->>>>>>> f0882cb6ba7db67edbdd9715405674464ae56e9a
-
   // Separador del string en variables:
   for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
     if(Serial_Input.charAt(CharPos)==':') ActualIndividualDataPos++; //si hay : divide los datos
@@ -1267,7 +1257,6 @@ void Serial_Read_UNO(){
     if(CharPos==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
   } 
   
-
   if(Take_Comunication_Data==true){
     switch (input){//dependiendo del char de comando
     case 'H':
@@ -1332,15 +1321,14 @@ void Serial_Read_UNO(){
 void Serial_Send_UNO(uint8_t WhatSend){
     uint8_t MessagePoss;
     if (InitComunication==true)MessagePoss=0;
-
     switch (WhatSend){
       case 1:
         if (ComunicationError==false && InitComunication==true && MessagePoss<=5 &&Send_time>=1000){
             switch (MessagePoss){
               case 0:
                 Serial.println("S_"+WIFISSID+":"+WIFIPASS);
-                 MessagePoss++;
-                 Send_time=0;
+                MessagePoss++;
+                Send_time=0;
                 break;
               case 1:
                 Serial.println("K_HORA:TEMP:LVL:0");
@@ -1412,11 +1400,11 @@ uint8_t menuposY (int8_t actualpos, uint8_t maxpos)
 { 
   uint8_t realvalue;
   if (actualpos>=maxpos){
-    realvalue = 0 + actualpos % maxpos;           //es igual a 255 sea igual a la maxima del string
+    realvalue = 0 + actualpos % maxpos;       
     return realvalue;
   }
   if (actualpos<0){
-    realvalue = maxpos + actualpos;           //es igual a 255 sea igual a la maxima del string
+    realvalue = maxpos + actualpos;          
     return realvalue;
   }
   if (actualpos>0 && actualpos<maxpos) return actualpos;
@@ -1551,8 +1539,6 @@ char Letra(uint8_t letranum, bool mayus)
 
 void Controltemp()
 {
-
-
   // control temp min to max
 digitalWrite(resistencia,temperatura_del_sensor < temperatura_inicial ? HIGH : LOW);
 digitalWrite(resistencia,temperatura_del_sensor >= (temperatura_final + temp_threshold) ? LOW : HIGH);
