@@ -1246,9 +1246,16 @@ void Actualizar_hora ()
 
 void Serial_Read_UNO(){
   
+<<<<<<< HEAD
   Serial_Input=Serial.readString();// iguala el string del serial a un string input
   StringLength= Serial_Input.length();// saca el largo del string
   input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
+=======
+  Serial_Input=Serial.readString();     // iguala el string del serial a un string imput
+  StringLength= Serial_Input.length();  // saca el largo del string
+  Serial.println(Serial_Input);         // Solo de verificacion (eliminar en el final)
+  input=Serial_Input.charAt(0);         // toma el char de comando (el primer char usualmente una letra)
+>>>>>>> f0882cb6ba7db67edbdd9715405674464ae56e9a
 
   // Separador del string en variables:
   for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
@@ -1322,16 +1329,14 @@ void Serial_Read_UNO(){
   }
 }
 
-void Serial_Send_UNO(uint8_t WhatSend)
-  {
+void Serial_Send_UNO(uint8_t WhatSend){
     uint8_t MessagePoss;
     if (InitComunication==true)MessagePoss=0;
+
     switch (WhatSend){
       case 1:
-        if (ComunicationError==false && InitComunication==true && MessagePoss<=5 &&Send_time>=1000)
-        {
-            switch (MessagePoss)
-            {
+        if (ComunicationError==false && InitComunication==true && MessagePoss<=5 &&Send_time>=1000){
+            switch (MessagePoss){
               case 0:
                 Serial.println("S_"+WIFISSID+":"+WIFIPASS);
                  MessagePoss++;
@@ -1363,12 +1368,9 @@ void Serial_Send_UNO(uint8_t WhatSend)
                 MessagePoss=0;
                 Send_time=0;
                 break;
-            // delay de 1 seg
-            }
-
-            //Send_time =0;
+            }   
         }
-        break;
+      break;
       case 2:
         if (ComunicationError==false && InitComunication==false)
           {
