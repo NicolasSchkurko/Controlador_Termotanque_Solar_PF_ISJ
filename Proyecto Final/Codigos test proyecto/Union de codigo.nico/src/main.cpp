@@ -251,7 +251,6 @@ void loop()
 
 void standby()
 { 
-  lcd.leftToRight();
   lcd.setCursor(0,0); lcd.print("T:"); lcd.print(temperatura_del_sensor);lcd.print((char)223); //imprime  el simbolo de °
   if(flag_f == false) lcd.print("C");
   else lcd.print("F  ");
