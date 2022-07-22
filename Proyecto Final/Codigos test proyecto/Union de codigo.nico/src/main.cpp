@@ -61,13 +61,11 @@
 
   //Funciones control temperatura
   void tomar_temperatura ();
-  void control_de_temp_auto();
-  void checktemp();
+  void Controltemp();
 
   //Funciones control nivel
   void sensar_nivel_actual();
-  void nivel_auto(bool);  //terminar
-  void checklvl();
+  void Controllvl();
 
   //Funciones conexion arduino/esp
   void Serial_Read_UNO();
@@ -79,7 +77,7 @@
   uint8_t conversionhora(uint8_t, String);
 
   //Otras Funciones
-  uint8_t menuposY(uint8_t , uint8_t, uint8_t);
+  uint8_t menuposY(int8_t , uint8_t);
   char Letra(uint8_t , bool);
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -120,11 +118,12 @@
   uint16_t anio;
   uint8_t mes,dia,hora,minutos,segundos;
   uint8_t correccionh,correccionmin, correccionseg;
+  String Hora_Actual;
 
   //Variables EEPROM
   struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};            //guardado 1/hora/level/temp
   uint8_t ActualStruct=0;                                                   //guardado 2/hora/level/temp
-  save_data save[5];                                                        //guardado 3/hora/level/temp
+  save_data save[3];                                                        //guardado 3/hora/level/temp
                                                                             //guarda auto temp = 255/temp_min/temp_max
                                                                             //guarda auto lvl = 255/level_min/level_max
 
@@ -136,8 +135,7 @@
   uint8_t opcionmenu1=0;
   uint8_t opcionmenu2=0;
   uint8_t Flag=0;
-  uint8_t fix_max_uint;
-  uint8_t Ypos;
+  int8_t Ypos;
   uint16_t tiempo_de_standby = 0;
   String Menuprincipal[maxY_menu1] = {
     "C manual",
@@ -159,8 +157,7 @@
   estadoMEF Estadoequipo = estado_inicial;
 
   //Variables Comunicacion esp/arduino
-  bool ConvertString=false;
-  bool StringTaked=false;
+  bool Take_Comunication_Data=false;
   bool stateheating=false;
   bool ComunicationError=false;
   bool InitComunication;  
@@ -186,13 +183,12 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   //
-  Wire.begin();  //inicializacion del i2C
+  Wire.begin();  
   Serial.begin(9600); //inicializacion del serial arduino-esp
   rtc.begin();//inicializacion del rtc arduino-esp
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
-  
-  //Iniciacion del LCD
-  lcd.init();
+
+  lcd.init();//Iniciacion del LCD
   lcd.backlight();
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(electrovalvula, OUTPUT);
@@ -217,18 +213,11 @@ void loop()
   tomar_temperatura();
   Actualizar_hora ();
   sensar_nivel_actual();
-
-  checklvl();
-  checktemp();
+  Controllvl();
+  Controltemp();
 
   if (Serial.available()>0)Serial_Read_UNO();
-  /*control_de_temp_auto();
-  if (milis_para_nivel == tiempo_para_nivel)//sujeto a cambios
-  {
-    control_de_temp_auto();
-    milis_para_nivel= 0;
-  }
-  */
+
   switch (Estadoequipo)
   {
     case estado_standby:
@@ -262,33 +251,15 @@ void loop()
 
 void standby()
 { 
-  lcd.setCursor(0,0);
-  lcd.print("Nivel: ");
-  lcd.setCursor(7,0);
-  lcd.print(nivel_actual);
-  lcd.print("% ");
-  lcd.setCursor(0,1);
-  lcd.print("Temperatura:");
-  tomar_temperatura();
-  lcd.setCursor(13,1);
-  lcd.print(temperatura_del_sensor);
-  lcd.print((char)223); //imprime  el simbolo de °
-  if(flag_f == false)
-    {
-      lcd.print("C  ");
-    }
-  else
-    {
-     lcd.print("F  ");
-    }
-  lcd.setCursor(0,2);
-  lcd.print("Hora: ");
-  lcd.print(hora, DEC);
-  lcd.print(":");
-  lcd.print(minutos, DEC);
+  lcd.leftToRight();
+  lcd.setCursor(0,0); lcd.print("T:"); lcd.print(temperatura_del_sensor);lcd.print((char)223); //imprime  el simbolo de °
+  if(flag_f == false) lcd.print("C");
+  else lcd.print("F  ");
+  lcd.setCursor(12,0);lcd.print("N:");  lcd.print(nivel_actual); lcd.print("% ");
+  lcd.setCursor(6,1);
+  lcd.print(Hora_Actual+"hs");
 
-  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW)
-  {
+  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){
     while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){}
     switch (Estadoequipo)
     {
@@ -307,8 +278,8 @@ void standby()
         break;
     }   
   }
-  if(tiempo_de_standby>=5000 && Estadoequipo  == estado_inicial)
-  {
+
+  if(tiempo_de_standby>=5000){
     Estadoequipo = estado_standby;
     lcd.noBacklight();
     tiempo_de_standby = 0;
@@ -318,28 +289,27 @@ void standby()
 void menu_basico()
 {
   if(Flag==1){
-    Flag=2;
     lcd.clear();
     Ypos=0;
     opcionmenu1= 0;
-    fix_max_uint=0;
+    Flag=2;
   }
   if (Flag==2){
-  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=Ypos-1; lcd.clear(); }
-  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=Ypos+1; lcd.clear(); }
-  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu1=menuposY(Ypos,maxY_menu1,251)+1; lcd.clear(); }
+  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=menuposY(Ypos-1,maxY_menu1); lcd.clear(); }
+  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=menuposY(Ypos+1,maxY_menu1); lcd.clear(); }
+  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu1=Ypos+1; lcd.clear(); }
 
   switch (opcionmenu1)
   {
     case 0:
       lcd.setCursor(1,0); 
-      lcd.print(Menuprincipal[menuposY(Ypos,maxY_menu1,251)]);
+      lcd.print(Menuprincipal[menuposY(Ypos,maxY_menu1)]);
       lcd.setCursor(1,1); 
-      lcd.print(Menuprincipal[menuposY(Ypos+1,maxY_menu1,251)]);
+      lcd.print(Menuprincipal[menuposY(Ypos+1,maxY_menu1)]);
       lcd.setCursor(1,2); 
-      lcd.print(Menuprincipal[menuposY(Ypos+2,maxY_menu1,251)]);
+      lcd.print(Menuprincipal[menuposY(Ypos+2,maxY_menu1)]);
       lcd.setCursor(1,3); 
-      lcd.print(Menuprincipal[menuposY(Ypos+3,maxY_menu1,251)]);
+      lcd.print(Menuprincipal[menuposY(Ypos+3,maxY_menu1)]);
       break;
     case 1:
       Estadoequipo=funciones;
@@ -373,58 +343,6 @@ void menu_basico()
       Flag=0;
       break;
   }
-  }
-}
-
-void menu_avanzado()
-{
-  if (Flag==3){
-    Ypos=0;
-    opcionmenu2=0;
-    lcd.clear();
-    Flag=4;
-    fix_max_uint=0;
-  }
-  
-  if (Flag==4){
-  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=Ypos+1; lcd.clear(); }
-  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=Ypos-1; lcd.clear(); }
-  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu2=menuposY(Ypos,maxY_menu2,254)+1; lcd.clear(); }
-    switch (opcionmenu2)
-    {
-      case 0:
-        lcd.setCursor(1,0); 
-        lcd.print(menuavanzado[menuposY(Ypos,maxY_menu2,254)]); 
-        lcd.setCursor(1,1); 
-        lcd.print(menuavanzado[menuposY(Ypos+1,maxY_menu2,254)]); 
-        lcd.setCursor(1,2); 
-        lcd.print(menuavanzado[menuposY(Ypos+2,maxY_menu2,254)]); 
-        lcd.setCursor(1,3); 
-        lcd.print(menuavanzado[menuposY(Ypos+3,maxY_menu2,254)]);
-        break;
-      case 1:
-        Estadoequipo=funciones;
-        funcionActual=funcion_de_modificar_hora_rtc;
-        break;
-      case 2: 
-        Estadoequipo=funciones;
-        funcionActual=funcion_farenheit_celsius;
-        break;
-      case 3:
-        // funcionActual=funcion_activar_bomba:
-        break;
-      case 4:
-        Estadoequipo=funciones;
-        funcionActual=funcion_de_configuracionwifi;
-        break;
-      case 5:
-        Estadoequipo=menu1;
-        tiempo_de_standby=0;
-        Flag=1;
-        opcionmenu1=0;
-        opcionmenu2=0;
-        break;
-    }
   }
 }
 
@@ -631,7 +549,7 @@ void seteo_hora()
       Flag=3;
       sumador_hora=0;
       sumador_minuto=0;
-      fix_max_uint=0;
+      Ypos=0;
       break;
     case 3:
       lcd.setCursor(0,0);
@@ -648,18 +566,18 @@ void seteo_hora()
       lcd.print(desconversionhora(1,save[2].hour));
       lcd.setCursor(0,4);
 
-      ActualStruct = menuposY(Ypos,3,255)+1;
+      ActualStruct = menuposY(Ypos,3)+1;
 
       if(digitalRead(pulsador1) == LOW)
         {
           while(digitalRead(pulsador1) == LOW){}
-          Ypos++;
+          Ypos=menuposY(Ypos+1,3);
         }
       
       if(digitalRead(pulsador2) == LOW)
         {
           while(digitalRead(pulsador2) == LOW){}
-          Ypos--;
+          Ypos=menuposY(Ypos-1,3);
         }
 
       if(digitalRead(pulsador3) == LOW)
@@ -707,7 +625,6 @@ void seteo_hora()
       if(digitalRead(pulsador3) == LOW){
           while(digitalRead(pulsador3) == LOW){}
           Flag=5;
-          fix_max_uint=0;
           lcd.clear();
         }
         break;
@@ -738,7 +655,6 @@ void seteo_hora()
       if(digitalRead(pulsador3) == LOW){
           while(digitalRead(pulsador3) == LOW){}
           Flag=6;
-          fix_max_uint=0;
           lcd.clear();
         }
         break;
@@ -754,11 +670,11 @@ void seteo_hora()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        hora_to_modify = menuposY(hora+sumador_hora,hora_max+1,239);
+        hora_to_modify = menuposY(hora+sumador_hora,hora_max);
 
         if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_hora++;}
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_hora--;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;fix_max_uint=0;lcd.clear();}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;lcd.clear();}
           break;
       case 7:
         lcd.setCursor(0,0);
@@ -770,10 +686,10 @@ void seteo_hora()
         lcd.print("disminuir con 2  ");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3  ");
-        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max+1,224);
+        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max+1);
         if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto--;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=8;fix_max_uint=0;lcd.clear();}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=8;lcd.clear();}
         break;
       case 8:
       lcd.setCursor(4,0);
@@ -1036,6 +952,57 @@ void menu_de_calefaccion_auto(){
   }
 }
 
+void menu_avanzado()
+{
+  if (Flag==3){
+    Ypos=0;
+    opcionmenu2=0;
+    lcd.clear();
+    Flag=4;
+  }
+  
+  if (Flag==4){
+  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=menuposY(Ypos+1,maxY_menu2); lcd.clear(); }
+  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=menuposY(Ypos-1,maxY_menu2); lcd.clear(); }
+  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){}  opcionmenu2=menuposY(Ypos,maxY_menu2)+1; lcd.clear(); }
+    switch (opcionmenu2)
+    {
+      case 0:
+        lcd.setCursor(1,0); 
+        lcd.print(menuavanzado[menuposY(Ypos,maxY_menu2)]); 
+        lcd.setCursor(1,1); 
+        lcd.print(menuavanzado[menuposY(Ypos+1,maxY_menu2)]); 
+        lcd.setCursor(1,2); 
+        lcd.print(menuavanzado[menuposY(Ypos+2,maxY_menu2)]); 
+        lcd.setCursor(1,3); 
+        lcd.print(menuavanzado[menuposY(Ypos+3,maxY_menu2)]);
+        break;
+      case 1:
+        Estadoequipo=funciones;
+        funcionActual=funcion_de_modificar_hora_rtc;
+        break;
+      case 2: 
+        Estadoequipo=funciones;
+        funcionActual=funcion_farenheit_celsius;
+        break;
+      case 3:
+        // funcionActual=funcion_activar_bomba:
+        break;
+      case 4:
+        Estadoequipo=funciones;
+        funcionActual=funcion_de_configuracionwifi;
+        break;
+      case 5:
+        Estadoequipo=menu1;
+        tiempo_de_standby=0;
+        Flag=1;
+        opcionmenu1=0;
+        opcionmenu2=0;
+        break;
+    }
+  }
+}
+
 void modificar_hora_rtc()
   {
 
@@ -1045,7 +1012,6 @@ void modificar_hora_rtc()
         sumador_hora=0;
         sumador_minuto=0;
         Flag=5;
-        fix_max_uint=0;
         lcd.clear();
         break;
       case 5:
@@ -1059,11 +1025,11 @@ void modificar_hora_rtc()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        hora_to_modify = menuposY(hora+sumador_hora,hora_max,24);
+        hora_to_modify = menuposY(hora+sumador_hora,hora_max);
 
         if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_hora++;}
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_hora--;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=6;fix_max_uint=0;lcd.clear();}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=6;lcd.clear();}
 
         break;            
       case 6:
@@ -1076,10 +1042,10 @@ void modificar_hora_rtc()
         lcd.print("disminuir con: 2");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
-        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max,60);
+        minuto_to_modify = menuposY(minutos+sumador_minuto,min_max);
         if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto--;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;fix_max_uint=0;lcd.clear();}
+        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;lcd.clear();}
         if(digitalRead(pulsador4) == LOW)
           {
             while(digitalRead(pulsador4) == LOW){}
@@ -1170,6 +1136,98 @@ void menu_farenheit_celsius()
   
 }
 
+void configuracionwifi(){  
+
+  switch (Flag)
+  {
+  case 4:
+    WIFISSID="                                 ";
+    WIFIPASS="                                   ";
+    Ypos=0;
+    Actualchar=0;
+    Flag=5;
+    break;
+  case 5:
+    lcd.setCursor(0,0);
+    lcd.print("Nombre Wifi:");
+    lcd.setCursor(0,1);
+    lcd.print(WIFISSID);
+    Actualchar=menuposY(Actualchar, 40);
+    WIFISSID.setCharAt(Ypos,Letra(Actualchar, mayusculas));
+
+    if(digitalRead(pulsador1) == LOW )
+      {
+        while(digitalRead(pulsador1) == LOW){}
+        Actualchar++;
+      }
+    if(digitalRead(pulsador2) == LOW )
+      {
+        while(digitalRead(pulsador2) == LOW){}
+        mayusculas=!mayusculas;
+      }
+    if(digitalRead(pulsador3) == LOW )
+      {
+        while(digitalRead(pulsador3) == LOW){}
+        Ypos ++;
+        Actualchar=0;
+      }
+    if(digitalRead(pulsador4) == LOW )
+      {
+        while(digitalRead(pulsador4) == LOW){}
+        lcd.clear();
+        Flag=6;
+        Ypos=0;
+        Actualchar=0;
+      }
+    break;
+
+    case 6:
+    lcd.setCursor(0,0);
+    lcd.print("Pass Wifi:");
+    lcd.setCursor(0,1);
+    lcd.print(WIFIPASS);
+    Actualchar=menuposY(Actualchar, 40);
+    WIFIPASS.setCharAt(Ypos,Letra(Actualchar, mayusculas));
+
+    if(digitalRead(pulsador1) == LOW )
+      {
+        while(digitalRead(pulsador1) == LOW){}
+        Actualchar++;
+      }
+    if(digitalRead(pulsador2) == LOW )
+      {
+        while(digitalRead(pulsador2) == LOW){}
+        mayusculas=!mayusculas;
+      }
+    if(digitalRead(pulsador3) == LOW )
+      {
+        while(digitalRead(pulsador3) == LOW){}
+        Ypos ++;
+        Actualchar=0;
+      }
+    if(digitalRead(pulsador4) == LOW )
+      {
+        while(digitalRead(pulsador4) == LOW){}
+        lcd.clear();
+
+        tiempo_actual=mili_segundos;
+        Flag=7;
+        Ypos=0;
+        Actualchar=0;
+
+      }
+    break;
+      case 7:
+      lcd.setCursor(4,0);
+      lcd.print("Guardando...");
+      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=menu1; Flag=1; funcionActual=posicion_inicial; lcd.clear();}
+      break;
+  }
+
+}
+
+//Funciones que no tienen que ver con el menu
+
 void Actualizar_hora ()
   {
     DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
@@ -1179,121 +1237,88 @@ void Actualizar_hora ()
     hora=now.hour();
     minutos=now.minute();
     segundos=now.second();
+
+    if(hora > 9 && minutos>9) Hora_Actual = String(hora)+":"+String(minutos);
+    if(hora <= 9 && minutos>9) Hora_Actual = "0"+String(hora)+":"+String(minutos);
+    if(hora > 9 && minutos<=9) Hora_Actual = String(hora)+":0"+String(minutos);
+    if(hora <= 9 && minutos<=9) Hora_Actual = "0"+String(hora)+":0"+String(minutos);
   }
 
 void Serial_Read_UNO(){
   
-  Serial_Input=Serial.readString();// iguala el string del serial a un string imput
+  Serial_Input=Serial.readString();// iguala el string del serial a un string input
   StringLength= Serial_Input.length();// saca el largo del string
-  Serial.println(Serial_Input);// Solo de verificacion (eliminar en el final)
-  input=Serial_Input.charAt(0); // toma el char de comando (el primer char usualmente una letra)
+  input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
 
-  for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
-  {
-      if(Serial_Input.charAt(CharPos)==':')ActualIndividualDataPos++; //si hay : divide los datos
-      if(Serial_Input.charAt(CharPos)!=':' && Serial_Input.charAt(CharPos)!='_' && Serial_Input.charAt(CharPos)!='/')// si no es nungun caracter especial:
-        {
-          if(Serial_Input.charAt(CharPos-1)==':' || Serial_Input.charAt(CharPos-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(CharPos);//si es el primer digito lo iguala
-          else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(CharPos);//si es el segundo en adelante lo suma
-        }
-      if(CharPos==StringLength)ConvertString=true;// activa el comando final (flag)
+  // Separador del string en variables:
+  for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+    if(Serial_Input.charAt(CharPos)==':') ActualIndividualDataPos++; //si hay : divide los datos
+    else{// si no es nungun caracter especial:
+      if(Serial_Input.charAt(CharPos-1)==':' || Serial_Input.charAt(CharPos-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(CharPos);//si es el primer digito lo iguala
+      else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(CharPos);//si es el segundo en adelante lo suma al string
+    }
+    if(CharPos==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
   } 
   
-  switch (input)//dependiendo del char de comando
-  {
-  case 'H':
-    if (ConvertString==true)
-      {
-        //temp_a_calentar=Individualdata[0].toInt();
-        //if(Individualdata[1].toInt()>=1)//ACTIVA CALENTAR
-        //else //only save
-        StringTaked=false;
-        ConvertString=false;
-        ComunicationError=false;
-      }
-    break;
 
-  case 'C':
-    if (ConvertString==true)
-      {
-        //nivel_a_llenar=Individualdata[0].toInt();
-        //if(Individualdata[1].toInt()>=1)//save ycalentado manual();
-        //else //only save
-        StringTaked=false;
-        ConvertString=false;
-        ComunicationError=false;
-      }
-    break;
+  if(Take_Comunication_Data==true){
+    switch (input){//dependiendo del char de comando
+    case 'H':
+          //temp_a_calentar=Individualdata[0].toInt();
+          //if(Individualdata[1].toInt()>=1)//ACTIVA CALENTAR
+          //else //only save
+          Take_Comunication_Data=false;
+      break;
 
-  case 'K':
-    if (ConvertString==true)
-      {
-        ActualStruct=Individualdata[3].toInt();
-        if (ActualStruct<=2 && ActualStruct>=0)
-          {
-            eep.write((ActualStruct*3)+1, Individualdata[0].toInt());
-            save[ActualStruct].hour=Individualdata[0].toInt();
-            eep.write((ActualStruct*3)+2, Individualdata[1].toInt());
-            save[ActualStruct].temp=Individualdata[0].toInt();
-            eep.write((ActualStruct*3)+3, Individualdata[2].toInt());
-            save[ActualStruct].level=Individualdata[0].toInt();
-            ActualIndividualDataPos=0;
-            StringTaked=false;
-            ConvertString=false;
-            ComunicationError=false;
-          }
-        else Serial.println("error");
-      }
-    break;
+    case 'C':
+          //nivel_a_llenar=Individualdata[0].toInt();
+          //if(Individualdata[1].toInt()>=1)//save ycalentado manual();
+          //else //only save
 
-  case 'J':
-    if (ConvertString==true)
-      {
-        eep.write(10, Individualdata[0].toInt());
-        eep.write(11, Individualdata[1].toInt());// tempmax
-        ActualIndividualDataPos=0;
-        StringTaked=false;
-        ConvertString=false;
-        ComunicationError=false;
-      }
-    break;
-      case 'V':
-    if (ConvertString==true)
-      {
-        eep.write(12, Individualdata[0].toInt());// lvlmin
-        eep.write(13, Individualdata[1].toInt());// lvlmax
-        ActualIndividualDataPos=0;
-        StringTaked=false;
-        ConvertString=false;
-        ComunicationError=false;
-      }
-    break;
-    case 'E':
-    if (ConvertString==true)
-      {
-        Serial_Send_UNO(6);
-        ActualIndividualDataPos=0;
-        StringTaked=false;
-        ConvertString=false;
-        ComunicationError=true;
-      }
-    break;
-    case 'O':
-    if (ConvertString==true)
-      {
-        if(Individualdata[0]=="OK")
-        {
-              ComunicationError=false;
-        }
-        ActualIndividualDataPos=0;
-        StringTaked=false;
-        ConvertString=false;
-        ComunicationError=false;
-      }
-    break;
-  default:
-    Serial.println("?_NOTHING TO READ");
-    break;
+          Take_Comunication_Data==false;
+      break;
+
+    case 'K':
+          ActualStruct=Individualdata[3].toInt();
+          if (ActualStruct<=2 && ActualStruct>=0){
+              eep.write((ActualStruct*3)+1, Individualdata[0].toInt());
+              save[ActualStruct].hour=Individualdata[0].toInt();
+              eep.write((ActualStruct*3)+2, Individualdata[1].toInt());
+              save[ActualStruct].temp=Individualdata[0].toInt();
+              eep.write((ActualStruct*3)+3, Individualdata[2].toInt());
+              save[ActualStruct].level=Individualdata[0].toInt();
+              ActualIndividualDataPos=0;
+              Take_Comunication_Data=false;
+            }
+      break;
+
+    case 'J':
+          temperatura_inicial = Individualdata[0].toInt();
+          temperatura_final = Individualdata[1].toInt();// tempmax
+          ActualIndividualDataPos=0;
+          Take_Comunication_Data=false;
+      break;
+        case 'V':
+          nivel_inicial = Individualdata[0].toInt();// lvlmin
+          nivel_final = Individualdata[1].toInt();// lvlmax
+          ActualIndividualDataPos=0;
+          Take_Comunication_Data=false;
+      break;
+      case 'E':
+          Serial_Send_UNO(6);
+          ActualIndividualDataPos=0;
+          Take_Comunication_Data=false;
+          ComunicationError=true;
+      break;
+      case 'O':
+          if(Individualdata[0]=="OK")
+          ActualIndividualDataPos=0;
+          Take_Comunication_Data=false;
+      break;
+    default:
+      Serial.println("?_NOTHING TO READ");
+      break;
+    }
   }
 }
 
@@ -1381,18 +1406,18 @@ ISR(TIMER2_OVF_vect){
   Send_time++;
 }
 
-uint8_t menuposY (uint8_t actualpos, uint8_t maxpos, uint8_t maxuintvalue)
+uint8_t menuposY (int8_t actualpos, uint8_t maxpos)
 { 
   uint8_t realvalue;
-
   if (actualpos>=maxpos){
-    if(actualpos==255) fix_max_uint=actualpos-maxuintvalue;  //cambiar para que en vez hacer esto hacer que si 
-    realvalue = (actualpos-fix_max_uint) % maxpos;           //es igual a 255 sea igual a la maxima del string
+    realvalue = 0 + actualpos % maxpos;           //es igual a 255 sea igual a la maxima del string
     return realvalue;
   }
-  else{
-  return actualpos;
+  if (actualpos<0){
+    realvalue = maxpos + actualpos;           //es igual a 255 sea igual a la maxima del string
+    return realvalue;
   }
+  if (actualpos>0 && actualpos<maxpos) return actualpos;
 }
 
 String desconversionhora(uint8_t function,uint8_t save)
@@ -1487,110 +1512,6 @@ void sensar_nivel_actual()
   }
 }
 
-void nivel_auto () //modificar
-{
-  if (nivel_actual <= nivel_inicial) digitalWrite(electrovalvula, HIGH);
-  if (nivel_actual == nivel_final) digitalWrite(electrovalvula, LOW);
-}
-
-void control_de_temp_auto() //modificar para que se haga y no bloquee el codigo
-{
-  int temperatura_actual = 0;
-  Sensor_temp.requestTemperatures();
-  temperatura_actual = Sensor_temp.getTempCByIndex(0);
-  if(temperatura_actual < temperatura_inicial) digitalWrite(resistencia, HIGH);
-  if(temperatura_actual >= temperatura_final + temp_threshold) digitalWrite(resistencia, LOW);
-}
-
-void configuracionwifi(){  
-
-  switch (Flag)
-  {
-  case 4:
-    WIFISSID="                                 ";
-    WIFIPASS="                                   ";
-    Ypos=0;
-    Actualchar=0;
-    Flag=5;
-    fix_max_uint=0;
-    break;
-  case 5:
-    lcd.setCursor(0,0);
-    lcd.print("Nombre Wifi:");
-    lcd.setCursor(0,1);
-    lcd.print(WIFISSID);
-    WIFISSID.setCharAt(Ypos,Letra(menuposY (Actualchar, 40, 240), mayusculas));
-
-    if(digitalRead(pulsador1) == LOW )
-      {
-        while(digitalRead(pulsador1) == LOW){}
-        Actualchar++;
-      }
-    if(digitalRead(pulsador2) == LOW )
-      {
-        while(digitalRead(pulsador2) == LOW){}
-        mayusculas=!mayusculas;
-      }
-    if(digitalRead(pulsador3) == LOW )
-      {
-        while(digitalRead(pulsador3) == LOW){}
-        Ypos ++;
-        Actualchar=0;
-      }
-    if(digitalRead(pulsador4) == LOW )
-      {
-        while(digitalRead(pulsador4) ){}
-        lcd.clear();
-        fix_max_uint=0;
-        Flag=6;
-        Ypos=0;
-        Actualchar=0;
-      }
-    break;
-      case 6:
-    lcd.setCursor(0,0);
-    lcd.print("Pass Wifi:");
-    lcd.setCursor(0,1);
-    lcd.print(WIFIPASS);
-    WIFIPASS.setCharAt(Ypos,Letra(menuposY (Actualchar, 40, 240), mayusculas));
-
-    if(digitalRead(pulsador1) == LOW )
-      {
-        while(digitalRead(pulsador1) == LOW){}
-        Actualchar++;
-      }
-    if(digitalRead(pulsador2) == LOW )
-      {
-        while(digitalRead(pulsador2) == LOW){}
-        mayusculas=!mayusculas;
-      }
-    if(digitalRead(pulsador3) == LOW )
-      {
-        while(digitalRead(pulsador3) == LOW){}
-        Ypos ++;
-        Actualchar=0;
-      }
-    if(digitalRead(pulsador4) == LOW )
-      {
-        while(digitalRead(pulsador4) ){}
-        lcd.clear();
-        fix_max_uint=0;
-        tiempo_actual=mili_segundos;
-        Flag=7;
-        Ypos=0;
-        Actualchar=0;
-
-      }
-    break;
-      case 7:
-      lcd.setCursor(4,0);
-      lcd.print("Guardando...");
-      if(mili_segundos>=tiempo_actual+tiempo_de_espera){Estadoequipo=menu1; Flag=1; funcionActual=posicion_inicial; lcd.clear();}
-      break;
-  }
-
-}
-
 char Letra(uint8_t letranum, bool mayus)
 {
   switch (mayus)
@@ -1626,16 +1547,26 @@ char Letra(uint8_t letranum, bool mayus)
   }
 }
 
-void checktemp()
+void Controltemp()
 {
+
+
+  // control temp min to max
+digitalWrite(resistencia,temperatura_del_sensor < temperatura_inicial ? HIGH : LOW);
+digitalWrite(resistencia,temperatura_del_sensor >= (temperatura_final + temp_threshold) ? LOW : HIGH);
   //=========Compara nivel actual con el minimo seteado============
-  if(temperatura_del_sensor < temperatura_a_calentar) digitalWrite(resistencia, HIGH);
+digitalWrite(resistencia,temperatura_del_sensor < temperatura_a_calentar ? HIGH : LOW);
   //=================================================================
 }
 
-void checklvl()
+void Controllvl()
 {
+  // control lvl min to max
+digitalWrite(electrovalvula,nivel_actual <= nivel_inicial ? HIGH:LOW);
+digitalWrite(electrovalvula,nivel_actual == nivel_final ? LOW:HIGH);
   //======Compara temperatura actual con el minimo seteado=========
-  if(nivel_actual < min_nivel) digitalWrite(electrovalvula, HIGH);
+digitalWrite(electrovalvula,nivel_actual < min_nivel ? HIGH:LOW);
   //=================================================================
 }
+
+// todo lo que es decumentacion esta en "datos a tener en cuenta"
