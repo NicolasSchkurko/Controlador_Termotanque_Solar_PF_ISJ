@@ -1485,17 +1485,18 @@ void Controllvl()
 void guardado_para_menus(){
   lcd.setCursor(4,0);
   lcd.print("Guardando...");
-  if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu){
-  if(opcionmenu1 > 0){
-    Estadoequipo=menu1;
-    Flag=1; 
-  }
-  else{
-    Estadoequipo=menu2;
-    Flag=3; 
-  }
-  funcionActual=posicion_inicial; 
-  lcd.clear();
+  if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu)
+  {
+    if(opcionmenu1 > 0){
+      Estadoequipo=menu1;
+      Flag=1; 
+    }
+    else{
+      Estadoequipo=menu2;
+      Flag=3; 
+    }
+    funcionActual=posicion_inicial; 
+    lcd.clear();
   }
 }
 
