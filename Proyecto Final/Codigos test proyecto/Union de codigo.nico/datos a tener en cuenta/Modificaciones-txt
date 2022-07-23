@@ -1,0 +1,8 @@
+Teo:
+Cambie las cosas de guardado pero no las probe en el proteus porque no me anda, así que hay que probarlo en físico. 
+Lo habia pensado como que sea todo igual, pero en una funcion, nada mas que la variable del switch del menu indique
+en que menu este, tipo, si la variable del menu 1 es mayor a 0 significa que esta en una funcion del menu principal(basico) 
+por lo que habría que resetear la flag y el estado del menu para que sea compartible con el munu principal,
+pero si la variable del menu es igual a 0 significa que esta en el menu avanzado por lo que resetea el menu 
+y la maquina de estado para que funcione en el menu avanzado.
+-Teo

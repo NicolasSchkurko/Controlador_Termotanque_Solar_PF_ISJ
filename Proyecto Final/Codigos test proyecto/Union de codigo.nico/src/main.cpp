@@ -78,6 +78,8 @@
   
   char Character_Return(uint8_t , bool);
 
+  void guardado_para_menus();
+
 //█████████████████████████████████████████████████████████████████████████████████
 //Declaraciones de libs
   AT24C32 eep;
@@ -397,14 +399,7 @@ void menu_de_llenado_manual(){
           break;
 
         case 5:
-          lcd.setCursor(4,0);
-          lcd.print("Guardando...");
-          while(mili_segundos<tiempo_actual+tiempo_de_espera_menu){}
-          Estadoequipo=menu1;
-          Flag=1;
-          funcionActual=posicion_inicial;
-          tiempo_de_standby=0;
-          lcd.clear();
+          guardado_para_menus();
           break;
     }
 }
@@ -468,13 +463,7 @@ void menu_de_calefaccion_manual(){
           break;
 
         case 5:
-          lcd.setCursor(4,0);
-          lcd.print("Guardando...");
-          while(mili_segundos<tiempo_actual+tiempo_de_espera_menu){}
-          Estadoequipo=menu1; 
-          Flag=1; 
-          funcionActual=posicion_inicial; 
-          lcd.clear();
+          guardado_para_menus();
           break;
     }
 }
@@ -645,15 +634,7 @@ void menu_de_auto_por_hora()
         break;
 
       case 9:
-        lcd.setCursor(4,0);
-        lcd.print("Guardando...");
-        if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu){
-          Estadoequipo=menu1; 
-          Flag=1; 
-          funcionActual=posicion_inicial; 
-          save[ActualStruct].hour=StringToChar(1,String(hora_to_modify)+ ":"+String(minuto_to_modify));
-          lcd.clear();
-        }
+        guardado_para_menus();
       break;
     }
   }
@@ -752,13 +733,7 @@ void menu_de_llenado_auto()
       break;
 
     case 6:
-      lcd.setCursor(4,0);
-      lcd.print("Guardando...");
-      while(mili_segundos<tiempo_actual+tiempo_de_espera_menu){}
-      Estadoequipo=menu1; 
-      Flag=1; 
-      funcionActual=posicion_inicial; 
-      lcd.clear();
+      guardado_para_menus();
       break; 
   }
 }
@@ -858,13 +833,7 @@ void menu_de_calefaccion_auto(){
         break;
 
       case 6:
-        lcd.setCursor(4,0);
-        lcd.print("Guardando...");
-        while(mili_segundos<tiempo_actual+tiempo_de_espera_menu){}
-        Estadoequipo=menu1; 
-        Flag=1; 
-        funcionActual=posicion_inicial; 
-        lcd.clear();
+        guardado_para_menus();
         break; 
   }
 }
@@ -1033,13 +1002,7 @@ void menu_modificar_hora_rtc()
         break;
 
       case 8:
-        lcd.setCursor(4,0);
-        lcd.print("Guardando...");
-        while(mili_segundos<tiempo_actual+tiempo_de_espera_menu){} // ver pq dura una bocha
-        Estadoequipo=menu2; 
-        Flag=3; 
-        funcionActual=posicion_inicial; 
-        lcd.clear();
+        guardado_para_menus();
         break; 
     }
   }
@@ -1092,13 +1055,13 @@ void menu_farenheit_celsius()
     break;
 
     case 6:
-      lcd.setCursor(4,0);
-      lcd.print("Guardando...");
-      if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu){Estadoequipo=menu1; Flag=1 ; funcionActual=posicion_inicial; lcd.clear();}
+      guardado_para_menus();
     break;
   }
   
 }
+
+//activar bomba
 
 void menu_seteo_wifi(){  
 
@@ -1182,9 +1145,7 @@ void menu_seteo_wifi(){
       }
     break;
       case 7:
-      lcd.setCursor(4,0);
-      lcd.print("Guardando...");
-      if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu){Estadoequipo=menu1; Flag=1; funcionActual=posicion_inicial; lcd.clear();}
+        guardado_para_menus();
       break;
   }
 
@@ -1504,21 +1465,38 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 void Controltemp()
 {
   // control temp min to max
-digitalWrite(resistencia,temperatura_actual < temperatura_inicial ? HIGH : LOW);
-digitalWrite(resistencia,temperatura_actual >= (temperatura_final + temp_threshold) ? LOW : HIGH);
+  digitalWrite(resistencia,temperatura_actual < temperatura_inicial ? HIGH : LOW);
+  digitalWrite(resistencia,temperatura_actual >= (temperatura_final + temp_threshold) ? LOW : HIGH);
   //=========Compara nivel actual con el minimo seteado============
-digitalWrite(resistencia,temperatura_actual < temperatura_a_calentar ? HIGH : LOW);
+  digitalWrite(resistencia,temperatura_actual < temperatura_a_calentar ? HIGH : LOW);
   //=================================================================
 }
 
 void Controllvl()
 {
   // control lvl min to max
-digitalWrite(electrovalvula,nivel_actual <= nivel_inicial ? HIGH:LOW);
-digitalWrite(electrovalvula,nivel_actual == nivel_final ? LOW:HIGH);
+  digitalWrite(electrovalvula,nivel_actual <= nivel_inicial ? HIGH:LOW);
+  digitalWrite(electrovalvula,nivel_actual == nivel_final ? LOW:HIGH);
   //======Compara temperatura actual con el minimo seteado=========
-digitalWrite(electrovalvula,nivel_actual < min_nivel ? HIGH:LOW);
+  digitalWrite(electrovalvula,nivel_actual < min_nivel ? HIGH:LOW);
   //=================================================================
+}
+
+void guardado_para_menus(){
+  lcd.setCursor(4,0);
+  lcd.print("Guardando...");
+  if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu){
+  if(opcionmenu1 > 0){
+    Estadoequipo=menu1;
+    Flag=1; 
+  }
+  else{
+    Estadoequipo=menu2;
+    Flag=3; 
+  }
+  funcionActual=posicion_inicial; 
+  lcd.clear();
+  }
 }
 
 // todo lo que es decumentacion esta en "datos a tener en cuenta"
