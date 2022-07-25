@@ -22,6 +22,7 @@
   #define min_nivel 25     //can be a DEFINE because doesnt change (used in manual)
   #define max_nivel 100 //can be a DEFINE because doesnt change (used in manual)
   #define tiempo_para_nivel 3000
+  
   //Entradas y salidas
   #define nivel_del_tanque A0 
   #define electrovalvula 10
@@ -37,6 +38,7 @@
   #define maxY_menu2 5
   #define tiempo_de_parpadeo 700
   #define tiempo_de_espera_menu 5000 
+  
   //Datos horas
   #define hora_max 24
   #define minuto_max 61 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
