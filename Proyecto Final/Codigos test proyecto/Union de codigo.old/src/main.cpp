@@ -39,7 +39,7 @@
   #define tiempo_de_espera_menu 5000 
   //Datos horas
   #define hora_max 24
-  #define minuto_max 61 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
+  #define minuto_max 59 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Prototipos
@@ -62,13 +62,13 @@
   //Funciones control nivel
   void Controllvl();
   // funcion actualizar sensores
-  void tomar_Sensores();
+  void Actualizar_entradas();
   //Funciones conexion arduino/esp
   void Serial_Read_UNO();
   void Serial_Send_UNO(uint8_t);
 
   //Funciones hora
-  void Actualizar_hora ();
+  String String_de_hora(uint8_t,uint8_t);
   String CharToString(uint8_t,uint8_t);
   uint8_t StringToChar(uint8_t, String);
 
@@ -77,6 +77,8 @@
   
   char Character_Return(uint8_t , bool);
 
+  void writeStringToEEPROM(uint8_t , const String);
+  String readStringFromEEPROM(uint8_t);
   void guardado_para_menus(bool);
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -91,10 +93,12 @@
 //Variables 
   //Variables de temp (ordenados segun peso)
   bool flag_farenheit = false; 
+  bool calentar;
   int8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
   uint8_t temperatura_inicial,temperatura_final;  // Guardado en memoria
   int8_t temperatura_actual; // temp actual
   //Variables de nivel          Para teo: vals that share in level funciones //Jere: ?? // Chuco: ??
+  bool llenar;
   int8_t nivel_a_llenar; //se usa en llenado manual para guardar que temperatura se necesita  
   uint8_t nivel_inicial,nivel_final;// Guardado en memoria 
   uint8_t nivel_actual;
@@ -105,9 +109,8 @@
   uint32_t  mili_segundos = 0;
   uint8_t hora_to_modify, minuto_to_modify;
   uint8_t sumador_hora, sumador_minuto;
-  uint16_t anio;
-  uint8_t mes,dia,hora,minutos,segundos;
-  String Hora_Actual;
+  uint8_t hora,minutos;
+
 
   //Variables EEPROM
   struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};            //guardado 1/hora/level/temp
@@ -174,8 +177,6 @@ void setup()
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
 
   lcd.init();//Iniciacion del LCD
-  lcd.backlight();
-  lcd.leftToRight();
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
@@ -193,14 +194,29 @@ void setup()
   //
   InitComunication=true;
   tiempo_sensores=mili_segundos;
+
+  save[0].hour=eep.read(1);
+  save[0].level=eep.read(2);
+  save[0].temp=eep.read(3);
+  save[1].hour=eep.read(4);
+  save[1].level=eep.read(5);
+  save[1].temp=eep.read(6);
+  save[2].hour=eep.read(7);
+  save[2].level=eep.read(8);
+  save[2].temp=eep.read(9);
+  temperatura_inicial=eep.read(10);
+  temperatura_final=eep.read(11);
+  nivel_inicial=eep.read(12);
+  nivel_final=eep.read(13);
+  WIFISSID=readStringFromEEPROM(14); //32B + uno que indica largo
+  WIFIPASS=readStringFromEEPROM(48); //64B + uno que indica largo
 }
 
 void loop() 
 {
-  tomar_Sensores();
+  Actualizar_entradas();
   Controllvl();
   Controltemp();
-  Actualizar_hora ();
 
   if (Serial.available()>0)Serial_Read_UNO(); // si recibe un dato del serial lo lee
 
@@ -240,7 +256,7 @@ void standby()
   else lcd.print("F  ");
   lcd.setCursor(12,0);lcd.print("N:");  lcd.print(nivel_actual); lcd.print("% ");
   lcd.setCursor(6,1);
-  lcd.print(Hora_Actual+"hs");
+  lcd.print(String_de_hora(hora,minutos)+"hs");
 
   if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){
     while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){}
@@ -470,6 +486,7 @@ void menu_de_auto_por_hora()
   switch (Flag)
   {
     case 2:
+      temperatura_inicial=60;
       Flag=3;
       sumador_hora=0;
       sumador_minuto=0;
@@ -479,7 +496,7 @@ void menu_de_auto_por_hora()
       break;
     case 3:
       lcd.setCursor(0,0);
-      lcd.print("Seleccionar:"); lcd.print(ActualStruct); lcd.print(" slot");
+      lcd.print("Seleccionar:"); lcd.print(ActualStruct+1); lcd.print(" slot");
       lcd.setCursor(0,1);
       lcd.print("1:");lcd.print(CharToString(1,save[0].hour));
       lcd.setCursor(0,2);
@@ -487,7 +504,7 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("3:");lcd.print(CharToString(1,save[2].hour));
       lcd.setCursor(0,4);
-      ActualStruct = ReturnToCero(Ypos,3)+1;
+      ActualStruct = ReturnToCero(Ypos,3);
 
       if(digitalRead(pulsador1) == LOW){
           while(digitalRead(pulsador1) == LOW){}
@@ -571,11 +588,7 @@ void menu_de_auto_por_hora()
 
       case 6:
         lcd.setCursor(0,0);
-        lcd.print("Hora:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear hora:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con 1 ");
         lcd.setCursor(0,2);
@@ -592,11 +605,7 @@ void menu_de_auto_por_hora()
 
       case 7:
         lcd.setCursor(0,0);
-        lcd.print("Minuto:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear minuto:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con 1  ");
         lcd.setCursor(0,2);
@@ -612,7 +621,7 @@ void menu_de_auto_por_hora()
 
       case 8:
         lcd.setCursor(0,0);
-        lcd.print("A las:");lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);
+        lcd.print("A las:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("Calentar:"); lcd.print(save[ActualStruct].temp); lcd.print((char)223); lcd.print("c");
         lcd.setCursor(0,2);
@@ -625,11 +634,15 @@ void menu_de_auto_por_hora()
           tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
           lcd.clear();
           Flag=9;
+          save[ActualStruct].hour= StringToChar(1,String_de_hora(hora_to_modify,minuto_to_modify));
         }
         if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=7; lcd.clear();}
         break;
 
       case 9:
+        eep.write((ActualStruct*3)+1, save[ActualStruct].hour);
+        eep.write((ActualStruct*3)+2, save[ActualStruct].level);
+        eep.write((ActualStruct*3)+3, save[ActualStruct].temp);
         guardado_para_menus(true);
       break;
     }
@@ -912,11 +925,7 @@ void menu_modificar_hora_rtc()
         break;
       case 5:
         lcd.setCursor(0,0);
-        lcd.print("Setear hora:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear hora:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con 1 ");
         lcd.setCursor(0,2);
@@ -951,11 +960,7 @@ void menu_modificar_hora_rtc()
 
       case 6:
         lcd.setCursor(0,0);
-        lcd.print("Setear minuto:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear minuto:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con: 1 ");
         lcd.setCursor(0,2);
@@ -993,7 +998,8 @@ void menu_modificar_hora_rtc()
         if(digitalRead(pulsador3) == LOW){
           while(digitalRead(pulsador3) == LOW){}
           Flag=8;
-          rtc.adjust(DateTime(anio,mes,dia,hora_to_modify,minuto_to_modify,segundos));
+          DateTime now = rtc.now();
+          rtc.adjust(DateTime(now.year(),now.month(),now.day(),hora_to_modify,minuto_to_modify,now.second()));
           tiempo_menues=mili_segundos;
           lcd.clear();
         }
@@ -1061,20 +1067,41 @@ void menu_farenheit_celsius()
   
 }
 
-//activar bomba
-
 void menu_seteo_wifi(){  
 
   switch (Flag)
   {
   case 4:
+    lcd.setCursor(0,0);
+    lcd.print("Nombre Wifi:");lcd.print(WIFISSID);
+    lcd.setCursor(1,0);
+    lcd.print("Contraseña Wifi:");lcd.print(WIFIPASS);
+    lcd.setCursor(2,0);
+    lcd.print("Desea modificar?");
+    lcd.setCursor(3,0);
+    lcd.print("P3: SI   P4: NO");
+
+    if(digitalRead(pulsador3) == LOW ){
+        while(digitalRead(pulsador3) == LOW){}
+        lcd.clear();
+        Flag=5;
+      }
+    if(digitalRead(pulsador4) == LOW ){
+        while(digitalRead(pulsador4) == LOW){}
+        Estadoequipo=menu2;
+        Flag=3;
+        funcionActual=posicion_inicial;
+        lcd.clear();
+      }
+    break;
+  case 5:
     WIFISSID="                                 ";
     WIFIPASS="                                   ";
     Ypos=0;
     Actualchar=0;
-    Flag=5;
+    Flag=6;
     break;
-  case 5:
+  case 6:
     lcd.setCursor(0,0);
     lcd.print("Nombre Wifi:");
     lcd.setCursor(0,1);
@@ -1102,13 +1129,13 @@ void menu_seteo_wifi(){
       {
         while(digitalRead(pulsador4) == LOW){}
         lcd.clear();
-        Flag=6;
+        Flag=7;
         Ypos=0;
         Actualchar=0;
       }
     break;
 
-    case 6:
+    case 7:
     lcd.setCursor(0,0);
     lcd.print("Pass Wifi:");
     lcd.setCursor(0,1);
@@ -1136,37 +1163,20 @@ void menu_seteo_wifi(){
       {
         while(digitalRead(pulsador4) == LOW){}
         lcd.clear();
-
         tiempo_menues=mili_segundos;
-        Flag=7;
+        Flag=8;
         Ypos=0;
         Actualchar=0;
-
       }
     break;
-      case 7:
+      case 8:
+        writeStringToEEPROM(14,WIFISSID);
+        writeStringToEEPROM(48,WIFIPASS);
         guardado_para_menus(false);
       break;
   }
 
 }
-
-
-void Actualizar_hora ()
-  {
-    DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
-    anio=now.year(),
-    mes=now.month();
-    dia=now.day();
-    hora=now.hour();
-    minutos=now.minute();
-    segundos=now.second();
-
-    if(hora > 9 && minutos>9) Hora_Actual = String(hora)+":"+String(minutos);
-    if(hora <= 9 && minutos>9) Hora_Actual = "0"+String(hora)+":"+String(minutos);
-    if(hora > 9 && minutos<=9) Hora_Actual = String(hora)+":0"+String(minutos);
-    if(hora <= 9 && minutos<=9) Hora_Actual = "0"+String(hora)+":0"+String(minutos);
-  }
 
 void Serial_Read_UNO(){
   Serial_Input=Serial.readString();// iguala el string del serial a un string input
@@ -1185,60 +1195,59 @@ void Serial_Read_UNO(){
   if(Take_Comunication_Data==true){
     switch (input){//dependiendo del char de comando
     case 'H':
-          //temp_a_calentar=Individualdata[0].toInt();
-          //if(Individualdata[1].toInt()>=1)//ACTIVA CALENTAR
-          //else //only save
-          Take_Comunication_Data=false;
+      temperatura_a_calentar=Individualdata[0].toInt();
+      if(Individualdata[1]=="ON")calentar=true;
+      if(Individualdata[1]=="Off")calentar=false;
+      Take_Comunication_Data=false;
       break;
 
     case 'C':
-          //nivel_a_llenar=Individualdata[0].toInt();
-          //if(Individualdata[1].toInt()>=1)//save ycalentado manual();
-          //else //only save
-
-          Take_Comunication_Data==false;
+      nivel_a_llenar=Individualdata[0].toInt();
+      if(Individualdata[1]=="ON")llenar=true;
+      if(Individualdata[1]=="Off")llenar=false;
+      Take_Comunication_Data==false;
       break;
 
     case 'K':
-          ActualStruct=Individualdata[3].toInt();
-          if (ActualStruct<=2 && ActualStruct>=0){
-              eep.write((ActualStruct*3)+1, Individualdata[0].toInt());
-              save[ActualStruct].hour=Individualdata[0].toInt();
-              eep.write((ActualStruct*3)+2, Individualdata[1].toInt());
-              save[ActualStruct].temp=Individualdata[0].toInt();
-              eep.write((ActualStruct*3)+3, Individualdata[2].toInt());
-              save[ActualStruct].level=Individualdata[0].toInt();
-              ActualIndividualDataPos=0;
-              Take_Comunication_Data=false;
-            }
+      ActualStruct=Individualdata[3].toInt();
+      if (ActualStruct<=2 && ActualStruct>=0){
+          eep.write((ActualStruct*3)+1, Individualdata[0].toInt());
+          save[ActualStruct].hour=Individualdata[0].toInt();
+          eep.write((ActualStruct*3)+2, Individualdata[1].toInt());
+          save[ActualStruct].temp=Individualdata[0].toInt();
+          eep.write((ActualStruct*3)+3, Individualdata[2].toInt());
+          save[ActualStruct].level=Individualdata[0].toInt();
+          ActualIndividualDataPos=0;
+          Take_Comunication_Data=false;
+        }
       break;
 
     case 'J':
-          temperatura_inicial = Individualdata[0].toInt();
-          temperatura_final = Individualdata[1].toInt();// tempmax
-          eep.write(10,temperatura_inicial);
-          eep.write(11,temperatura_final);
-          ActualIndividualDataPos=0;
-          Take_Comunication_Data=false;
+      temperatura_inicial = Individualdata[0].toInt();
+      temperatura_final = Individualdata[1].toInt();// tempmax
+      eep.write(10,temperatura_inicial);
+      eep.write(11,temperatura_final);
+      ActualIndividualDataPos=0;
+      Take_Comunication_Data=false;
       break;
-        case 'V':
-          nivel_inicial = Individualdata[0].toInt();// lvlmin
-          nivel_final = Individualdata[1].toInt();// lvlmax
-          eep.write(12,nivel_inicial);
-          eep.write(13,nivel_final);
-          ActualIndividualDataPos=0;
-          Take_Comunication_Data=false;
+    case 'V':
+      nivel_inicial = Individualdata[0].toInt();// lvlmin
+      nivel_final = Individualdata[1].toInt();// lvlmax
+      eep.write(12,nivel_inicial);
+      eep.write(13,nivel_final);
+      ActualIndividualDataPos=0;
+      Take_Comunication_Data=false;
       break;
-      case 'E':
-          Serial_Send_UNO(6);
-          ActualIndividualDataPos=0;
-          Take_Comunication_Data=false;
-          ComunicationError=true;
+    case 'E':
+      Serial_Send_UNO(6);
+      ActualIndividualDataPos=0;
+      Take_Comunication_Data=false;
+      ComunicationError=true;
       break;
-      case 'O':
-          if(Individualdata[0]=="OK")
-          ActualIndividualDataPos=0;
-          Take_Comunication_Data=false;
+    case 'O':
+      if(Individualdata[0]=="OK")
+      ActualIndividualDataPos=0;
+      Take_Comunication_Data=false;
       break;
     default:
       Serial.println("?_NOTHING TO READ");
@@ -1248,28 +1257,29 @@ void Serial_Read_UNO(){
 }
 
 void Serial_Send_UNO(uint8_t WhatSend){
+  if (ComunicationError==false){
     switch (WhatSend){
       case 1:
-        if (ComunicationError==false && InitComunication==true){
+        if (InitComunication==true){
           for (uint8_t MessagePoss=0; MessagePoss <= 5; MessagePoss++){
             switch (MessagePoss){
               case 0:
                 Serial.println("S_"+WIFISSID+":"+WIFIPASS);
                 break;
               case 1:
-                Serial.println("K_HORA:TEMP:LVL:0");
+                Serial.println("K_"+String(save[0].hour)+":"+String(save[0].temp)+":"+String(save[0].level));
                 break;
               case 2:
-                Serial.println("K_HORA:TEMP:LVL:1");
+                Serial.println("K_"+String(save[1].hour)+":"+String(save[1].temp)+":"+String(save[1].level));
                 break;
               case 3:
-                Serial.println("K_HORA:TEMP:LVL:2");
+                Serial.println("K_"+String(save[2].hour)+":"+String(save[2].temp)+":"+String(save[2].level));
                 break;
               case 4:
-                Serial.println("J_255:TEMPMIN:TEMPMAX");
+                Serial.println("J_"+String(temperatura_inicial)+":"+String(temperatura_final));
                 break;
               case 5:
-                Serial.println("V_255:TEMPMIN:TEMPMAX");
+                Serial.println("V_"+String(temperatura_inicial)+":"+String(temperatura_final));
                 InitComunication=false;
                 break;
             } 
@@ -1277,33 +1287,23 @@ void Serial_Send_UNO(uint8_t WhatSend){
         }
       break;
       case 2:
-        if (ComunicationError==false && InitComunication==false)
-          {
-            Serial.println("K_HORA:TEMP:LVL:STRUCTPOS");
-          }
+        if (InitComunication==false)Serial.println("K_"+String(save[ActualStruct].hour)+":"+String(save[ActualStruct].temp)+":"+String(save[ActualStruct].level));
+        break;
       case 3:
-        if (ComunicationError==false && InitComunication==false)
-          {
-            Serial.println("J_255:TEMPMIN:TEMPMAX:3");
-          }
+        if (InitComunication==false)Serial.println("J_"+String(temperatura_inicial)+":"+String(temperatura_final));
+        break;
       case 4:
-        if (ComunicationError==false && InitComunication==false)
-          {
-            Serial.println("V_255:LVLMIN:LVLMAX:4");
-          }
+        if (InitComunication==false)Serial.println("V_"+String(temperatura_inicial)+":"+String(temperatura_final));
+        break;
       case 5:
-        if (ComunicationError==false && InitComunication==false)
-          {
-            Serial.println("U_"+String(StringToChar(1,String(hora)+":"+String(minutos)))+":"+String(nivel_actual)+":"+String(temperatura_actual));
-          }
+        if(InitComunication==false)Serial.println("U_"+String(StringToChar(1,String(hora)+":"+String(minutos)))+":"+String(nivel_actual)+":"+String(temperatura_actual));
+        break;
       case 6:
-        if (ComunicationError==true && InitComunication==false)
-          {
-            Serial.println("?_RESET");
-          }
+        if (InitComunication==false)Serial.println("?_RESET");
+        break;
     }
-    
   }
+}
 
 ISR(TIMER2_OVF_vect){
   mili_segundos++;
@@ -1373,6 +1373,7 @@ uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de c
       var2_convert=var2_convert/15;// convierte los minutos en la proporcion del char (1 entero = 15 minutos)
 
       var1_convert+=var2_convert;// suma horas y minutos
+      if(var1_convert>=96)var1_convert=0;
       return var1_convert;
       break;
     case 2:
@@ -1386,7 +1387,14 @@ uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de c
   }
 }
 
-void tomar_Sensores (){ //Sexo y adaptarlo para no usar delay farenheit
+String String_de_hora (uint8_t hora_entrada, uint8_t minuto_entrada){
+  if(hora_entrada > 9 && minuto_entrada>9) return(String(hora_entrada)+":"+String(minuto_entrada));
+  if(hora_entrada <= 9 && minuto_entrada>9) return("0"+String(hora_entrada)+":"+String(minuto_entrada));
+  if(hora_entrada > 9 && minuto_entrada<=9) return(String(hora_entrada)+":0"+String(minuto_entrada));
+  if(hora_entrada <= 9 && minuto_entrada<=9) return("0"+String(hora_entrada)+":0"+String(minuto_entrada));
+}
+
+void Actualizar_entradas (){ //Sexo y adaptarlo para no usar delay farenheit
   if(mili_segundos>=tiempo_sensores+tiempo_para_temperatura){
     Sensor_temp.requestTemperatures();
     temperatura_actual = Sensor_temp.getTempCByIndex(0);
@@ -1397,6 +1405,9 @@ void tomar_Sensores (){ //Sexo y adaptarlo para no usar delay farenheit
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
     tiempo_sensores=mili_segundos;
   }
+  DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
+  hora=now.hour();
+  minutos=now.minute();
 }
 
 char Character_Return(uint8_t Character_pos, bool mayus)
@@ -1473,4 +1484,23 @@ void guardado_para_menus( bool Menu){
   }
 }
 
+void writeStringToEEPROM(uint8_t addrOffset, const String strToWrite){
+  uint8_t len = strToWrite.length();
+  eep.write(addrOffset, len);
+  for (uint8_t i = 0; i < len; i++)
+  {
+    eep.write(addrOffset + 1 + i, strToWrite[i]);
+  }
+}
+
 // todo lo que es decumentacion esta en "datos a tener en cuenta"
+String readStringFromEEPROM(uint8_t addrOffset){
+  uint8_t newStrLen = eep.read(addrOffset);
+  char data[newStrLen + 1];
+  for (uint8_t i = 0; i < newStrLen; i++)
+  {
+    data[i] = eep.read(addrOffset + 1 + i);
+  }
+  data[newStrLen] = '\0'; // !!! NOTE !!! Remove the space between the slash "/" and "0" (I've added a space because otherwise there is a display bug)
+  return String(data);
+}

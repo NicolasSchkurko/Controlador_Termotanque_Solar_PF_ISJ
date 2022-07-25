@@ -6,7 +6,7 @@ por ende tenemos bocha de espacio para lo que vamos a usar (dos o 3 boludeces)
 
 Para la lista se utiliza el siguiente formato ( variable (posicion;espacio que ocupa en bytes) )
 Esta es la lista de las posiciones de memoria de los elementos que vamos a usar
-Guardado[1].Hora                    (1;1) 
+Guardado[1].Hora                    (1;1)  
 Guardado[1].Nivel                   (2;1) 
 Guardado[1].Temp                    (3;1) 
 Guardado[2].Hora                    (4;1) 
@@ -19,7 +19,44 @@ Guardado[4].temp. minima            (10;1)
 Guardado[4].Temp. maxima            (11;1) 
 Guardado[5].Nivel minimo            (12;1) 
 Guardado[5].Nivel maximo            (13;1) 
-String ssid                         (14;32)//el largo lo saque del protocolo wap2
-String ssid contraseña              (47;64)//el largo lo saque del protocolo wap2
+String ssid                         (14;33)//el largo 32b lo saque del protocolo wap2 y se le suma uno por que se guarda anteriormente el largo del string (ver pagina mas abajo)
+String ssid contraseña              (48;65)//el largo 64b lo saque del protocolo wap2 y se le suma uno por que se guarda anteriormente el largo del string
 
-Siguiente posicion libre            (111)
+Siguiente posicion libre            (113)
+
+https://roboticsbackend.com/arduino-write-string-in-eeprom/  //pag de donde sace el write/read string to eeprom (copie y pege la funcion pq es una boludez como funca)
+
+Char hora / nivel / temp y pos   
+
+      hora               nivel          temp
+000         0:00hs  40          000 30          000
+001         0:15hs  45          001 35          001
+002         0:30hs  50          002 40          002
+003         0:45hs  55          003 45          003
+004         1:00hs  60          004 50          004
+005         1:15hs  65          005 55          005
+006         1:30hs  70          006 60          006
+007         1:45hs  75          007 65          007
+008         2:00hs  80          008 70          008
+009         2:15hs  85          009 75          009
+010         2:30hs  90          010 80          010
+***         *:**hs  95          011 85          011
+095         23:45hs 100         012 90          012
+
+Char pos 1,2,3  
+char pos 4,5 para temp max y min usandose los char de nivel y temp de la siguiente manera
+     max              min
+30          000 30          000
+35          001 35          001
+40          002 40          002
+45          003 45          003
+50          004 50          004
+55          005 55          005
+60          006 60          006
+65          007 65          007
+70          008 70          008
+75          009 75          009
+80          010 80          010
+85          011 85          011
+90          012 90          012
+

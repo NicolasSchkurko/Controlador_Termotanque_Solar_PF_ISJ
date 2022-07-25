@@ -273,10 +273,10 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
         Serial.println("K_"+String(save[Struct].hour)+":"+desconvercionhora(2,save[Struct].temp)+":"+desconvercionhora(3,save[Struct].level)+":"+String(Struct));
         break;
       case 4:
-        Serial.println("J_255:"+String(Temp_Min)+":"+String(Temp_Max));
+        Serial.println("J_"+String(Temp_Min)+":"+String(Temp_Max));
         break;
       case 5:
-        Serial.println("V_255:"+String(Level_Min)+":"+String(Level_Max));
+        Serial.println("V_"+String(Level_Min)+":"+String(Level_Max));
         break;
       case 6:
         Serial.println("E_ERROR");// Si no entiende un mensaje envia error
@@ -309,15 +309,13 @@ void Serial_Read_NODEMCU(){
         }
       if(CharPos==StringLength)ConvertString=true;// activa el comando final (flag)
   } 
-  
-  switch (input)//dependiendo del char de comando
-  {
-  case 'K':
-    if (ConvertString==true)
-      {
-        Struct=Individualdata[3].toInt();
-        if (Struct<=2 && Struct>=0)
-          {
+
+  if (ConvertString==true){
+    switch (input)//dependiendo del char de comando
+    {
+    case 'K':
+          Struct=Individualdata[3].toInt();
+          if (Struct<=2 && Struct>=0){
             save[Struct].hour=Individualdata[0].toInt();
             save[Struct].level=Individualdata[1].toInt();
             save[Struct].temp=Individualdata[2].toInt();
@@ -325,63 +323,45 @@ void Serial_Read_NODEMCU(){
             ConvertString=false;
             Serial_Send_NODEMCU(7);
           }
-      }
-       else Serial.println("E_ERROR");
-    break;
-  case 'S':
-  if (ConvertString==true)
-    {
-          ssid=Individualdata[0];
-          password=Individualdata[1];
-          ConvertString=false;
-          Serial_Send_NODEMCU(7);
-    }
-      else Serial.println("E_ERROR");
 
-  break;
-  case 'U':
-    if (ConvertString==true)
-      {
-        HVal=Individualdata[0];
-        LVal=Individualdata[1];
-        TVal=Individualdata[2];
-        ActualIndividualDataPos=0;
-        ConvertString=false;
-      }
+      break;
+    case 'S':
+            ssid=Individualdata[0];
+            password=Individualdata[1];
+            ConvertString=false;
+            Serial_Send_NODEMCU(7);
     break;
-  case 'J':
-    if (ConvertString==true)
-      {
-        Temp_Min=Individualdata[1].toInt();// tempin
-        Temp_Max=Individualdata[2].toInt();// tempmax
-        ActualIndividualDataPos=0;
-        ConvertString=false;
-        Serial_Send_NODEMCU(7);
-      }
-    else Serial.println("E_ERROR");
-    break;
-  case 'V':
-      if (ConvertString==true)
-        {
-          Level_Min=Individualdata[1].toInt();// lvlmin
-          Level_Max=Individualdata[2].toInt();// lvlmax
+    case 'U':
+          HVal=Individualdata[0];
+          LVal=Individualdata[1];
+          TVal=Individualdata[2];
+          ActualIndividualDataPos=0;
+          ConvertString=false;
+      break;
+    case 'J':
+          Temp_Min=Individualdata[0].toInt();// tempin
+          Temp_Max=Individualdata[1].toInt();// tempmax
           ActualIndividualDataPos=0;
           ConvertString=false;
           Serial_Send_NODEMCU(7);
-        }
-      else Serial.println("E_ERROR");
-    break;
-  case '?':
-      if (ConvertString==true)
-        {
-          // RESET INO
-          ActualIndividualDataPos=0;
-          ConvertString=false;
-        }
       break;
-  default:
-    break;
+    case 'V':
+            Level_Min=Individualdata[0].toInt();// lvlmin
+            Level_Max=Individualdata[1].toInt();// lvlmax
+            ActualIndividualDataPos=0;
+            ConvertString=false;
+            Serial_Send_NODEMCU(7);
+      break;
+    case '?':
+            // RESET INO
+            ActualIndividualDataPos=0;
+            ConvertString=false;
+        break;
+    default:
+      break;
+    }
   }
+  else Serial.println("E_ERROR");
 }
 
 String desconvercionhora(uint8_t function,uint8_t save)
