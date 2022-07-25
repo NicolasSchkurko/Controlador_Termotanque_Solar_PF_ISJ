@@ -22,7 +22,6 @@
   #define min_nivel 25     //can be a DEFINE because doesnt change (used in manual)
   #define max_nivel 100 //can be a DEFINE because doesnt change (used in manual)
   #define tiempo_para_nivel 3000
-  
   //Entradas y salidas
   #define nivel_del_tanque A0 
   #define electrovalvula 10
@@ -38,10 +37,9 @@
   #define maxY_menu2 5
   #define tiempo_de_parpadeo 700
   #define tiempo_de_espera_menu 5000 
-  
   //Datos horas
   #define hora_max 24
-  #define minuto_max 61 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
+  #define minuto_max 60 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Prototipos
@@ -64,13 +62,13 @@
   //Funciones control nivel
   void Controllvl();
   // funcion actualizar sensores
-  void tomar_Sensores();
+  void Actualizar_entradas();
   //Funciones conexion arduino/esp
   void Serial_Read_UNO();
   void Serial_Send_UNO(uint8_t);
 
   //Funciones hora
-  void Actualizar_hora ();
+  String String_de_hora(uint8_t,uint8_t);
   String CharToString(uint8_t,uint8_t);
   uint8_t StringToChar(uint8_t, String);
 
@@ -107,9 +105,8 @@
   uint32_t  mili_segundos = 0;
   uint8_t hora_to_modify, minuto_to_modify;
   uint8_t sumador_hora, sumador_minuto;
-  uint16_t anio;
-  uint8_t mes,dia,hora,minutos,segundos;
-  String Hora_Actual;
+  uint8_t hora,minutos;
+
 
   //Variables EEPROM
   struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};            //guardado 1/hora/level/temp
@@ -176,8 +173,6 @@ void setup()
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
 
   lcd.init();//Iniciacion del LCD
-  lcd.backlight();
-  lcd.leftToRight();
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
@@ -199,10 +194,9 @@ void setup()
 
 void loop() 
 {
-  tomar_Sensores();
+  Actualizar_entradas();
   Controllvl();
   Controltemp();
-  Actualizar_hora ();
 
   if (Serial.available()>0)Serial_Read_UNO(); // si recibe un dato del serial lo lee
 
@@ -242,7 +236,7 @@ void standby()
   else lcd.print("F  ");
   lcd.setCursor(12,0);lcd.print("N:");  lcd.print(nivel_actual); lcd.print("% ");
   lcd.setCursor(6,1);
-  lcd.print(Hora_Actual+"hs");
+  lcd.print(String_de_hora(hora,minutos)+"hs");
 
   if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){
     while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){}
@@ -574,11 +568,7 @@ void menu_de_auto_por_hora()
 
       case 6:
         lcd.setCursor(0,0);
-        lcd.print("Hora:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear hora:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con 1 ");
         lcd.setCursor(0,2);
@@ -595,11 +585,7 @@ void menu_de_auto_por_hora()
 
       case 7:
         lcd.setCursor(0,0);
-        lcd.print("Minuto:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear minuto:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con 1  ");
         lcd.setCursor(0,2);
@@ -907,11 +893,7 @@ void menu_modificar_hora_rtc()
         break;
       case 5:
         lcd.setCursor(0,0);
-        lcd.print("Setear hora:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear hora:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con 1 ");
         lcd.setCursor(0,2);
@@ -946,11 +928,7 @@ void menu_modificar_hora_rtc()
 
       case 6:
         lcd.setCursor(0,0);
-        lcd.print("Setear minuto:");
-        if(hora_to_modify> 9 && minuto_to_modify>9){lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify <= 9 && minuto_to_modify>9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify > 9 && minuto_to_modify<=9){lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
-        if(hora_to_modify<= 9 && minuto_to_modify<=9){lcd.print("0"); lcd.print(hora_to_modify); lcd.print(":0"); lcd.print(minuto_to_modify);}
+        lcd.print("Setear minuto:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("aumentar con: 1 ");
         lcd.setCursor(0,2);
@@ -988,7 +966,8 @@ void menu_modificar_hora_rtc()
         if(digitalRead(pulsador3) == LOW){
           while(digitalRead(pulsador3) == LOW){}
           Flag=8;
-          rtc.adjust(DateTime(anio,mes,dia,hora_to_modify,minuto_to_modify,segundos));
+          DateTime now = rtc.now();
+          rtc.adjust(DateTime(now.year(),now.month(),now.day(),hora_to_modify,minuto_to_modify,now.second()));
           tiempo_menues=mili_segundos;
           lcd.clear();
         }
@@ -1055,8 +1034,6 @@ void menu_farenheit_celsius()
   }
   
 }
-
-//activar bomba
 
 void menu_seteo_wifi(){  
 
@@ -1145,23 +1122,6 @@ void menu_seteo_wifi(){
   }
 
 }
-
-
-void Actualizar_hora ()
-  {
-    DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
-    anio=now.year(),
-    mes=now.month();
-    dia=now.day();
-    hora=now.hour();
-    minutos=now.minute();
-    segundos=now.second();
-
-    if(hora > 9 && minutos>9) Hora_Actual = String(hora)+":"+String(minutos);
-    if(hora <= 9 && minutos>9) Hora_Actual = "0"+String(hora)+":"+String(minutos);
-    if(hora > 9 && minutos<=9) Hora_Actual = String(hora)+":0"+String(minutos);
-    if(hora <= 9 && minutos<=9) Hora_Actual = "0"+String(hora)+":0"+String(minutos);
-  }
 
 void Serial_Read_UNO(){
   Serial_Input=Serial.readString();// iguala el string del serial a un string input
@@ -1377,7 +1337,14 @@ uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de c
   }
 }
 
-void tomar_Sensores (){ //Sexo y adaptarlo para no usar delay farenheit
+String String_de_hora (uint8_t hora_entrada, uint8_t minuto_entrada){
+  if(hora_entrada > 9 && minuto_entrada>9) return(String(hora_entrada)+":"+String(minuto_entrada));
+  if(hora_entrada <= 9 && minuto_entrada>9) return("0"+String(hora_entrada)+":"+String(minuto_entrada));
+  if(hora_entrada > 9 && minuto_entrada<=9) return(String(hora_entrada)+":0"+String(minuto_entrada));
+  if(hora_entrada <= 9 && minuto_entrada<=9) return("0"+String(hora_entrada)+":0"+String(minuto_entrada));
+}
+
+void Actualizar_entradas (){ //Sexo y adaptarlo para no usar delay farenheit
   if(mili_segundos>=tiempo_sensores+tiempo_para_temperatura){
     Sensor_temp.requestTemperatures();
     temperatura_actual = Sensor_temp.getTempCByIndex(0);
@@ -1388,6 +1355,9 @@ void tomar_Sensores (){ //Sexo y adaptarlo para no usar delay farenheit
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
     tiempo_sensores=mili_segundos;
   }
+  DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
+  hora=now.hour();
+  minutos=now.minute();
 }
 
 char Character_Return(uint8_t Character_pos, bool mayus)
