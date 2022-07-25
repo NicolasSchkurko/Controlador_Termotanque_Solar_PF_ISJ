@@ -57,13 +57,12 @@
   void menu_seteo_wifi();
 
   //Funciones control temperatura
-  void tomar_temperatura ();
   void Controltemp();
 
   //Funciones control nivel
-  void sensar_nivel_actual();
   void Controllvl();
-
+  // funcion actualizar sensores
+  void tomar_Sensores();
   //Funciones conexion arduino/esp
   void Serial_Read_UNO();
   void Serial_Send_UNO(uint8_t);
@@ -78,7 +77,7 @@
   
   char Character_Return(uint8_t , bool);
 
-  void guardado_para_menus();
+  void guardado_para_menus(bool);
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Declaraciones de libs
@@ -94,17 +93,16 @@
   bool flag_farenheit = false; 
   int8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
   uint8_t temperatura_inicial,temperatura_final;  // Guardado en memoria
-  int16_t temperatura_actual; // temp actual
-  uint16_t milis_para_temperatura = 0; // mide tiempo
+  int8_t temperatura_actual; // temp actual
   //Variables de nivel          Para teo: vals that share in level funciones //Jere: ?? // Chuco: ??
   int8_t nivel_a_llenar; //se usa en llenado manual para guardar que temperatura se necesita  
   uint8_t nivel_inicial,nivel_final;// Guardado en memoria 
   uint8_t nivel_actual;
-  uint16_t milis_para_nivel = 0;
 
   //Variables de hora
-  unsigned long tiempo_actual;             //(used in temperature funcions and in llenado auto to showw a confirm output)
-  uint64_t  mili_segundos = 0;
+  uint32_t tiempo_menues;             //(used in temperature funcions and in llenado auto to showw a confirm output)
+  uint32_t tiempo_sensores;
+  uint32_t  mili_segundos = 0;
   uint8_t hora_to_modify, minuto_to_modify;
   uint8_t sumador_hora, sumador_minuto;
   uint16_t anio;
@@ -155,7 +153,6 @@
   uint8_t ActualIndividualDataPos=0;
   char Actualchar=0;
   char input=0;
-  uint16_t Send_time=0;
   String Serial_Input;
   String Individualdata[4];
   String IndividualValue;
@@ -195,12 +192,12 @@ void setup()
   pinMode(pulsador4, INPUT_PULLUP);
   //
   InitComunication=true;
+  tiempo_sensores=mili_segundos;
 }
 
 void loop() 
 {
-  tomar_temperatura();
-  sensar_nivel_actual();
+  tomar_Sensores();
   Controllvl();
   Controltemp();
   Actualizar_hora ();
@@ -280,19 +277,19 @@ void menu_basico()
     Ypos=0;
     opcionmenu1= 0;
     Flag=2;
-    tiempo_actual=mili_segundos;
+    tiempo_menues=mili_segundos;
   }
 
   if (Flag==2){
     if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true;} // suma 1 a Ypos
     if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; }// resta 1 a Ypos
     if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){} opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
-    if(mili_segundos>=(tiempo_actual+tiempo_de_parpadeo)){tiempo_actual=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
+    if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
     switch (opcionmenu1){
       case 0:
         lcd.setCursor(0,0);
-        if(Blink == false){lcd.print(" "); tiempo_actual-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
+        if(Blink == false){lcd.print(" "); tiempo_menues-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
         if(Blink == true)lcd.print(char(62));
         lcd.setCursor(1,0); 
         lcd.print(Menuprincipal[ReturnToCero(Ypos,maxY_menu1)]);
@@ -391,7 +388,7 @@ void menu_de_llenado_manual(){
 
           if(digitalRead(pulsador3) == LOW){
               while(digitalRead(pulsador3) == LOW){}
-              tiempo_actual=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
+              tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
               lcd.clear();
               Flag=5;
             }
@@ -399,7 +396,7 @@ void menu_de_llenado_manual(){
           break;
 
         case 5:
-          guardado_para_menus();
+          guardado_para_menus(true);
           break;
     }
 }
@@ -456,14 +453,14 @@ void menu_de_calefaccion_manual(){
           if(digitalRead(pulsador3) == LOW){
               while(digitalRead(pulsador3) == LOW){}
               Flag=5;
-              tiempo_actual=mili_segundos;
+              tiempo_menues=mili_segundos;
               lcd.clear();
             }
           if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=3; lcd.clear();}
           break;
 
         case 5:
-          guardado_para_menus();
+          guardado_para_menus(true);
           break;
     }
 }
@@ -608,7 +605,7 @@ void menu_de_auto_por_hora()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3  ");
         minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max+1);
-        if(digitalRead(pulsador1) == LOW){ while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
+        if(digitalRead(pulsador1) == LOW){while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
         if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto--;}
         if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=8;lcd.clear();}
         if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=6; lcd.clear();}
@@ -626,7 +623,7 @@ void menu_de_auto_por_hora()
 
         if(digitalRead(pulsador3) == LOW){
           while(digitalRead(pulsador3) == LOW){}
-          tiempo_actual=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
+          tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
           lcd.clear();
           Flag=9;
         }
@@ -634,7 +631,7 @@ void menu_de_auto_por_hora()
         break;
 
       case 9:
-        guardado_para_menus();
+        guardado_para_menus(true);
       break;
     }
   }
@@ -722,7 +719,7 @@ void menu_de_llenado_auto()
       if(digitalRead(pulsador3) == LOW){
         while(digitalRead(pulsador3) == LOW){}
         Flag=6;
-        tiempo_actual=mili_segundos;
+        tiempo_menues=mili_segundos;
         lcd.clear();
       }
       if(digitalRead(pulsador4) == LOW){
@@ -733,7 +730,7 @@ void menu_de_llenado_auto()
       break;
 
     case 6:
-      guardado_para_menus();
+      guardado_para_menus(true);
       break; 
   }
 }
@@ -822,18 +819,18 @@ void menu_de_calefaccion_auto(){
         if(digitalRead(pulsador3) == LOW){
             while(digitalRead(pulsador3) == LOW){}
             Flag=6;
-            tiempo_actual=mili_segundos;
+            tiempo_menues=mili_segundos;
             lcd.clear();
           }
-        if(digitalRead(pulsador4) == LOW){
-          while(digitalRead(pulsador4) == LOW){}
-          Flag=4;
-          lcd.clear();
-        }
-        break;
+          if(digitalRead(pulsador4) == LOW){
+            while(digitalRead(pulsador4) == LOW){}
+            Flag=4;
+            lcd.clear();
+          }
+          break;
 
       case 6:
-        guardado_para_menus();
+        guardado_para_menus(true);
         break; 
   }
 }
@@ -852,13 +849,13 @@ void menu_avanzado()
   if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true; }
   if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;}
   if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
-  if(mili_segundos>=(tiempo_actual+tiempo_de_parpadeo)){tiempo_actual=mili_segundos;Blink=!Blink;}
+  if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;}
     
     switch (opcionmenu2)
     {
       case 0:
         lcd.setCursor(0,0);
-        if(Blink == false){lcd.print(" "); tiempo_actual-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
+        if(Blink == false){lcd.print(" "); tiempo_menues-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
         if(Blink == true)lcd.print(char(62));
         lcd.setCursor(1,0); 
         lcd.print(menuavanzado[ReturnToCero(Ypos,maxY_menu2)]); 
@@ -889,7 +886,6 @@ void menu_avanzado()
         tiempo_de_standby=0;
         Flag=1;
         opcionmenu1=0;
-        opcionmenu2=0;
         break;
     }
   }
@@ -991,7 +987,7 @@ void menu_modificar_hora_rtc()
           while(digitalRead(pulsador3) == LOW){}
           Flag=8;
           rtc.adjust(DateTime(anio,mes,dia,hora_to_modify,minuto_to_modify,segundos));
-          tiempo_actual=mili_segundos;
+          tiempo_menues=mili_segundos;
           lcd.clear();
         }
         if(digitalRead(pulsador4) == LOW){
@@ -1002,7 +998,7 @@ void menu_modificar_hora_rtc()
         break;
 
       case 8:
-        guardado_para_menus();
+        guardado_para_menus(false);
         break; 
     }
   }
@@ -1026,23 +1022,20 @@ void menu_farenheit_celsius()
       lcd.print("1");
       lcd.setCursor(11,3);
       lcd.print("2");
-      if(digitalRead(pulsador2) == LOW )
-        {
+      if(digitalRead(pulsador2) == LOW ){
           while(digitalRead(pulsador2) == LOW){}
           flag_farenheit = false;
           Flag=5;
         }
-      if(digitalRead(pulsador1) == LOW )
-        {
+      if(digitalRead(pulsador1) == LOW ){
           while(digitalRead(pulsador1) == LOW){}
           flag_farenheit = true;
           Flag=5;
         }
-      if(digitalRead(pulsador4) == LOW)
-        {
+      if(digitalRead(pulsador4) == LOW){
           while(digitalRead(pulsador4) == LOW){}
-          Estadoequipo=menu1;
-          Flag=1;
+          Estadoequipo=menu2;
+          Flag=3;
           funcionActual=posicion_inicial;
           lcd.clear();
         }
@@ -1050,12 +1043,12 @@ void menu_farenheit_celsius()
 
     case 5:
       lcd.clear();
-      tiempo_actual=mili_segundos;
+      tiempo_menues=mili_segundos;
       Flag=6;
     break;
 
     case 6:
-      guardado_para_menus();
+      guardado_para_menus(false);
     break;
   }
   
@@ -1137,7 +1130,7 @@ void menu_seteo_wifi(){
         while(digitalRead(pulsador4) == LOW){}
         lcd.clear();
 
-        tiempo_actual=mili_segundos;
+        tiempo_menues=mili_segundos;
         Flag=7;
         Ypos=0;
         Actualchar=0;
@@ -1145,7 +1138,7 @@ void menu_seteo_wifi(){
       }
     break;
       case 7:
-        guardado_para_menus();
+        guardado_para_menus(false);
       break;
   }
 
@@ -1244,44 +1237,32 @@ void Serial_Read_UNO(){
 }
 
 void Serial_Send_UNO(uint8_t WhatSend){
-    uint8_t MessagePoss;
-    if (InitComunication==true)MessagePoss=0;
     switch (WhatSend){
       case 1:
-        if (ComunicationError==false && InitComunication==true && MessagePoss<=5 &&Send_time>=1000){
+        if (ComunicationError==false && InitComunication==true){
+          for (uint8_t MessagePoss=0; MessagePoss <= 5; MessagePoss++){
             switch (MessagePoss){
               case 0:
                 Serial.println("S_"+WIFISSID+":"+WIFIPASS);
-                MessagePoss++;
-                Send_time=0;
                 break;
               case 1:
                 Serial.println("K_HORA:TEMP:LVL:0");
-                MessagePoss++;
-                Send_time=0;
                 break;
               case 2:
                 Serial.println("K_HORA:TEMP:LVL:1");
-                MessagePoss++;
-                Send_time=0;
                 break;
               case 3:
                 Serial.println("K_HORA:TEMP:LVL:2");
-                MessagePoss++;
-                Send_time=0;
                 break;
               case 4:
                 Serial.println("J_255:TEMPMIN:TEMPMAX");
-                MessagePoss++;
-                Send_time=0;
                 break;
               case 5:
                 Serial.println("V_255:TEMPMIN:TEMPMAX");
                 InitComunication=false;
-                MessagePoss=0;
-                Send_time=0;
                 break;
-            }   
+            } 
+          }  
         }
       break;
       case 2:
@@ -1315,10 +1296,7 @@ void Serial_Send_UNO(uint8_t WhatSend){
 
 ISR(TIMER2_OVF_vect){
   mili_segundos++;
-  milis_para_nivel++;
   tiempo_de_standby++;
-  milis_para_temperatura++;
-  Send_time++;
 }
 
 uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
@@ -1397,33 +1375,16 @@ uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de c
   }
 }
 
-void tomar_temperatura () //Sexo y adaptarlo para no usar delay farenheit
-{
-  if (milis_para_temperatura >= tiempo_para_temperatura)
-  {
+void tomar_Sensores (){ //Sexo y adaptarlo para no usar delay farenheit
+  if(mili_segundos>=tiempo_sensores+tiempo_para_temperatura){
     Sensor_temp.requestTemperatures();
-    if(flag_farenheit == false)
-    {
-      temperatura_actual = Sensor_temp.getTempCByIndex(0);
-    }
-    else
-    {
-      temperatura_actual = Sensor_temp.getTempFByIndex(0);
-    }
-    milis_para_temperatura = 0;
-  }
-}
-
-void sensar_nivel_actual()
-{
-  if (milis_para_nivel > tiempo_para_nivel)
-  {
+    temperatura_actual = Sensor_temp.getTempCByIndex(0);
     if (analogRead(nivel_del_tanque) < 100) nivel_actual = 0;  
     if (analogRead(nivel_del_tanque) >= 100 && analogRead(nivel_del_tanque) < 256)    nivel_actual = 25;
     if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = 50;
     if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
-    milis_para_nivel = 0;
+    tiempo_sensores=mili_segundos;
   }
 }
 
@@ -1482,21 +1443,22 @@ void Controllvl()
   //=================================================================
 }
 
-void guardado_para_menus(){
+void guardado_para_menus( bool Menu){
   lcd.setCursor(4,0);
   lcd.print("Guardando...");
-  if(mili_segundos>=tiempo_actual+tiempo_de_espera_menu)
-  {
-    if(opcionmenu1 > 0){
-      Estadoequipo=menu1;
-      Flag=1; 
-    }
-    else{
-      Estadoequipo=menu2;
-      Flag=3; 
-    }
+  if(mili_segundos>=tiempo_menues+tiempo_de_espera_menu){
+  if(Menu == true){
+    Estadoequipo=menu1;
+    Flag=1;
+    funcionActual=posicion_inicial;
+    lcd.clear();
+  }
+  if(Menu == false){
+    Estadoequipo=menu2; 
+    Flag=3; 
     funcionActual=posicion_inicial; 
     lcd.clear();
+  }
   }
 }
 
