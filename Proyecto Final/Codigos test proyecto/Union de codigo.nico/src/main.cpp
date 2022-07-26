@@ -128,7 +128,7 @@
   uint8_t Flag=0;
   int8_t Ypos;
   uint16_t tiempo_de_standby = 0;
-  String Menuprincipal[maxY_menu1] = {
+  const String Menuprincipal[maxY_menu1] = {
     "C manual",
     "H manual",
     "H & F in H",
@@ -137,7 +137,7 @@
     "menu avanzado",
     "volver"
   };
-  String menuavanzado[maxY_menu2] = {
+  const String menuavanzado[maxY_menu2] = {
       "Setear hora",
       "c° o F°",
       "Activar la bomba",
@@ -1107,7 +1107,6 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,1);
     lcd.print(WIFISSID);
     Actualchar=ReturnToCero(Actualchar, 40);
-    Ypos=ReturnToCero(Ypos,32);
     WIFISSID.setCharAt(Ypos,Character_Return(Actualchar, mayusculas));
 
     if(digitalRead(pulsador1) == LOW )
@@ -1121,7 +1120,7 @@ void menu_seteo_wifi(){
         while(digitalRead(pulsador2) == LOW){}
         mayusculas=!mayusculas;
       }
-    if(digitalRead(pulsador3) == LOW )
+    if(digitalRead(pulsador3) == LOW && Ypos <= 20)
       {
         while(digitalRead(pulsador3) == LOW){}
         Ypos ++;
@@ -1498,7 +1497,6 @@ void writeStringToEEPROM(uint8_t addrOffset, const String strToWrite){
   }
 }
 
-// todo lo que es decumentacion esta en "datos a tener en cuenta"
 String readStringFromEEPROM(uint8_t addrOffset){
   uint8_t newStrLen = eep.read(addrOffset);
   char data[newStrLen + 1];
