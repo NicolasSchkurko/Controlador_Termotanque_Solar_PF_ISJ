@@ -3,10 +3,10 @@
 #include "AT24CX.h"
 #include <Wire.h>
 #include <SPI.h>
-#include <LiquidCrystal_I2C.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
 #include "RTClib.h"
+#include "LiquidTWI.h"
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Defines
@@ -85,7 +85,7 @@
 //Declaraciones de libs
   AT24C32 eep;
   RTC_DS1307 rtc;
-  LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
+  LiquidTWI lcd(27);//LiquidCrystal_I2C lcd(0x27,20,4);
   OneWire sensor_t(onewire);
   DallasTemperature Sensor_temp(&sensor_t);
 
@@ -176,7 +176,7 @@ void setup()
   rtc.begin();//inicializacion del rtc arduino-esp
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
 
-  lcd.init();//Iniciacion del LCD
+  lcd.begin(20, 4);//Iniciacion del LCD
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
@@ -264,13 +264,13 @@ void standby()
     {
       case estado_standby:
         Estadoequipo = estado_inicial;
-        lcd.backlight();
+        lcd.setBacklight(HIGH);
         tiempo_de_standby=0;
         break;
       case estado_inicial:
         Flag=1;
         Estadoequipo = menu1;
-        lcd.backlight();
+        lcd.setBacklight(HIGH);
         break;
       default:
         Estadoequipo = estado_standby;
@@ -280,7 +280,7 @@ void standby()
 
   if(tiempo_de_standby>=5000){
     Estadoequipo = estado_standby;
-    lcd.noBacklight();
+    lcd.setBacklight(LOW);
     tiempo_de_standby = 0;
   }
 }
@@ -1073,12 +1073,12 @@ void menu_seteo_wifi(){
   {
   case 4:
     lcd.setCursor(0,0);
-    lcd.print("Nombre Wifi:");lcd.print(WIFISSID);
-    lcd.setCursor(1,0);
-    lcd.print("Contraseña Wifi:");lcd.print(WIFIPASS);
-    lcd.setCursor(2,0);
-    lcd.print("Desea modificar?");
-    lcd.setCursor(3,0);
+    lcd.print("SSID:");lcd.print(WIFISSID);
+    lcd.setCursor(0,1);
+    lcd.print("PASS:");lcd.print(WIFIPASS);
+    lcd.setCursor(0,2);
+    lcd.print("modificar?");
+    lcd.setCursor(0,3);
     lcd.print("P3: SI   P4: NO");
 
     if(digitalRead(pulsador3) == LOW ){
@@ -1095,8 +1095,8 @@ void menu_seteo_wifi(){
       }
     break;
   case 5:
-    WIFISSID="                                 ";
-    WIFIPASS="                                   ";
+    WIFISSID=" ";
+    WIFIPASS=" ";
     Ypos=0;
     Actualchar=0;
     Flag=6;
@@ -1107,12 +1107,14 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,1);
     lcd.print(WIFISSID);
     Actualchar=ReturnToCero(Actualchar, 40);
+    Ypos=ReturnToCero(Ypos,32);
     WIFISSID.setCharAt(Ypos,Character_Return(Actualchar, mayusculas));
 
     if(digitalRead(pulsador1) == LOW )
       {
         while(digitalRead(pulsador1) == LOW){}
         Actualchar++;
+
       }
     if(digitalRead(pulsador2) == LOW )
       {
@@ -1124,6 +1126,7 @@ void menu_seteo_wifi(){
         while(digitalRead(pulsador3) == LOW){}
         Ypos ++;
         Actualchar=0;
+        WIFISSID+=" ";
       }
     if(digitalRead(pulsador4) == LOW )
       {
@@ -1141,6 +1144,7 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,1);
     lcd.print(WIFIPASS);
     Actualchar=ReturnToCero(Actualchar, 40);
+    Ypos=ReturnToCero(Ypos,64);
     WIFIPASS.setCharAt(Ypos,Character_Return(Actualchar, mayusculas));
 
     if(digitalRead(pulsador1) == LOW )
@@ -1157,6 +1161,7 @@ void menu_seteo_wifi(){
       {
         while(digitalRead(pulsador3) == LOW){}
         Ypos ++;
+        WIFIPASS+=" ";
         Actualchar=0;
       }
     if(digitalRead(pulsador4) == LOW )
