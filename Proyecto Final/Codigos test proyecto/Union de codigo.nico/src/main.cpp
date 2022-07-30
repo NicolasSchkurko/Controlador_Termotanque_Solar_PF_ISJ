@@ -150,7 +150,7 @@
   //Variables Comunicacion esp/arduino
   bool Take_Comunication_Data=false;
   bool ComunicationError=false;
-  bool InitComunication;  
+  bool InitComunication = true;  
   bool mayusculas=false;
   uint8_t StringLength=0;
   uint8_t ActualIndividualDataPos=0;
@@ -187,12 +187,9 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   
   //pulsadores pra manejar los menus//
-  pinMode(pulsador1, INPUT_PULLUP);
-  pinMode(pulsador2, INPUT_PULLUP);
-  pinMode(pulsador3, INPUT_PULLUP);
-  pinMode(pulsador4, INPUT_PULLUP);
+  DDRD &= B11000011;
+  PORTD |= B00111100;
   //
-  InitComunication=true;
   tiempo_sensores=mili_segundos;
 
   save[0].hour=eep.read(1);
@@ -258,7 +255,7 @@ void standby()
   lcd.setCursor(6,1);
   lcd.print(String_de_hora(hora,minutos)+"hs");
 
-  if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){
+  if((PIND & (1<<PD2)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD5)) == 0){
     switch (Estadoequipo)
     {
       case estado_standby:
@@ -296,9 +293,9 @@ void menu_basico()
   }
 
   if (Flag==2){
-    if (digitalRead(pulsador1) == LOW ){while (digitalRead(pulsador1) == LOW ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true;} // suma 1 a Ypos
-    if (digitalRead(pulsador2) == LOW ){while (digitalRead(pulsador2) == LOW ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; }// resta 1 a Ypos
-    if (digitalRead(pulsador3) == LOW ){while (digitalRead(pulsador3) == LOW ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
+    if ((PIND & (1<<PD2)) == 0 ){while ((PIND & (1<<PD2)) == 0 ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true;} // suma 1 a Ypos
+    if ((PIND & (1<<PD3)) == 0 ){while ((PIND & (1<<PD3)) == 0 ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; }// resta 1 a Ypos
+    if ((PIND & (1<<PD4)) == 0 ){while ((PIND & (1<<PD4)) == 0 ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
     if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
     switch (opcionmenu1){
@@ -373,21 +370,21 @@ void menu_de_llenado_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        if(digitalRead(pulsador1) == LOW){
-            while(digitalRead(pulsador1) == LOW && nivel_a_llenar<max_nivel){}
+        if((PIND & (1<<PD2)) == 0){
+            while((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){}
             nivel_a_llenar += sumador_nivel;
           }
-        if(digitalRead(pulsador2) == LOW && nivel_a_llenar>min_nivel){
-            while(digitalRead(pulsador2) == LOW){}
+        if((PIND & (1<<PD3)) == 0 && nivel_a_llenar>min_nivel){
+            while((PIND & (1<<PD3)) == 0){}
             nivel_a_llenar -= sumador_nivel;
           }
-        if(digitalRead(pulsador3) == LOW){
-            while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+            while((PIND & (1<<PD4)) == 0){}
             Flag=4;
             lcd.clear();
           }
-        if(digitalRead(pulsador4) == LOW){
-            while(digitalRead(pulsador4) == LOW){}
+        if((PIND & (1<<PD5)) == 0){
+            while((PIND & (1<<PD5)) == 0){}
             Estadoequipo=menu1;
             Flag=1;
             funcionActual=posicion_inicial;
@@ -401,13 +398,13 @@ void menu_de_llenado_manual(){
           lcd.setCursor(0,3);
           lcd.print("     Confirmar?    ");
 
-          if(digitalRead(pulsador3) == LOW){
-              while(digitalRead(pulsador3) == LOW){}
+          if((PIND & (1<<PD4)) == 0){
+              while((PIND & (1<<PD4)) == 0){}
               tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
               lcd.clear();
               Flag=5;
             }
-          if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=3; lcd.clear();}
+          if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=3; lcd.clear();}
           break;
 
         case 5:
@@ -434,23 +431,23 @@ void menu_de_calefaccion_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        if(digitalRead(pulsador1) == LOW && temperatura_a_calentar<maxima_temp){
-            while(digitalRead(pulsador1) == LOW){}
+        if((PIND & (1<<PD2)) == 0 && temperatura_a_calentar<maxima_temp){
+            while((PIND & (1<<PD2)) == 0){}
             temperatura_a_calentar += sumador_temperatura;
           }
         
-        if(digitalRead(pulsador2) == LOW && temperatura_a_calentar>min_temp){
-            while(digitalRead(pulsador2) == LOW){}
+        if((PIND & (1<<PD3)) == 0 && temperatura_a_calentar>min_temp){
+            while((PIND & (1<<PD3)) == 0){}
             temperatura_a_calentar -= sumador_temperatura;
           }
 
-        if(digitalRead(pulsador3) == LOW){
-            while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+            while((PIND & (1<<PD4)) == 0){}
             Flag=4;
             lcd.setCursor(17,0); lcd.print("   ");
           }
-        if(digitalRead(pulsador4) == LOW){
-            while(digitalRead(pulsador4) == LOW){}
+        if((PIND & (1<<PD5)) == 0){
+            while((PIND & (1<<PD5)) == 0){}
             Estadoequipo=menu1;
             Flag=1;
             funcionActual=posicion_inicial;
@@ -465,13 +462,13 @@ void menu_de_calefaccion_manual(){
           lcd.print(temperatura_a_calentar);
           lcd.setCursor(0,3);
           lcd.print("     Confirmar?    ");
-          if(digitalRead(pulsador3) == LOW){
-              while(digitalRead(pulsador3) == LOW){}
+          if((PIND & (1<<PD4)) == 0){
+              while((PIND & (1<<PD4)) == 0){}
               Flag=5;
               tiempo_menues=mili_segundos;
               lcd.clear();
             }
-          if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=3; lcd.clear();}
+          if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=3; lcd.clear();}
           break;
 
         case 5:
@@ -505,22 +502,22 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,4);
       ActualStruct = ReturnToCero(Ypos,3);
 
-      if(digitalRead(pulsador1) == LOW){
-          while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0){
+          while((PIND & (1<<PD2)) == 0){}
           Ypos=ReturnToCero(Ypos+1,3);
         }
-      if(digitalRead(pulsador2) == LOW){
-          while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0){
+          while((PIND & (1<<PD3)) == 0){}
           Ypos=ReturnToCero(Ypos-1,3);
       }
-      if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           save[ActualStruct].temp=min_temp;
           save[ActualStruct].level=min_nivel;
           Flag=4;
         }
-      if(digitalRead(pulsador4) == LOW){
-            while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+            while((PIND & (1<<PD5)) == 0){}
             Estadoequipo=menu1;
             Flag=1;
             funcionActual=posicion_inicial;
@@ -541,20 +538,20 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if(digitalRead(pulsador1) == LOW && save[ActualStruct].temp < maxima_temp){
-          while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 && save[ActualStruct].temp < maxima_temp){
+          while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].temp += sumador_temperatura;
         }
-      if(digitalRead(pulsador2) == LOW && save[ActualStruct].temp> min_temp){
-          while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 && save[ActualStruct].temp> min_temp){
+          while((PIND & (1<<PD3)) == 0){}
           save[ActualStruct].temp -= sumador_temperatura;
         }
-      if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           Flag=5;
           lcd.clear();
         }
-      if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=3; lcd.clear();}
+      if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=3; lcd.clear();}
         break;
 
       case 5:
@@ -567,22 +564,22 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if(digitalRead(pulsador1) == LOW && save[ActualStruct].level<max_nivel){
-          while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 && save[ActualStruct].level<max_nivel){
+          while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].level += sumador_nivel;
         }
-      if(digitalRead(pulsador2) == LOW && save[ActualStruct].level>min_nivel){
-          while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 && save[ActualStruct].level>min_nivel){
+          while((PIND & (1<<PD3)) == 0){}
           save[ActualStruct].level -= sumador_nivel;
         }
-      if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           Flag=6;
           sumador_hora=0;
           sumador_minuto=0;
           lcd.clear();
         }
-      if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=4; lcd.clear();}
+      if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=4; lcd.clear();}
         break;
 
       case 6:
@@ -596,10 +593,10 @@ void menu_de_auto_por_hora()
         lcd.print("Confirmar con 3");
         hora_to_modify = ReturnToCero((hora+sumador_hora),hora_max);
 
-        if(digitalRead(pulsador1) == LOW){while(digitalRead(pulsador1) == LOW){}sumador_hora++;}
-        if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_hora--;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=7;lcd.clear();}
-        if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=5; lcd.clear();}
+        if((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}sumador_hora++;}
+        if((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){}sumador_hora--;}
+        if((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){}Flag=7;lcd.clear();}
+        if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=5; lcd.clear();}
         break;
 
       case 7:
@@ -612,10 +609,10 @@ void menu_de_auto_por_hora()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3  ");
         minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max+1);
-        if(digitalRead(pulsador1) == LOW){while(digitalRead(pulsador1) == LOW){}sumador_minuto++;}
-        if(digitalRead(pulsador2) == LOW){while(digitalRead(pulsador2) == LOW){}sumador_minuto--;}
-        if(digitalRead(pulsador3) == LOW){while(digitalRead(pulsador3) == LOW){}Flag=8;lcd.clear();}
-        if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=6; lcd.clear();}
+        if((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}sumador_minuto++;}
+        if((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){}sumador_minuto--;}
+        if((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){}Flag=8;lcd.clear();}
+        if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=6; lcd.clear();}
         break;
 
       case 8:
@@ -628,14 +625,14 @@ void menu_de_auto_por_hora()
         lcd.setCursor(0,3);
         lcd.print("     Confirmar?    ");
 
-        if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
           lcd.clear();
           Flag=9;
           save[ActualStruct].hour= StringToChar(1,String_de_hora(hora_to_modify,minuto_to_modify));
         }
-        if(digitalRead(pulsador4) == LOW){while(digitalRead(pulsador4) == LOW){} Flag=7; lcd.clear();}
+        if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Flag=7; lcd.clear();}
         break;
 
       case 9:
@@ -666,22 +663,22 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if(digitalRead(pulsador1) == LOW && nivel_inicial<max_nivel){
-        while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 && nivel_inicial<max_nivel){
+        while((PIND & (1<<PD2)) == 0){}
         nivel_inicial += sumador_nivel;
       }
-      if(digitalRead(pulsador2) == LOW && nivel_inicial>min_nivel){
-        while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 && nivel_inicial>min_nivel){
+        while((PIND & (1<<PD3)) == 0){}
         nivel_inicial -= sumador_nivel;
       }
-      if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+        while((PIND & (1<<PD4)) == 0){}
         Flag=4;
         nivel_final=nivel_inicial+sumador_nivel;
         lcd.clear();
       }
-      if(digitalRead(pulsador4) == LOW){
-        while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+        while((PIND & (1<<PD5)) == 0){}
         nivel_inicial = eep.read(12);
         nivel_final = eep.read(13);
         Estadoequipo=menu1;
@@ -701,21 +698,21 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if(digitalRead(pulsador1) == LOW && nivel_final<max_nivel){
-        while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 && nivel_final<max_nivel){
+        while((PIND & (1<<PD2)) == 0){}
         nivel_final += sumador_nivel;
       }
-      if(digitalRead(pulsador2) == LOW && nivel_final>nivel_inicial+sumador_nivel){
-        while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 && nivel_final>nivel_inicial+sumador_nivel){
+        while((PIND & (1<<PD3)) == 0){}
         nivel_final -= sumador_nivel;
       }
-      if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+        while((PIND & (1<<PD4)) == 0){}
         Flag=5;
         lcd.clear();
       }
-      if(digitalRead(pulsador4) == LOW){
-        while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+        while((PIND & (1<<PD5)) == 0){}
         Flag=3;
         lcd.clear();
       }
@@ -729,14 +726,14 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("     Confirmar?    ");
 
-      if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+        while((PIND & (1<<PD4)) == 0){}
         Flag=6;
         tiempo_menues=mili_segundos;
         lcd.clear();
       }
-      if(digitalRead(pulsador4) == LOW){
-        while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+        while((PIND & (1<<PD5)) == 0){}
         Flag=4;
         lcd.clear();
       }
@@ -768,24 +765,24 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if(digitalRead(pulsador1) == LOW && temperatura_inicial<maxima_temp){
-        while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 && temperatura_inicial<maxima_temp){
+        while((PIND & (1<<PD2)) == 0){}
         temperatura_inicial += sumador_temperatura;
       }
       
-      if(digitalRead(pulsador2) == LOW && min_temp<temperatura_inicial){
-        while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 && min_temp<temperatura_inicial){
+        while((PIND & (1<<PD3)) == 0){}
         temperatura_inicial -= sumador_temperatura;
       }
 
-      if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+        while((PIND & (1<<PD4)) == 0){}
         Flag=4;
         temperatura_final=temperatura_inicial+sumador_temperatura;
       }
       
-      if(digitalRead(pulsador4) == LOW){
-        while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+        while((PIND & (1<<PD5)) == 0){}
         Estadoequipo=menu1;
         Flag=1;
         funcionActual=posicion_inicial;
@@ -804,21 +801,21 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if(digitalRead(pulsador1) == LOW && temperatura_final < maxima_temp){
-        while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 && temperatura_final < maxima_temp){
+        while((PIND & (1<<PD2)) == 0){}
         temperatura_final += sumador_temperatura;
       }
-      if(digitalRead(pulsador2) == LOW && temperatura_final>temperatura_inicial+sumador_temperatura){
-        while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 && temperatura_final>temperatura_inicial+sumador_temperatura){
+        while((PIND & (1<<PD3)) == 0){}
         temperatura_final -= sumador_temperatura;
       }
-      if(digitalRead(pulsador3) == LOW){
-        while(digitalRead(pulsador3) == LOW){}
+      if((PIND & (1<<PD4)) == 0){
+        while((PIND & (1<<PD4)) == 0){}
         Flag=5;
         lcd.clear();
       }
-      if(digitalRead(pulsador4) == LOW){
-        while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+        while((PIND & (1<<PD5)) == 0){}
         Flag=3;
         lcd.clear();
       }
@@ -833,14 +830,14 @@ void menu_de_calefaccion_auto(){
         lcd.setCursor(0,3);
         lcd.print("     Confirmar?    ");
 
-        if(digitalRead(pulsador3) == LOW){
-            while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+            while((PIND & (1<<PD4)) == 0){}
             Flag=6;
             tiempo_menues=mili_segundos;
             lcd.clear();
           }
-          if(digitalRead(pulsador4) == LOW){
-            while(digitalRead(pulsador4) == LOW){}
+          if((PIND & (1<<PD5)) == 0){
+            while((PIND & (1<<PD5)) == 0){}
             Flag=4;
             lcd.clear();
           }
@@ -865,9 +862,9 @@ void menu_avanzado()
   }
   
   if (Flag==4){
-  if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true; }
-  if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;}
-  if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
+  if ((PIND & (1<<PD2)) == 0 ){ while ((PIND & (1<<PD2)) == 0){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true; }
+  if ((PIND & (1<<PD3)) == 0 ){ while ((PIND & (1<<PD3)) == 0){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;}
+  if ((PIND & (1<<PD4)) == 0 ){ while ((PIND & (1<<PD4)) == 0){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
   if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;}
     
     switch (opcionmenu2)
@@ -935,21 +932,21 @@ void menu_modificar_hora_rtc()
         hora_to_modify = ReturnToCero(hora+sumador_hora,hora_max);
         minuto_to_modify=minutos;
 
-        if(digitalRead(pulsador1) == LOW){ 
-          while(digitalRead(pulsador1) == LOW){}
+        if((PIND & (1<<PD2)) == 0){ 
+          while((PIND & (1<<PD2)) == 0){}
           sumador_hora++;
         }
-        if(digitalRead(pulsador2) == LOW){
-          while(digitalRead(pulsador2) == LOW){}
+        if((PIND & (1<<PD3)) == 0){
+          while((PIND & (1<<PD3)) == 0){}
           sumador_hora--;
         }
-        if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           Flag=6;
           lcd.clear();
         }
-        if(digitalRead(pulsador4) == LOW){
-          while(digitalRead(pulsador4) == LOW){}
+        if((PIND & (1<<PD5)) == 0){
+          while((PIND & (1<<PD5)) == 0){}
           Estadoequipo=menu2;
           Flag=3;
           funcionActual=posicion_inicial;
@@ -969,21 +966,21 @@ void menu_modificar_hora_rtc()
 
         minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max);
 
-        if(digitalRead(pulsador1) == LOW){ 
-          while(digitalRead(pulsador1) == LOW){}
+        if((PIND & (1<<PD2)) == 0){ 
+          while((PIND & (1<<PD2)) == 0){}
           sumador_minuto++;
         }
-        if(digitalRead(pulsador2) == LOW){
-          while(digitalRead(pulsador2) == LOW){}
+        if((PIND & (1<<PD3)) == 0){
+          while((PIND & (1<<PD3)) == 0){}
           sumador_minuto--;
         }
-        if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           Flag=7;
           lcd.clear();
         }
-        if(digitalRead(pulsador4) == LOW){
-          while(digitalRead(pulsador4) == LOW){}
+        if((PIND & (1<<PD5)) == 0){
+          while((PIND & (1<<PD5)) == 0){}
           Flag=5;
           lcd.clear();
         }
@@ -994,16 +991,16 @@ void menu_modificar_hora_rtc()
         lcd.print("hora guardada:");lcd.print(String(hora_to_modify) + ":" + String(minuto_to_modify));
         lcd.setCursor(0,3);
         lcd.print("     Confirmar?    ");
-        if(digitalRead(pulsador3) == LOW){
-          while(digitalRead(pulsador3) == LOW){}
+        if((PIND & (1<<PD4)) == 0){
+          while((PIND & (1<<PD4)) == 0){}
           Flag=8;
           DateTime now = rtc.now();
           rtc.adjust(DateTime(now.year(),now.month(),now.day(),hora_to_modify,minuto_to_modify,now.second()));
           tiempo_menues=mili_segundos;
           lcd.clear();
         }
-        if(digitalRead(pulsador4) == LOW){
-          while(digitalRead(pulsador4) == LOW){}
+        if((PIND & (1<<PD5)) == 0){
+          while((PIND & (1<<PD5)) == 0){}
           Flag=6;
           lcd.clear();
         }
@@ -1034,18 +1031,18 @@ void menu_farenheit_celsius()
       lcd.print("1");
       lcd.setCursor(11,3);
       lcd.print("2");
-      if(digitalRead(pulsador2) == LOW ){
-          while(digitalRead(pulsador2) == LOW){}
+      if((PIND & (1<<PD3)) == 0 ){
+          while((PIND & (1<<PD3)) == 0){}
           use_farenheit = false;
           Flag=5;
         }
-      if(digitalRead(pulsador1) == LOW ){
-          while(digitalRead(pulsador1) == LOW){}
+      if((PIND & (1<<PD2)) == 0 ){
+          while((PIND & (1<<PD2)) == 0){}
           use_farenheit = true;
           Flag=5;
         }
-      if(digitalRead(pulsador4) == LOW){
-          while(digitalRead(pulsador4) == LOW){}
+      if((PIND & (1<<PD5)) == 0){
+          while((PIND & (1<<PD5)) == 0){}
           Estadoequipo=menu2;
           Flag=3;
           funcionActual=posicion_inicial;
@@ -1080,13 +1077,13 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,3);
     lcd.print("P3: SI   P4: NO");
 
-    if(digitalRead(pulsador3) == LOW ){
-        while(digitalRead(pulsador3) == LOW){}
+    if((PIND & (1<<PD4)) == 0 ){
+        while((PIND & (1<<PD4)) == 0){}
         lcd.clear();
         Flag=5;
       }
-    if(digitalRead(pulsador4) == LOW ){
-        while(digitalRead(pulsador4) == LOW){}
+    if((PIND & (1<<PD5)) == 0 ){
+        while((PIND & (1<<PD5)) == 0){}
         Estadoequipo=menu2;
         Flag=3;
         funcionActual=posicion_inicial;
@@ -1108,29 +1105,28 @@ void menu_seteo_wifi(){
     Actualchar=ReturnToCero(Actualchar, 40);
     WIFISSID.setCharAt(Ypos,Character_Return(Actualchar, mayusculas));
 
-    if(digitalRead(pulsador1) == LOW )
+    if((PIND & (1<<PD2)) == 0 )
       {
-        while(digitalRead(pulsador1) == LOW){}
+        while((PIND & (1<<PD2)) == 0){}
         Actualchar++;
 
       }
-    if(digitalRead(pulsador2) == LOW )
+    if((PIND & (1<<PD3)) == 0 )
       {
-        while(digitalRead(pulsador2) == LOW){}
+        while((PIND & (1<<PD3)) == 0){}
         mayusculas=!mayusculas;
       }
-    if(digitalRead(pulsador3) == LOW && Ypos <= 20)
+    if((PIND & (1<<PD4)) == 0 && Ypos <= 20)
       {
-        while(digitalRead(pulsador3) == LOW){}
+        while((PIND & (1<<PD4)) == 0){}
         Ypos ++;
         Actualchar=0;
         WIFISSID+=" ";
       }
-    if(digitalRead(pulsador4) == LOW )
+    if((PIND & (1<<PD5)) == 0 )
       {
-        while(digitalRead(pulsador4) == LOW){}
-        Actualchar=39;
-        mayusculas=false;
+        while((PIND & (1<<PD5)) == 0){}
+        WIFISSID.setCharAt(Ypos,'\0');
         lcd.clear();
         Flag=7;
         Ypos=0;
@@ -1147,37 +1143,37 @@ void menu_seteo_wifi(){
     Ypos=ReturnToCero(Ypos,64);
     WIFIPASS.setCharAt(Ypos,Character_Return(Actualchar, mayusculas));
 
-    if(digitalRead(pulsador1) == LOW )
+    if((PIND & (1<<PD2)) == 0 )
       {
-        while(digitalRead(pulsador1) == LOW){}
+        while((PIND & (1<<PD2)) == 0){}
         Actualchar++;
       }
-    if(digitalRead(pulsador2) == LOW )
+    if((PIND & (1<<PD3)) == 0 )
       {
-        while(digitalRead(pulsador2) == LOW){}
+        while((PIND & (1<<PD3)) == 0){}
         mayusculas=!mayusculas;
       }
-    if(digitalRead(pulsador3) == LOW )
+    if((PIND & (1<<PD4)) == 0 )
       {
-        while(digitalRead(pulsador3) == LOW){}
+        while((PIND & (1<<PD4)) == 0){}
         Ypos ++;
         WIFIPASS+=" ";
         Actualchar=0;
       }
-    if(digitalRead(pulsador4) == LOW )
+    if((PIND & (1<<PD5)) == 0 )
       {
-        while(digitalRead(pulsador4) == LOW){}
+        while((PIND & (1<<PD5)) == 0){}
+        WIFIPASS.setCharAt(Ypos,'\0');
         lcd.clear();
         tiempo_menues=mili_segundos;
         Flag=8;
         Ypos=0;
-        Actualchar=0;
       }
     break;
       case 8:
         writeStringToEEPROM(14,WIFISSID);
         writeStringToEEPROM(48,WIFIPASS);
-        Serial_Send_UNO(6);
+        //Serial_Send_UNO(6);
         guardado_para_menus(false);
       break;
   }
@@ -1480,9 +1476,9 @@ void guardado_para_menus( bool Menu){
     Estadoequipo=menu2; 
     Flag=3; 
   }
-  }
   funcionActual=posicion_inicial;
   lcd.clear();
+  }
 }
 
 void writeStringToEEPROM(uint8_t addrOffset, const String strToWrite){
