@@ -3,10 +3,10 @@
 #include "AT24CX.h"
 #include <Wire.h>
 #include <SPI.h>
+#include <LiquidCrystal_I2C.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
 #include "RTClib.h"
-#include "LiquidTWI.h"
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Defines
@@ -85,14 +85,14 @@
 //Declaraciones de libs
   AT24C32 eep;
   RTC_DS1307 rtc;
-  LiquidTWI lcd(27);//LiquidCrystal_I2C lcd(0x27,20,4);
+  LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
   OneWire sensor_t(onewire);
   DallasTemperature Sensor_temp(&sensor_t);
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Variables 
   //Variables de temp (ordenados segun peso)
-  bool flag_farenheit = false; 
+  bool use_farenheit = false; 
   bool calentar;
   int8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
   uint8_t temperatura_inicial,temperatura_final;  // Guardado en memoria
@@ -128,7 +128,7 @@
   uint8_t Flag=0;
   int8_t Ypos;
   uint16_t tiempo_de_standby = 0;
-  String Menuprincipal[maxY_menu1] = {
+  const String Menuprincipal[maxY_menu1] = {
     "C manual",
     "H manual",
     "H & F in H",
@@ -137,7 +137,7 @@
     "menu avanzado",
     "volver"
   };
-  String menuavanzado[maxY_menu2] = {
+  const String menuavanzado[maxY_menu2] = {
       "Setear hora",
       "c° o F°",
       "Activar la bomba",
@@ -176,7 +176,7 @@ void setup()
   rtc.begin();//inicializacion del rtc arduino-esp
   //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
 
-  lcd.begin(20, 4);//Iniciacion del LCD
+  lcd.init();//Iniciacion del LCD
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(electrovalvula, OUTPUT);
   pinMode(resistencia, OUTPUT);
@@ -210,6 +210,7 @@ void setup()
   nivel_final=eep.read(13);
   WIFISSID=readStringFromEEPROM(14); //32B + uno que indica largo
   WIFIPASS=readStringFromEEPROM(48); //64B + uno que indica largo
+  Serial_Send_UNO(1);
 }
 
 void loop() 
@@ -217,8 +218,7 @@ void loop()
   Actualizar_entradas();
   Controllvl();
   Controltemp();
-
-  if (Serial.available()>0)Serial_Read_UNO(); // si recibe un dato del serial lo lee
+ if(Serial.available()>0){Serial_Read_UNO();} // si recibe un dato del serial lo lee
 
   switch (Estadoequipo){
     case estado_standby:
@@ -252,25 +252,24 @@ void standby()
 { 
 
   lcd.setCursor(0,0); lcd.print("T:"); lcd.print(temperatura_actual);lcd.print((char)223); //imprime  el simbolo de °
-  if(flag_farenheit == false) lcd.print("C");
-  else lcd.print("F  ");
+  if(use_farenheit == false) lcd.print("C");
+  if(use_farenheit == true) lcd.print("F  ");
   lcd.setCursor(12,0);lcd.print("N:");  lcd.print(nivel_actual); lcd.print("% ");
   lcd.setCursor(6,1);
   lcd.print(String_de_hora(hora,minutos)+"hs");
 
   if(digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){
-    while (digitalRead(pulsador1)==LOW || digitalRead(pulsador2)==LOW || digitalRead(pulsador3)==LOW || digitalRead(pulsador4)==LOW){}
     switch (Estadoequipo)
     {
       case estado_standby:
         Estadoequipo = estado_inicial;
-        lcd.setBacklight(HIGH);
+        lcd.backlight();
         tiempo_de_standby=0;
         break;
       case estado_inicial:
         Flag=1;
+        lcd.backlight();
         Estadoequipo = menu1;
-        lcd.setBacklight(HIGH);
         break;
       default:
         Estadoequipo = estado_standby;
@@ -280,7 +279,7 @@ void standby()
 
   if(tiempo_de_standby>=5000){
     Estadoequipo = estado_standby;
-    lcd.setBacklight(LOW);
+    lcd.noBacklight();
     tiempo_de_standby = 0;
   }
 }
@@ -297,9 +296,9 @@ void menu_basico()
   }
 
   if (Flag==2){
-    if (digitalRead(pulsador1) == LOW ){ while (digitalRead(pulsador1) == LOW){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true;} // suma 1 a Ypos
-    if (digitalRead(pulsador2) == LOW ){ while (digitalRead(pulsador2) == LOW){} Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; }// resta 1 a Ypos
-    if (digitalRead(pulsador3) == LOW ){ while (digitalRead(pulsador3) == LOW){} opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
+    if (digitalRead(pulsador1) == LOW ){while (digitalRead(pulsador1) == LOW ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true;} // suma 1 a Ypos
+    if (digitalRead(pulsador2) == LOW ){while (digitalRead(pulsador2) == LOW ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; }// resta 1 a Ypos
+    if (digitalRead(pulsador3) == LOW ){while (digitalRead(pulsador3) == LOW ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
     if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
     switch (opcionmenu1){
@@ -1037,12 +1036,12 @@ void menu_farenheit_celsius()
       lcd.print("2");
       if(digitalRead(pulsador2) == LOW ){
           while(digitalRead(pulsador2) == LOW){}
-          flag_farenheit = false;
+          use_farenheit = false;
           Flag=5;
         }
       if(digitalRead(pulsador1) == LOW ){
           while(digitalRead(pulsador1) == LOW){}
-          flag_farenheit = true;
+          use_farenheit = true;
           Flag=5;
         }
       if(digitalRead(pulsador4) == LOW){
@@ -1107,7 +1106,6 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,1);
     lcd.print(WIFISSID);
     Actualchar=ReturnToCero(Actualchar, 40);
-    Ypos=ReturnToCero(Ypos,32);
     WIFISSID.setCharAt(Ypos,Character_Return(Actualchar, mayusculas));
 
     if(digitalRead(pulsador1) == LOW )
@@ -1121,7 +1119,7 @@ void menu_seteo_wifi(){
         while(digitalRead(pulsador2) == LOW){}
         mayusculas=!mayusculas;
       }
-    if(digitalRead(pulsador3) == LOW )
+    if(digitalRead(pulsador3) == LOW && Ypos <= 20)
       {
         while(digitalRead(pulsador3) == LOW){}
         Ypos ++;
@@ -1131,6 +1129,8 @@ void menu_seteo_wifi(){
     if(digitalRead(pulsador4) == LOW )
       {
         while(digitalRead(pulsador4) == LOW){}
+        Actualchar=39;
+        mayusculas=false;
         lcd.clear();
         Flag=7;
         Ypos=0;
@@ -1177,6 +1177,7 @@ void menu_seteo_wifi(){
       case 8:
         writeStringToEEPROM(14,WIFISSID);
         writeStringToEEPROM(48,WIFIPASS);
+        Serial_Send_UNO(6);
         guardado_para_menus(false);
       break;
   }
@@ -1247,12 +1248,12 @@ void Serial_Read_UNO(){
       Serial_Send_UNO(6);
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
-      ComunicationError=true;
       break;
     case 'O':
       if(Individualdata[0]=="OK")
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
+
       break;
     default:
       Serial.println("?_NOTHING TO READ");
@@ -1304,10 +1305,10 @@ void Serial_Send_UNO(uint8_t WhatSend){
         if(InitComunication==false)Serial.println("U_"+String(StringToChar(1,String(hora)+":"+String(minutos)))+":"+String(nivel_actual)+":"+String(temperatura_actual));
         break;
       case 6:
-        if (InitComunication==false)Serial.println("?_RESET");
-        break;
+        if (InitComunication==false)Serial.println("S_"+WIFISSID+":"+WIFIPASS);
     }
   }
+  if (ComunicationError==true){Serial.println("?_RESET");}//resetea esp 
 }
 
 ISR(TIMER2_OVF_vect){
@@ -1421,19 +1422,16 @@ char Character_Return(uint8_t Character_pos, bool mayus)
   {
     case true:
       if (Character_pos>=0 && Character_pos<=25)return Character_pos+65;
-      if (Character_pos==26) return 36;
-      if (Character_pos==27) return 37;
-      if (Character_pos==28) return 38;
-      if (Character_pos==29) return 47;
-      if (Character_pos==30) return 40;
-      if (Character_pos==31) return 41;
-      if (Character_pos==32) return 61;
-      if (Character_pos==33) return 59;
-      if (Character_pos==34) return 58;
-      if (Character_pos==35) return 94;
-      if (Character_pos==36) return 63;
-      if (Character_pos==37) return 95;
-      if (Character_pos==38) return 35;
+      if (Character_pos>=26 && Character_pos<=29) return Character_pos+9;
+      if (Character_pos==30) return 47;
+      if (Character_pos==31) return 40;
+      if (Character_pos==32) return 41;
+      if (Character_pos==33) return 61;
+      if (Character_pos==34) return 59;
+      if (Character_pos==35) return 58;
+      if (Character_pos==36) return 94;
+      if (Character_pos==37) return 63;
+      if (Character_pos==38) return 95;
       if (Character_pos==39) return 27;
       if (Character_pos>39) return 0;
     break;
@@ -1477,16 +1475,14 @@ void guardado_para_menus( bool Menu){
   if(Menu == true){
     Estadoequipo=menu1;
     Flag=1;
-    funcionActual=posicion_inicial;
-    lcd.clear();
   }
   if(Menu == false){
     Estadoequipo=menu2; 
     Flag=3; 
-    funcionActual=posicion_inicial; 
-    lcd.clear();
   }
   }
+  funcionActual=posicion_inicial;
+  lcd.clear();
 }
 
 void writeStringToEEPROM(uint8_t addrOffset, const String strToWrite){
@@ -1498,7 +1494,6 @@ void writeStringToEEPROM(uint8_t addrOffset, const String strToWrite){
   }
 }
 
-// todo lo que es decumentacion esta en "datos a tener en cuenta"
 String readStringFromEEPROM(uint8_t addrOffset){
   uint8_t newStrLen = eep.read(addrOffset);
   char data[newStrLen + 1];

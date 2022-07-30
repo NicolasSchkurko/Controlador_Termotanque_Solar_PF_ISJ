@@ -61,7 +61,7 @@ void setup(){
   LittleFS.begin();
  
   // Connect to Wi-Fi
-  while (WiFi.status() != WL_CONNECTED){Serial.println(" ");}
+  
   Serial.println(WiFi.localIP()); 
   // Print ESP32 Local IP Address
 
@@ -184,14 +184,14 @@ void setup(){
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request){ 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
+  Serial.println("O_OK");
   server.begin();
 }
 
 //█████████████████████████████████████████████████████████████████████████████████ 
 
-void loop() 
-{
-if (Serial.available()>0)Serial_Read_NODEMCU();
+void loop(){
+  if (Serial.available()>0)Serial_Read_NODEMCU();
 }
 
 
