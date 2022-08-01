@@ -27,10 +27,6 @@
   #define electrovalvula 10
   #define resistencia 11
   #define onewire 9 // pin del onewire
-  #define pulsador1 2
-  #define pulsador2 3
-  #define pulsador3 4
-  #define pulsador4 5
 
   //Datos del Menu
   #define maxY_menu1 7
@@ -160,6 +156,7 @@
   String Individualdata[4];
   String IndividualValue;
   String WIFISSID,WIFIPASS;
+  uint8_t CharPos;
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Codigo
@@ -187,7 +184,7 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   
   //pulsadores pra manejar los menus//
-  DDRD &= B11000011;
+  DDRD = B11000011; // setea input
   PORTD |= B00111100;
   //
   tiempo_sensores=mili_segundos;
@@ -215,7 +212,7 @@ void loop()
   Actualizar_entradas();
   Controllvl();
   Controltemp();
- if(Serial.available()>0){Serial_Read_UNO();} // si recibe un dato del serial lo lee
+  if(Serial.available()>0){Serial_Read_UNO();} // si recibe un dato del serial lo lee
 
   switch (Estadoequipo){
     case estado_standby:
@@ -1181,11 +1178,12 @@ void menu_seteo_wifi(){
 }
 
 void Serial_Read_UNO(){
+
   Serial_Input=Serial.readString();// iguala el string del serial a un string input
   StringLength= Serial_Input.length();// saca el largo del string
   input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
   // Separador del string en variables:
-  for (uint8_t CharPos = 2; CharPos <= StringLength; CharPos++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+  for (CharPos = 2; CharPos <= StringLength; CharPos++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
     if(Serial_Input.charAt(CharPos)==':') ActualIndividualDataPos++; //si hay : divide los datos
     else{// si no es nungun caracter especial:
       if(Serial_Input.charAt(CharPos-1)==':' || Serial_Input.charAt(CharPos-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(CharPos);//si es el primer digito lo iguala
@@ -1447,20 +1445,21 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 void Controltemp()
 {
   // control temp min to max
-  digitalWrite(resistencia,temperatura_actual < temperatura_inicial ? HIGH : LOW);
-  digitalWrite(resistencia,temperatura_actual >= (temperatura_final + temp_threshold) ? LOW : HIGH);
+  if(temperatura_actual <= temperatura_inicial)PORTD ^=(1<<PD6);
+  if(temperatura_actual > temperatura_final)PORTD ^=(1<<PD6); 
   //=========Compara nivel actual con el minimo seteado============
-  digitalWrite(resistencia,temperatura_actual < temperatura_a_calentar ? HIGH : LOW);
+  if (temperatura_actual < temperatura_a_calentar) PORTD ^=(1<<PD6);
+  if (temperatura_actual >= temperatura_a_calentar)PORTD ^=(1<<PD6);
   //=================================================================
 }
 
-void Controllvl()
-{
+void Controllvl(){
   // control lvl min to max
-  digitalWrite(electrovalvula,nivel_actual <= nivel_inicial ? HIGH:LOW);
-  digitalWrite(electrovalvula,nivel_actual == nivel_final ? LOW:HIGH);
+  if(nivel_actual <= nivel_inicial)PORTD ^=(1<<PD7);
+  if(nivel_actual > nivel_final)PORTD ^=(1<<PD7); 
   //======Compara temperatura actual con el minimo seteado=========
-  digitalWrite(electrovalvula,nivel_actual < min_nivel ? HIGH:LOW);
+  if(nivel_actual < nivel_a_llenar) PORTD ^=(1<<PD7);
+  if(nivel_actual >= nivel_a_llenar) PORTD ^=(1<<PD7);
   //=================================================================
 }
 
