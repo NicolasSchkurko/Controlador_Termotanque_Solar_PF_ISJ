@@ -26,3 +26,6 @@ entonces sigamos con que esta presionado quedaria algo asi Como
 00000000 (en decimal 0) = 0 verifica el if
 00000100 ! 0 no verifica el if
 
+
+AHORRAR RAM 
+https://www.electrosoftcloud.com/arduino-ahorrar-espacio-sram/
