@@ -1459,15 +1459,12 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 void Controltemp()
 {
   // control temp min to max
-<<<<<<< HEAD
   if(temperatura_actual <= temperatura_inicial && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;}
   if(temperatura_actual > temperatura_final && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;}
   //=========Compara temperatura actual con el minimo seteado============
-=======
   if(temperatura_actual <= eep.read(10) && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;}
   if(temperatura_actual > eep.read(11) && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;}
   //=========Compara nivel actual con el minimo seteado============
->>>>>>> 6f00e0f02c7a375293b51bf1194ae2e87eddc9f8
   if (temperatura_actual < temperatura_a_calentar && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;}
   if (temperatura_actual >= temperatura_a_calentar && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;}
   //=================================================================
@@ -1475,13 +1472,10 @@ void Controltemp()
 
 void Controllvl(){
   // control lvl min to max
-<<<<<<< HEAD
   if(nivel_actual <= nivel_inicial && Valvula == false && PORTD != (1<<PD7))  {PORTD ^=(1<<PD7);Valvula=true;}
   if(nivel_actual > nivel_final && Valvula == true && PORTD == (1<<PD7))      {PORTD ^=(1<<PD7);Valvula=true;}
-=======
   if(nivel_actual <= eep.read(12) && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true;}
   if(nivel_actual > eep.read(13) && Valvula == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true;}
->>>>>>> 6f00e0f02c7a375293b51bf1194ae2e87eddc9f8
   //======Compara temperatura actual con el minimo seteado=========
   if(nivel_actual < nivel_a_llenar && Valvula == false && PORTD !=(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
   if(nivel_actual >= nivel_a_llenar && Valvula == true && PORTD ==(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
