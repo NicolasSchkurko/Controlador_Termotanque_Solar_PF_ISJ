@@ -36,7 +36,7 @@
   #define tiempo_de_espera_menu 5000 
   //Datos horas
   #define hora_max 24
-  #define minuto_max 59 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
+  #define minuto_max 60 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
 
 //█████████████████████████████████████████████████████████████████████████████████
 //Prototipos
@@ -284,6 +284,7 @@ void menu_basico()
     tiempo_menues=mili_segundos;
   }
   if (Flag==2){
+    Ypos = map(analogRead(A2), 0, 1023,0,maxY_menu1);
     if ((PIND & (1<<PD2)) == 0 ){while ((PIND & (1<<PD2)) == 0 ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
     if ((PIND & (1<<PD3)) == 0 ){while ((PIND & (1<<PD3)) == 0 ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos
     if ((PIND & (1<<PD4)) == 0 ){while ((PIND & (1<<PD4)) == 0 ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
@@ -367,6 +368,7 @@ void menu_de_llenado_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
+        nivel_a_llenar = map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
         if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
         if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
         if((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){
@@ -440,6 +442,7 @@ void menu_de_calefaccion_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
+        temperatura_a_calentar = map(analogRead(A2), 0, 1023,min_temp,maxi_cast);
         if (temperatura_a_calentar>maxi_cast)temperatura_a_calentar=maxi_cast;
         if (temperatura_a_calentar<min_temp)temperatura_a_calentar=min_temp;
         if((PIND & (1<<PD2)) == 0 && temperatura_a_calentar<maxi_cast){
@@ -509,9 +512,9 @@ void menu_de_auto_por_hora()
       lcd.print("2:");lcd.print(String_de_hora(CharToUINT(1,save[1].hour),CharToUINT(2,save[1].hour)));
       lcd.setCursor(0,3);
       lcd.print("3:");lcd.print(String_de_hora(CharToUINT(1,save[2].hour),CharToUINT(2,save[2].hour)));
-      lcd.setCursor(0,4);
-      ActualStruct = ReturnToCero(Ypos,3);
 
+      ActualStruct = ReturnToCero(Ypos,3);
+      Ypos = map(analogRead(A2), 0, 1023,1,3);
       if((PIND & (1<<PD2)) == 0){
           while((PIND & (1<<PD2)) == 0){}
           Ypos=ReturnToCero(Ypos+1,3);
@@ -560,6 +563,7 @@ void menu_de_auto_por_hora()
 
       if (save[ActualStruct].temp>maxi_cast)save[ActualStruct].temp=maxi_cast;
       if (save[ActualStruct].temp<min_temp)save[ActualStruct].temp=min_temp;
+      save[ActualStruct].temp = map(analogRead(A2), 0, 1023,min_temp,maxi_cast);
       if((PIND & (1<<PD2)) == 0 && save[ActualStruct].temp < maxi_cast){
           while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].temp += sumador_temperatura;
@@ -591,6 +595,7 @@ void menu_de_auto_por_hora()
 
       if (save[ActualStruct].level>max_nivel)save[ActualStruct].level=max_nivel;
       if (save[ActualStruct].level<min_nivel)save[ActualStruct].level=min_nivel;
+      save[ActualStruct].level = map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
       if((PIND & (1<<PD2)) == 0 && save[ActualStruct].level<max_nivel){
           while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].level += sumador_nivel;
@@ -618,8 +623,9 @@ void menu_de_auto_por_hora()
         lcd.print("disminuir con 2");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
-        hora_to_modify = ReturnToCero((hora+sumador_hora),hora_max);
 
+        hora_to_modify = map(analogRead(A2), 0, 1023, 0, hora_max-1);
+        hora_to_modify = ReturnToCero((hora+sumador_hora),hora_max);
         if((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}sumador_hora++;}
         if((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){}sumador_hora--;}
         if((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){}Flag=7;lcd.clear();}
@@ -635,7 +641,9 @@ void menu_de_auto_por_hora()
         lcd.print("disminuir con 2  ");
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3  ");
-        minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max+1);
+
+        minuto_to_modify = map(analogRead(A2), 0, 1023, 0, minuto_max-1);
+        minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max);
         if((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}sumador_minuto++;}
         if((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){}sumador_minuto--;}
         if((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){}Flag=8;lcd.clear();}
@@ -697,6 +705,7 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
+      eep.write(12,map(analogRead(A2), 0, 1023, min_nivel, max_nivel-sumador_nivel));
       if (eep.read(12)>max_nivel-sumador_nivel)eep.write(12,max_nivel-sumador_nivel);
       if (eep.read(12)<min_nivel)eep.write(12,min_nivel);
       if((PIND & (1<<PD2)) == 0 && eep.read(12)<max_nivel-sumador_nivel){
@@ -737,8 +746,9 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
+      eep.write(13,map(analogRead(A2), 0, 1023, eep.read(12)+sumador_nivel, maxi_cast));
       if (eep.read(13)>max_nivel)eep.write(13,max_nivel);
-      if (eep.read(13)<min_nivel+sumador_nivel)eep.write(13,eep.read(12)+sumador_nivel);
+      if (eep.read(13)<eep.read(12)+sumador_nivel)eep.write(13,eep.read(12)+sumador_nivel);
       if((PIND & (1<<PD2)) == 0 && eep.read(13)<max_nivel){
         while((PIND & (1<<PD2)) == 0){}
         eep.write(13,eep.read(13)+sumador_nivel); 
@@ -798,7 +808,7 @@ void menu_de_calefaccion_auto(){
       break;
     case 3:
       lcd.setCursor(0,0);
-      lcd.print("Temp. max:");
+      lcd.print("Temp. min:");
       if(use_farenheit == false) {
         lcd.print(eep.read(10)); 
         if (eep.read(10)<100){lcd.print((char)223); lcd.print("C ");}
@@ -816,6 +826,7 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
+      eep.write(10,map(analogRead(A2), 0, 1023, min_temp, maxi_cast-sumador_temperatura));
       if (eep.read(10)>maxi_cast-sumador_temperatura)eep.write(10,maxi_cast-sumador_temperatura);
       if (eep.read(10)<min_temp)eep.write(10,min_temp);
 
@@ -862,6 +873,7 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
+      eep.write(11,map(analogRead(A2), 0, 1023, eep.read(10)+sumador_temperatura, maxi_cast));
       if (eep.read(11)>maxi_cast)eep.write(11,maxi_cast);
       if (eep.read(11)<eep.read(10)+sumador_temperatura)eep.write(11,eep.read(10)+sumador_temperatura);
       if((PIND & (1<<PD2)) == 0 && eep.read(11)<maxi_cast){
@@ -928,6 +940,7 @@ void menu_avanzado()
   }
   
   if (Flag==4){
+  Ypos = map(analogRead(A2), 0, 1023, 0, maxY_menu2-1);
   if ((PIND & (1<<PD2)) == 0 ){ while ((PIND & (1<<PD2)) == 0){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD3)) == 0 ){ while ((PIND & (1<<PD3)) == 0){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD4)) == 0 ){ while ((PIND & (1<<PD4)) == 0){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
@@ -1005,6 +1018,8 @@ void menu_modificar_hora_rtc()
         hora_to_modify = ReturnToCero(hora+sumador_hora,hora_max);
         minuto_to_modify=minutos;
 
+        sumador_hora=map(analogRead(A2), 0, 1023, 0, hora_max-1);
+        
         if((PIND & (1<<PD2)) == 0){ 
           while((PIND & (1<<PD2)) == 0){}
           sumador_hora++;
@@ -1038,6 +1053,8 @@ void menu_modificar_hora_rtc()
         lcd.print("Confirmar con 3");
 
         minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max);
+
+        sumador_hora=map(analogRead(A2), 0, 1023, 0, minuto_max-1);
 
         if((PIND & (1<<PD2)) == 0){ 
           while((PIND & (1<<PD2)) == 0){}
@@ -1230,15 +1247,24 @@ void menu_seteo_wifi(){
     WIFISSID[Ypos]=Character_Return(Actualchar, mayusculas);
  
     Actualchar=map(analogRead(A2), 0, 1023, 0, 39);
-    if((PIND & (1<<PD3)) == 0 )
+    if((PIND & (1<<PD2)) == 0 )
       {
-        while((PIND & (1<<PD3)) == 0){}
+        while((PIND & (1<<PD2)) == 0){}
         mayusculas=!mayusculas;
       }
-    if((PIND & (1<<PD4)) == 0 && Ypos <= 19)
+    if((PIND & (1<<PD3)) == 0 && Ypos <= 19)
+      {
+        while((PIND & (1<<PD3)) == 0){}
+        Ypos++;
+        Actualchar=0;
+      }
+    if((PIND & (1<<PD4)) == 0 )
       {
         while((PIND & (1<<PD4)) == 0){}
-        Ypos++;
+        WIFISSID[Ypos]='\0';
+        lcd.clear();
+        Flag=7;
+        Ypos=0;
         Actualchar=0;
       }
     if((PIND & (1<<PD5)) == 0 )
@@ -1246,7 +1272,7 @@ void menu_seteo_wifi(){
         while((PIND & (1<<PD5)) == 0){}
         WIFISSID[Ypos]='\0';
         lcd.clear();
-        Flag=7;
+        Flag=4;
         Ypos=0;
         Actualchar=0;
       }
@@ -1260,31 +1286,35 @@ void menu_seteo_wifi(){
     Actualchar=ReturnToCero(Actualchar, 40);
     Ypos=ReturnToCero(Ypos,20);
     WIFIPASS[Ypos]=Character_Return(Actualchar, mayusculas);
-
+    Actualchar=map(analogRead(A2), 0, 1023, 0, 39);
     if((PIND & (1<<PD2)) == 0 )
       {
         while((PIND & (1<<PD2)) == 0){}
-        Actualchar++;
+        mayusculas=!mayusculas;
       }
     if((PIND & (1<<PD3)) == 0 )
       {
         while((PIND & (1<<PD3)) == 0){}
-        mayusculas=!mayusculas;
+        Ypos ++;
+        Actualchar=0;
       }
     if((PIND & (1<<PD4)) == 0 )
       {
         while((PIND & (1<<PD4)) == 0){}
-        Ypos ++;
-        Actualchar=0;
-      }
-    if((PIND & (1<<PD5)) == 0 )
-      {
-        while((PIND & (1<<PD5)) == 0){}
         WIFIPASS[Ypos]='\0';
         lcd.clear();
         tiempo_menues=mili_segundos;
         Flag=8;
         Ypos=0;
+      }
+    if((PIND & (1<<PD5)) == 0 )
+      {
+        while((PIND & (1<<PD5)) == 0){}
+        WIFISSID[Ypos]='\0';
+        lcd.clear();
+        Flag=4;
+        Ypos=0;
+        Actualchar=0;
       }
     break;
       case 8:
