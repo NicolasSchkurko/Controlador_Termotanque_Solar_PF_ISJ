@@ -12,7 +12,7 @@
 //Defines
   //Control de temp
   #define sumador_temperatura 5 
-  #define maxima_temp 90           //puede hacerse un DEFINE porque no se modifica
+  #define maxi_cast 90           //puede hacerse un DEFINE porque no se modifica
   #define temp_threshold 5
   #define min_temp 40    
   #define tiempo_para_temperatura 5000 
@@ -23,7 +23,7 @@
   #define max_nivel 100 //can be a DEFINE because doesnt change (used in manual)
   #define tiempo_para_nivel 3000
   //Entradas y salidas
-  #define Pote A5
+  #define Pote A2
   #define nivel_del_tanque A0 
   #define electrovalvula 10
   #define resistencia 11
@@ -52,6 +52,8 @@
   void menu_modificar_hora_rtc();
   void menu_farenheit_celsius();
   void menu_seteo_wifi();
+  void menu_activar_bomba();        //Menu avanzado
+
 
   //Funciones control
   void Controltemp();
@@ -63,7 +65,7 @@
   void Serial_Send_UNO(uint8_t);
   //Funciones extra
   String String_de_hora(uint8_t,uint8_t);
-  String CharToString(uint8_t,uint8_t);
+  uint8_t CharToUINT(uint8_t,uint8_t);
   uint8_t StringToChar(uint8_t,const String);
   uint8_t ReturnToCero(int8_t , uint8_t);
   char Character_Return(uint8_t , bool);
@@ -86,10 +88,11 @@
   int8_t temperatura_a_calentar; //se usa en calefaccion manual para guardar que temperatura se necesita
   int8_t temperatura_actual; // temp actual
   //Variables de nivel          Para teo: vals that share in level funciones //Jere: ?? // Chuco: ??
+  bool Activar_bomba;
   bool llenar;
   int8_t nivel_a_llenar; //se usa en llenado manual para guardar que temperatura se necesita  
   uint8_t nivel_actual;
-
+  uint8_t MessagePoss=0;
   //Variables de hora
   uint32_t tiempo_menues;             //(used in temperature funcions and in llenado auto to showw a confirm output)
   uint32_t tiempo_sensores;
@@ -192,7 +195,7 @@ void setup()
   save[2].temp=eep.read(9);
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
-    WIFIPASS[i] = eep.read(34 + i);
+    WIFISSID[i] = eep.read(34 + i);
   }
   Serial_Send_UNO(1);
 }
@@ -225,7 +228,7 @@ void loop()
       if(funcionActual==calefaccion_auto)menu_de_calefaccion_auto();         //Menu principal
       if(funcionActual==funcion_de_menu_modificar_hora_rtc)menu_modificar_hora_rtc();  //Menu avanzado
       if(funcionActual==funcion_farenheit_celsius)menu_farenheit_celsius();  //Menu avanzado
-      //if(funcionActual==funcion_activar_bomba)menu_activar_bomba();        //Menu avanzado
+      if(funcionActual==funcion_activar_bomba)menu_activar_bomba();        //Menu avanzado
       if(funcionActual==funcion_de_menu_seteo_wifi)menu_seteo_wifi();    //Menu avanzado
       break;
   }
@@ -243,6 +246,7 @@ void standby()
   lcd.print(String_de_hora(hora,minutos)+"hs");
 
   if((PIND & (1<<PD2)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD5)) == 0){
+    while((PIND & (1<<PD2)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD5)) == 0){}
     switch (Estadoequipo)
     {
       case estado_standby:
@@ -276,11 +280,12 @@ void menu_basico()
     Ypos=0;
     opcionmenu1= 0;
     Flag=2;
+    tiempo_de_standby = 0;
     tiempo_menues=mili_segundos;
   }
   if (Flag==2){
-    if ((PIND & (1<<PD2)) == 0 ){while ((PIND & (1<<PD2)) == 0 ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true;} // suma 1 a Ypos
-    if ((PIND & (1<<PD3)) == 0 ){while ((PIND & (1<<PD3)) == 0 ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; }// resta 1 a Ypos
+    if ((PIND & (1<<PD2)) == 0 ){while ((PIND & (1<<PD2)) == 0 ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
+    if ((PIND & (1<<PD3)) == 0 ){while ((PIND & (1<<PD3)) == 0 ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos
     if ((PIND & (1<<PD4)) == 0 ){while ((PIND & (1<<PD4)) == 0 ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
     if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
@@ -333,6 +338,12 @@ void menu_basico()
         Flag=0; // disminuye pq pasa al standby
         break;
     }
+  if(tiempo_de_standby>=5000){
+    Estadoequipo = estado_standby;
+    tiempo_de_standby = 0;
+    Flag=1;
+    lcd.clear();
+  }
   }
 }
 
@@ -340,15 +351,15 @@ void menu_de_llenado_manual(){
     switch (Flag)
     {
       case 2:
-        if (nivel_actual < min_nivel) nivel_a_llenar=min_nivel;
-        else nivel_a_llenar=nivel_actual;
+        nivel_a_llenar=nivel_a_llenar+25-(nivel_a_llenar%25);
         Flag=3;
         break;
       case 3:
         lcd.setCursor(0,0);
         lcd.print("Nivel a llenar: ");
-        lcd.print(nivel_a_llenar );
-        lcd.print("%");
+        lcd.print(nivel_a_llenar);
+        if (nivel_a_llenar<100)lcd.print("% ");
+        else lcd.print("%");
         lcd.setCursor(0,1);
         lcd.print("Sumar 5 con 1");
         lcd.setCursor(0,2);
@@ -356,8 +367,10 @@ void menu_de_llenado_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        if((PIND & (1<<PD2)) == 0){
-            while((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){}
+        if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
+        if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
+        if((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){
+            while((PIND & (1<<PD2)) == 0){}
             nivel_a_llenar += sumador_nivel;
           }
         if((PIND & (1<<PD3)) == 0 && nivel_a_llenar>min_nivel){
@@ -409,9 +422,17 @@ void menu_de_calefaccion_manual(){
         break;
       case 3:
         lcd.setCursor(0,0);
-        lcd.print("Temp. a calentar:");
-        if(use_farenheit == false) {lcd.print(temperatura_a_calentar); lcd.print((char)223); lcd.print("C");}
-        if(use_farenheit == true) {lcd.print(((9*temperatura_a_calentar)/5)+32);lcd.print((char)223); lcd.print("F  ");}
+        lcd.print("T. a calentar:");
+        if(use_farenheit == false) {
+          lcd.print(temperatura_a_calentar); 
+          if (temperatura_a_calentar<100){lcd.print((char)223); lcd.print("C ");}
+          else{lcd.print((char)223); lcd.print("C");}
+        }
+        if(use_farenheit == true) {
+          lcd.print(((9*temperatura_a_calentar)/5)+32);
+          if (temperatura_a_calentar<100){lcd.print((char)223); lcd.print("F ");}
+          else{lcd.print((char)223); lcd.print("F");}
+        }
         lcd.setCursor(0,1);
         lcd.print("Sumar 5 con 1");
         lcd.setCursor(0,2);
@@ -419,7 +440,9 @@ void menu_de_calefaccion_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        if((PIND & (1<<PD2)) == 0 && temperatura_a_calentar<maxima_temp){
+        if (temperatura_a_calentar>maxi_cast)temperatura_a_calentar=maxi_cast;
+        if (temperatura_a_calentar<min_temp)temperatura_a_calentar=min_temp;
+        if((PIND & (1<<PD2)) == 0 && temperatura_a_calentar<maxi_cast){
             while((PIND & (1<<PD2)) == 0){}
             temperatura_a_calentar += sumador_temperatura;
           }
@@ -441,7 +464,6 @@ void menu_de_calefaccion_manual(){
             funcionActual=posicion_inicial;
             lcd.clear();
           }
-
         break; 
 
         case 4:
@@ -482,11 +504,11 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,0);
       lcd.print("Seleccionar:"); lcd.print(ActualStruct+1); lcd.print(" slot");
       lcd.setCursor(0,1);
-      lcd.print("1:");lcd.print(CharToString(1,save[0].hour));
+      lcd.print("1:");lcd.print(String_de_hora(CharToUINT(1,save[0].hour),CharToUINT(2,save[0].hour)));
       lcd.setCursor(0,2);
-      lcd.print("2:");lcd.print(CharToString(1,save[1].hour));
+      lcd.print("2:");lcd.print(String_de_hora(CharToUINT(1,save[1].hour),CharToUINT(2,save[1].hour)));
       lcd.setCursor(0,3);
-      lcd.print("3:");lcd.print(CharToString(1,save[2].hour));
+      lcd.print("3:");lcd.print(String_de_hora(CharToUINT(1,save[2].hour),CharToUINT(2,save[2].hour)));
       lcd.setCursor(0,4);
       ActualStruct = ReturnToCero(Ypos,3);
 
@@ -518,8 +540,17 @@ void menu_de_auto_por_hora()
     case 4:
       lcd.setCursor(0,0);
       lcd.print("Temperatura max:");
-      if(use_farenheit == false) {lcd.print(save[ActualStruct].temp); lcd.print((char)223); lcd.print("C");}
-      if(use_farenheit == true) {lcd.print(((9*save[ActualStruct].temp)/5)+32);lcd.print((char)223); lcd.print("F  ");}
+      if(use_farenheit == false) {
+        lcd.print(save[ActualStruct].temp); 
+        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("C ");}
+        else{lcd.print((char)223); lcd.print("C");}
+      }
+      if(use_farenheit == true) {
+        lcd.print(((9*save[ActualStruct].temp)/5)+32);
+        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("F ");}
+        else{lcd.print((char)223); lcd.print("F");}
+      }
+
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1 ");
       lcd.setCursor(0,2);
@@ -527,7 +558,9 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if((PIND & (1<<PD2)) == 0 && save[ActualStruct].temp < maxima_temp){
+      if (save[ActualStruct].temp>maxi_cast)save[ActualStruct].temp=maxi_cast;
+      if (save[ActualStruct].temp<min_temp)save[ActualStruct].temp=min_temp;
+      if((PIND & (1<<PD2)) == 0 && save[ActualStruct].temp < maxi_cast){
           while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].temp += sumador_temperatura;
         }
@@ -545,7 +578,10 @@ void menu_de_auto_por_hora()
 
       case 5:
        lcd.setCursor(0,0);
-      lcd.print("Nivel max:"); lcd.print(save[ActualStruct].level);
+      lcd.print("Nivel max:"); 
+      lcd.print(save[ActualStruct].level);
+      if (save[ActualStruct].level<100)lcd.print("% ");
+      else lcd.print("%");
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1 ");
       lcd.setCursor(0,2);
@@ -553,6 +589,8 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
+      if (save[ActualStruct].level>max_nivel)save[ActualStruct].level=max_nivel;
+      if (save[ActualStruct].level<min_nivel)save[ActualStruct].level=min_nivel;
       if((PIND & (1<<PD2)) == 0 && save[ActualStruct].level<max_nivel){
           while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].level += sumador_nivel;
@@ -648,7 +686,10 @@ void menu_de_llenado_auto()
 
     case 3:
       lcd.setCursor(0,0);
-      lcd.print("Nivel min: "); lcd.print(eep.read(12));
+      lcd.print("Nivel min: "); 
+      lcd.print(eep.read(12));
+      if (eep.read(12)<100)lcd.print("% ");
+      else lcd.print("%");
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1 ");
       lcd.setCursor(0,2);
@@ -656,7 +697,9 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if((PIND & (1<<PD2)) == 0 && eep.read(12)<max_nivel){
+      if (eep.read(12)>max_nivel-sumador_nivel)eep.write(12,max_nivel-sumador_nivel);
+      if (eep.read(12)<min_nivel)eep.write(12,min_nivel);
+      if((PIND & (1<<PD2)) == 0 && eep.read(12)<max_nivel-sumador_nivel){
         while((PIND & (1<<PD2)) == 0){}
         eep.write(12,eep.read(12)+sumador_nivel);
       }
@@ -683,7 +726,10 @@ void menu_de_llenado_auto()
       
     case 4:
       lcd.setCursor(0,0);
-      lcd.print("Nivel max: "); lcd.print(eep.read(13));
+      lcd.print("Nivel max: "); 
+      lcd.print(eep.read(13));
+      if (eep.read(13)<100)lcd.print("% ");
+      else lcd.print("%");
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1 ");
       lcd.setCursor(0,2);
@@ -691,6 +737,8 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
+      if (eep.read(13)>max_nivel)eep.write(13,max_nivel);
+      if (eep.read(13)<min_nivel+sumador_nivel)eep.write(13,eep.read(12)+sumador_nivel);
       if((PIND & (1<<PD2)) == 0 && eep.read(13)<max_nivel){
         while((PIND & (1<<PD2)) == 0){}
         eep.write(13,eep.read(13)+sumador_nivel); 
@@ -750,9 +798,17 @@ void menu_de_calefaccion_auto(){
       break;
     case 3:
       lcd.setCursor(0,0);
-      lcd.print("Temperatura min:");
-      if(use_farenheit == false) {lcd.print(eep.read(10)); lcd.print((char)223); lcd.print("C");}
-      if(use_farenheit == true) {lcd.print(((9*eep.read(10))/5)+32);lcd.print((char)223); lcd.print("F  ");}
+      lcd.print("Temp. max:");
+      if(use_farenheit == false) {
+        lcd.print(eep.read(10)); 
+        if (eep.read(10)<100){lcd.print((char)223); lcd.print("C ");}
+        else{lcd.print((char)223); lcd.print("C");}
+      }
+      if(use_farenheit == true) {
+        lcd.print(((9*eep.read(10))/5)+32);
+        if (eep.read(10)<100){lcd.print((char)223); lcd.print("F ");}
+        else{lcd.print((char)223); lcd.print("F");}
+      }
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1");
       lcd.setCursor(0,2);
@@ -760,22 +816,22 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if((PIND & (1<<PD2)) == 0 && eep.read(10)<maxima_temp){
+      if (eep.read(10)>maxi_cast-sumador_temperatura)eep.write(10,maxi_cast-sumador_temperatura);
+      if (eep.read(10)<min_temp)eep.write(10,min_temp);
+
+      if((PIND & (1<<PD2)) == 0 && eep.read(10)<maxi_cast-sumador_temperatura){
         while((PIND & (1<<PD2)) == 0){}
         eep.write(10,eep.read(10)+sumador_temperatura);
       }
-      
       if((PIND & (1<<PD3)) == 0 && min_temp<eep.read(10)){
         while((PIND & (1<<PD3)) == 0){}
         eep.write(10,eep.read(10)-sumador_temperatura);
       }
-
       if((PIND & (1<<PD4)) == 0){
         while((PIND & (1<<PD4)) == 0){}
         Flag=4;
         eep.write(11,eep.read(10)+sumador_temperatura);
       }
-      
       if((PIND & (1<<PD5)) == 0){
         while((PIND & (1<<PD5)) == 0){}
         eep.write(10,Valorinicial);
@@ -788,9 +844,17 @@ void menu_de_calefaccion_auto(){
       break; 
     case 4:
       lcd.setCursor(0,0);
-      lcd.print("Temperatura max:");
-      if(use_farenheit == false){ lcd.print(eep.read(11)); lcd.print((char)223); lcd.print("C");}
-      if(use_farenheit == true){ lcd.print(((9*eep.read(11))/5)+32);lcd.print((char)223); lcd.print("F  ");}
+      lcd.print("Temp. max:");
+      if(use_farenheit == false) {
+          lcd.print(eep.read(11)); 
+          if (eep.read(11)<100){lcd.print((char)223); lcd.print("C ");}
+          else{lcd.print((char)223); lcd.print("C");}
+      }
+      if(use_farenheit == true) {
+          lcd.print(((9*eep.read(11))/5)+32);
+          if (eep.read(11)<100){lcd.print((char)223); lcd.print("F ");}
+          else{lcd.print((char)223); lcd.print("F");}
+      }
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1 ");
       lcd.setCursor(0,2);
@@ -798,7 +862,9 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if((PIND & (1<<PD2)) == 0 && eep.read(11)<maxima_temp){
+      if (eep.read(11)>maxi_cast)eep.write(11,maxi_cast);
+      if (eep.read(11)<eep.read(10)+sumador_temperatura)eep.write(11,eep.read(10)+sumador_temperatura);
+      if((PIND & (1<<PD2)) == 0 && eep.read(11)<maxi_cast){
         while((PIND & (1<<PD2)) == 0){}
         eep.write(11,eep.read(11)+sumador_temperatura);
       }
@@ -823,11 +889,11 @@ void menu_de_calefaccion_auto(){
         lcd.setCursor(0,0);
         lcd.print("Minima guardada:");
         if(use_farenheit == false){ lcd.print(eep.read(10)); lcd.print((char)223); lcd.print("C");}
-        if(use_farenheit == true){ lcd.print(((9*eep.read(10))/5)+32);lcd.print((char)223); lcd.print("F  ");lcd.print(eep.read(10));}
+        if(use_farenheit == true){ lcd.print(((9*eep.read(10))/5)+32);lcd.print((char)223); lcd.print("F");lcd.print(eep.read(10));}
         lcd.setCursor(0,1);
         lcd.print("Maxima guardada:");
         if(use_farenheit == false){ lcd.print(eep.read(11)); lcd.print((char)223); lcd.print("C");}
-        if(use_farenheit == true){ lcd.print(((9*eep.read(11))/5)+32);lcd.print((char)223); lcd.print("F  ");lcd.print(eep.read(10));}
+        if(use_farenheit == true){ lcd.print(((9*eep.read(11))/5)+32);lcd.print((char)223); lcd.print("F");lcd.print(eep.read(10));}
         lcd.setCursor(0,3);
         lcd.print("     Confirmar?    ");
 
@@ -858,11 +924,12 @@ void menu_avanzado()
     Ypos=0;
     opcionmenu2=0;
     Flag=4;
+    tiempo_de_standby = 0;
   }
   
   if (Flag==4){
-  if ((PIND & (1<<PD2)) == 0 ){ while ((PIND & (1<<PD2)) == 0){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true; }
-  if ((PIND & (1<<PD3)) == 0 ){ while ((PIND & (1<<PD3)) == 0){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;}
+  if ((PIND & (1<<PD2)) == 0 ){ while ((PIND & (1<<PD2)) == 0){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
+  if ((PIND & (1<<PD3)) == 0 ){ while ((PIND & (1<<PD3)) == 0){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD4)) == 0 ){ while ((PIND & (1<<PD4)) == 0){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
   if(mili_segundos>=(tiempo_menues+tiempo_de_parpadeo)){tiempo_menues=mili_segundos;Blink=!Blink;}
     
@@ -890,7 +957,8 @@ void menu_avanzado()
         funcionActual=funcion_farenheit_celsius;
         break;
       case 3:
-        // funcionActual=funcion_activar_bomba:
+        Estadoequipo=funciones;
+        funcionActual=funcion_activar_bomba;
         break;
       case 4:
         Estadoequipo=funciones;
@@ -903,6 +971,12 @@ void menu_avanzado()
         opcionmenu1=0;
         break;
     }
+  if(tiempo_de_standby>=5000){
+    Estadoequipo = estado_standby;
+    tiempo_de_standby = 0;
+    Flag=1;
+    lcd.clear();
+  }
   }
 }
 
@@ -1010,6 +1084,52 @@ void menu_modificar_hora_rtc()
         break; 
     }
   }
+
+void menu_activar_bomba(){
+switch (Flag)
+  {
+    case 4:
+      lcd.setCursor(0,0);
+      lcd.print("Activar bomba");
+      lcd.setCursor(5,2);
+      lcd.print("Si");
+      lcd.setCursor(11,2);
+      lcd.print("No");
+      lcd.setCursor(5,3);
+      lcd.print("1");
+      lcd.setCursor(11,3);
+      lcd.print("2");
+      if((PIND & (1<<PD3)) == 0 ){
+          while((PIND & (1<<PD3)) == 0){}
+          Activar_bomba = false;
+          Flag=5;
+        }
+      if((PIND & (1<<PD2)) == 0 ){
+          while((PIND & (1<<PD2)) == 0){}
+          Activar_bomba = true;
+          Flag=5;
+        }
+      if((PIND & (1<<PD5)) == 0){
+          while((PIND & (1<<PD5)) == 0){}
+          Estadoequipo=menu2;
+          Flag=3;
+          funcionActual=posicion_inicial;
+          lcd.clear();
+        }
+    break;
+
+    case 5:
+      lcd.clear();
+      tiempo_menues=mili_segundos;
+      Flag=6;
+    break;
+
+    case 6:
+      guardado_para_menus(false);
+    break;
+  }
+  
+}     
 
 void menu_farenheit_celsius()
 {
@@ -1168,10 +1288,11 @@ void menu_seteo_wifi(){
       }
     break;
       case 8:
-      for (uint8_t i = 0; i < 20; i++){
+      for (uint8_t i = 0; i < 19; i++){
       eep.write(14 + i, WIFIPASS[i]);
       eep.write(34 + i, WIFISSID[i]);
       }
+      Serial_Send_UNO(6);
         guardado_para_menus(false);
       break;
   }
@@ -1192,6 +1313,7 @@ void guardado_para_menus(bool Menu){
   }
   funcionActual=posicion_inicial;
   lcd.clear();
+  tiempo_de_standby = 0;
   }
 }
 
@@ -1258,13 +1380,11 @@ void Serial_Read_UNO(){
       Take_Comunication_Data=false;
       break;
     case 'O':
-      if(Individualdata[0]=="OK")
+      if(Individualdata[0]=="OK"){
+      if (InitComunication==true)Serial_Send_UNO(1);
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
-
-      break;
-    default:
-      Serial.println("?_NOTHING TO READ");
+      }
       break;
     }
   }
@@ -1275,45 +1395,44 @@ void Serial_Send_UNO(uint8_t WhatSend){
     switch (WhatSend){
       case 1:
         if (InitComunication==true){
-          for (uint8_t MessagePoss=0; MessagePoss <= 5; MessagePoss++){
             switch (MessagePoss){
               case 0:
-                Serial.println(F("S_"));Serial.print(WIFISSID);Serial.print(F(":"));Serial.print(WIFIPASS);
+                Serial.print(("S_"));Serial.print(String(WIFISSID));Serial.print(F(":"));Serial.println(String(WIFIPASS)+":");
+                MessagePoss++;
                 break;
               case 1:
-                Serial.println(F("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.print(save[0].level);
+                Serial.print(("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.print(save[0].level);
                 break;
               case 2:
-                Serial.println(F("K_"));Serial.print(save[1].hour);Serial.print(F(":"));Serial.print(save[1].temp);Serial.print(F(":"));Serial.print(save[1].level);
+                Serial.print(("K_"));Serial.print(save[1].hour);Serial.print(F(":"));Serial.print(save[1].temp);Serial.print(F(":"));Serial.println(save[1].level);
                 break;
               case 3:
-                Serial.println(F("K_"));Serial.print(save[2].hour);Serial.print(F(":"));Serial.print(save[2].temp);Serial.print(F(":"));Serial.print(save[2].level);
+                Serial.print(("K_"));Serial.print(save[2].hour);Serial.print(F(":"));Serial.print(save[2].temp);Serial.print(F(":"));Serial.println(save[2].level);
                 break;
               case 4:
-                Serial.println(F("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.print(eep.read(11));
+                Serial.print(("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.println(eep.read(11));
                 break;
               case 5:
-                Serial.println(F("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.print(eep.read(13));
+                Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));
                 InitComunication=false;
                 break;
-            } 
           }  
         }
       break;
       case 2:
-        if(InitComunication==false){Serial.println(F("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.print(save[0].level);}
+        if(InitComunication==false){Serial.print(("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.println(save[0].level);}
         break;
       case 3:
-        if(InitComunication==false){Serial.println(F("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.print(eep.read(11));}
+        if(InitComunication==false){Serial.print(("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.println(eep.read(11));}
         break;
       case 4:
-        if(InitComunication==false){Serial.println(F("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.print(eep.read(13));}
+        if(InitComunication==false){Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));}
         break;
       case 5:
-        if(InitComunication==false){Serial.println(F("U_"));Serial.print(StringToChar(1,String(hora)+":"+String(minutos)));Serial.print(F(":"));Serial.print(nivel_actual);Serial.print(F(":"));Serial.print(temperatura_actual);}
+        if(InitComunication==false){Serial.print(("U_"));Serial.print(StringToChar(1,String(hora)+":"+String(minutos)));Serial.print(F(":"));Serial.print(nivel_actual);Serial.print(F(":"));Serial.println(temperatura_actual);}
         break;
       case 6:
-        if(InitComunication==false){Serial.println(F("S_"));Serial.print(WIFISSID);Serial.print(F(":"));Serial.print(WIFIPASS);}
+        if(InitComunication==false){Serial.print(("S_"));Serial.print(WIFISSID);Serial.print(F(":"));Serial.println(WIFIPASS);}
     }
   }
   if (ComunicationError==true){Serial.println(F("?_RESET"));}//resetea esp 
@@ -1338,10 +1457,9 @@ uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
   if (actualpos>0 && actualpos<maxpos) return actualpos;
 }
 
-String CharToString(uint8_t function,uint8_t save)
+uint8_t CharToUINT(uint8_t function,uint8_t save)
 {
   uint8_t var1_deconvert=0;//solo una variable (_deconvert  nos evita modificar variables globales como bldos)
-  uint8_t var2_deconvert=0;
   uint8_t resto_deconvert=0;
   String returned;
   // todo el dia con la mielcita jere ¯\_(ツ)_/¯ 
@@ -1350,17 +1468,15 @@ String CharToString(uint8_t function,uint8_t save)
       case 1:
         resto_deconvert= (save) % 4;
         var1_deconvert= (save-resto_deconvert)/4;
-        var2_deconvert=resto_deconvert*15;
-        returned= String(var1_deconvert)+':'+String(var2_deconvert);
-        return returned;
+        return var1_deconvert;
       break;
       case 2:
-        returned= String(save);
-        return returned;
+        resto_deconvert= (save) % 4;
+        var1_deconvert=resto_deconvert*15;
+        return var1_deconvert;
       break;
       case 3:
-        returned= String(save);
-        return returned;
+        return save;
       break;
       default:
         break;

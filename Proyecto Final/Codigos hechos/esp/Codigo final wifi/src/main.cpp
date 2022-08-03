@@ -181,14 +181,13 @@ void setup(){
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request){ 
     request->send(LittleFS, "/index.html", String(), false, processor);
   });
-  Serial.println("O_OK");
   server.begin();
 }
 
 //█████████████████████████████████████████████████████████████████████████████████ 
 
 void loop(){
-  if (Serial.available()>0)Serial_Read_NODEMCU();
+  if (Serial.available()>0){Serial_Read_NODEMCU();}
   if (WiFi.status() == WL_CONNECTED && EnviarIP==true){Serial.println(WiFi.localIP()); EnviarIP=false;}
 }
 
@@ -329,7 +328,7 @@ void Serial_Read_NODEMCU(){
             ConvertString=false;
             Serial_Send_NODEMCU(7);
             EnviarIP=true;
-            setup();
+      
     break;
     case 'U':
           HVal=Individualdata[0];
@@ -353,12 +352,10 @@ void Serial_Read_NODEMCU(){
             Serial_Send_NODEMCU(7);
       break;
     case '?':
-            // RESET INO
+            // RESET INO setup();
             ActualIndividualDataPos=0;
             ConvertString=false;
         break;
-    default:
-      break;
     }
   }
   else Serial.println("E_ERROR");
