@@ -17,7 +17,7 @@ String ssid = "Jere";
 String password = "chucotest";
 
 //█████████████████████████████████████████████████████████████████████████████████
-
+bool EnviarIP;
 struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};
 save_data save[3]; 
 String TVal = "60";
@@ -57,14 +57,11 @@ AsyncWebServer server(80);
 void setup(){
 
   Serial.begin(9600);
-  WiFi.begin(ssid, password);
   LittleFS.begin();
  
   // Connect to Wi-Fi
-  
-  Serial.println(WiFi.localIP()); 
   // Print ESP32 Local IP Address
-
+  WiFi.begin(ssid, password);
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){request->send(LittleFS, "/index.html", String(), false, processor);});
@@ -158,10 +155,10 @@ void setup(){
       errorS = "No podes guardar dos variables en la misma hora";
     }
     else{
-    save[0].hour=convercionhora(1, HVal);
-    save[0].level=convercionhora(2, LVal);
-    save[0].temp=convercionhora(2, TVal);
-    Struct=0;
+    save[1].hour=convercionhora(1, HVal);
+    save[1].level=convercionhora(2, LVal);
+    save[1].temp=convercionhora(2, TVal);
+    Struct=1;
     Serial_Send_NODEMCU(3);
     }
     request->send(LittleFS, "/config.html", String(), false, processor);
@@ -172,10 +169,10 @@ void setup(){
       errorS = "No podes guardar dos variables en la misma hora";
     }
     else{
-    save[0].hour=convercionhora(1, HVal);
-    save[0].level=convercionhora(2, LVal);
-    save[0].temp=convercionhora(2, TVal);
-    Struct=0;
+    save[2].hour=convercionhora(1, HVal);
+    save[2].level=convercionhora(2, LVal);
+    save[2].temp=convercionhora(2, TVal);
+    Struct=2;
     Serial_Send_NODEMCU(3);
     }
     request->send(LittleFS, "/config.html", String(), false, processor);
@@ -192,6 +189,7 @@ void setup(){
 
 void loop(){
   if (Serial.available()>0)Serial_Read_NODEMCU();
+  if (WiFi.status() == WL_CONNECTED && EnviarIP==true){Serial.println(WiFi.localIP()); EnviarIP=false;}
 }
 
 
@@ -279,10 +277,10 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
         Serial.println("V_"+String(Level_Min)+":"+String(Level_Max));
         break;
       case 6:
-        Serial.println("E_ERROR");// Si no entiende un mensaje envia error
+        Serial.println("E_ERROR:");// Si no entiende un mensaje envia error
         break;
       case 7:
-        Serial.println("O_OK");// Si entiende el mensaje manda ok
+        Serial.println("O_OK:");// Si entiende el mensaje manda ok
         break;
     }
     
@@ -330,6 +328,8 @@ void Serial_Read_NODEMCU(){
             password=Individualdata[1];
             ConvertString=false;
             Serial_Send_NODEMCU(7);
+            EnviarIP=true;
+            setup();
     break;
     case 'U':
           HVal=Individualdata[0];
