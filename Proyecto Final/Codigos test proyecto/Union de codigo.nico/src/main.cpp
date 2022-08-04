@@ -282,20 +282,12 @@ void menu_basico()
   if(Flag==1){ // inicializa variables utiles para el menu
     Blink=false;
     lcd.clear();
-    Ypos=map(analogRead(A2), 0, 1023,0,maxY_menu1)%maxY_menu1;
-    Auxiliar1=map(analogRead(A2), 0, 1023,0,maxY_menu1);
     opcionmenu1= 0;
     Flag=2;
     tiempo_de_standby = 0;
     tiempo_menues=mili_segundos;
   }
   if (Flag==2){
-    if(Auxiliar1!=map(analogRead(A2), 0, 1023,0,maxY_menu1)){
-      Ypos=ReturnToCero(Ypos+map(analogRead(A2), 0, 1023,0,maxY_menu1)-Auxiliar1,maxY_menu1);
-      tiempo_de_standby=0;
-      lcd.clear();
-      Auxiliar1=map(analogRead(A2), 0, 1023,0,maxY_menu1);
-      }
     if ((PIND & (1<<PD2)) == 0 ){while ((PIND & (1<<PD2)) == 0 ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
     if ((PIND & (1<<PD3)) == 0 ){while ((PIND & (1<<PD3)) == 0 ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos
     if ((PIND & (1<<PD4)) == 0 ){while ((PIND & (1<<PD4)) == 0 ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
@@ -365,6 +357,7 @@ void menu_de_llenado_manual(){
       case 2:
         nivel_a_llenar=nivel_a_llenar+25-(nivel_a_llenar%25);
         Flag=3;
+        Auxiliar1=map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
         break;
       case 3:
         lcd.setCursor(0,0);
@@ -380,6 +373,12 @@ void menu_de_llenado_manual(){
         lcd.print("Confirmar con 3");
 
         nivel_a_llenar = map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
+        if(Auxiliar1!=map(analogRead(A2), 0, 1023,min_nivel,max_nivel)){
+          nivel_a_llenar=ReturnToCero(Ypos+map(analogRead(A2), 0, 1023,min_nivel,max_nivel)-Auxiliar1,maxY_menu1);
+          tiempo_de_standby=0;
+          lcd.clear();
+          Auxiliar1=map(analogRead(A2), 0, 1023,0,maxY_menu1);
+        }
         if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
         if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
         if((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){
@@ -400,6 +399,7 @@ void menu_de_llenado_manual(){
             Estadoequipo=menu1;
             Flag=1;
             funcionActual=posicion_inicial;
+            Auxiliar1=0;
             lcd.clear();
           }
         break; 
