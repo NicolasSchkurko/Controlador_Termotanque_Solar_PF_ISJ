@@ -355,9 +355,8 @@ void menu_de_llenado_manual(){
     switch (Flag)
     {
       case 2:
-        nivel_a_llenar=nivel_a_llenar+25-(nivel_a_llenar%25);
+        nivel_a_llenar=min_nivel;
         Flag=3;
-        Auxiliar1=map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
         break;
       case 3:
         lcd.setCursor(0,0);
@@ -372,13 +371,6 @@ void menu_de_llenado_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        nivel_a_llenar = map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
-        if(Auxiliar1!=map(analogRead(A2), 0, 1023,min_nivel,max_nivel)){
-          nivel_a_llenar=ReturnToCero(Ypos+map(analogRead(A2), 0, 1023,min_nivel,max_nivel)-Auxiliar1,maxY_menu1);
-          tiempo_de_standby=0;
-          lcd.clear();
-          Auxiliar1=map(analogRead(A2), 0, 1023,0,maxY_menu1);
-        }
         if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
         if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
         if((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){
@@ -453,7 +445,6 @@ void menu_de_calefaccion_manual(){
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        temperatura_a_calentar = map(analogRead(A2), 0, 1023,min_temp,maxi_cast);
         if (temperatura_a_calentar>maxi_cast)temperatura_a_calentar=maxi_cast;
         if (temperatura_a_calentar<min_temp)temperatura_a_calentar=min_temp;
         if((PIND & (1<<PD2)) == 0 && temperatura_a_calentar<maxi_cast){
@@ -525,7 +516,6 @@ void menu_de_auto_por_hora()
       lcd.print("3:");lcd.print(String_de_hora(CharToUINT(1,save[2].hour),CharToUINT(2,save[2].hour)));
 
       ActualStruct = ReturnToCero(Ypos,3);
-      Ypos += map(analogRead(A2), 0, 1023,0,2);
       if((PIND & (1<<PD2)) == 0){
           while((PIND & (1<<PD2)) == 0){}
           Ypos=ReturnToCero(Ypos+1,3);
@@ -574,7 +564,6 @@ void menu_de_auto_por_hora()
 
       if (save[ActualStruct].temp>maxi_cast)save[ActualStruct].temp=maxi_cast;
       if (save[ActualStruct].temp<min_temp)save[ActualStruct].temp=min_temp;
-      save[ActualStruct].temp = map(analogRead(A2), 0, 1023,min_temp,maxi_cast);
       if((PIND & (1<<PD2)) == 0 && save[ActualStruct].temp < maxi_cast){
           while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].temp += sumador_temperatura;
@@ -606,7 +595,6 @@ void menu_de_auto_por_hora()
 
       if (save[ActualStruct].level>max_nivel)save[ActualStruct].level=max_nivel;
       if (save[ActualStruct].level<min_nivel)save[ActualStruct].level=min_nivel;
-      save[ActualStruct].level = map(analogRead(A2), 0, 1023,min_nivel,max_nivel);
       if((PIND & (1<<PD2)) == 0 && save[ActualStruct].level<max_nivel){
           while((PIND & (1<<PD2)) == 0){}
           save[ActualStruct].level += sumador_nivel;
@@ -635,7 +623,7 @@ void menu_de_auto_por_hora()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3");
 
-        hora_to_modify = map(analogRead(A2), 0, 1023, 0, hora_max-1);
+
         hora_to_modify = ReturnToCero((hora+sumador_hora),hora_max);
         if((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}sumador_hora++;}
         if((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){}sumador_hora--;}
@@ -653,7 +641,7 @@ void menu_de_auto_por_hora()
         lcd.setCursor(0,3);
         lcd.print("Confirmar con 3  ");
 
-        minuto_to_modify = map(analogRead(A2), 0, 1023, 0, minuto_max-1);
+
         minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max);
         if((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}sumador_minuto++;}
         if((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){}sumador_minuto--;}
@@ -716,7 +704,7 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      eep.write(12,map(analogRead(A2), 0, 1023, min_nivel, max_nivel-sumador_nivel));
+
       if (eep.read(12)>max_nivel-sumador_nivel)eep.write(12,max_nivel-sumador_nivel);
       if (eep.read(12)<min_nivel)eep.write(12,min_nivel);
       if((PIND & (1<<PD2)) == 0 && eep.read(12)<max_nivel-sumador_nivel){
@@ -757,7 +745,7 @@ void menu_de_llenado_auto()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      eep.write(13,map(analogRead(A2), 0, 1023, eep.read(12)+sumador_nivel, maxi_cast));
+
       if (eep.read(13)>max_nivel)eep.write(13,max_nivel);
       if (eep.read(13)<eep.read(12)+sumador_nivel)eep.write(13,eep.read(12)+sumador_nivel);
       if((PIND & (1<<PD2)) == 0 && eep.read(13)<max_nivel){
@@ -837,7 +825,6 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      eep.write(10,map(analogRead(A2), 0, 1023, min_temp, maxi_cast-sumador_temperatura));
       if (eep.read(10)>maxi_cast-sumador_temperatura)eep.write(10,maxi_cast-sumador_temperatura);
       if (eep.read(10)<min_temp)eep.write(10,min_temp);
 
@@ -884,7 +871,7 @@ void menu_de_calefaccion_auto(){
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      eep.write(11,map(analogRead(A2), 0, 1023, eep.read(10)+sumador_temperatura, maxi_cast));
+
       if (eep.read(11)>maxi_cast)eep.write(11,maxi_cast);
       if (eep.read(11)<eep.read(10)+sumador_temperatura)eep.write(11,eep.read(10)+sumador_temperatura);
       if((PIND & (1<<PD2)) == 0 && eep.read(11)<maxi_cast){
@@ -951,7 +938,6 @@ void menu_avanzado()
   }
   
   if (Flag==4){
-  Ypos = map(analogRead(A2), 0, 1023, 0, maxY_menu2);
   if ((PIND & (1<<PD2)) == 0 ){ while ((PIND & (1<<PD2)) == 0){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD3)) == 0 ){ while ((PIND & (1<<PD3)) == 0){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD4)) == 0 ){ while ((PIND & (1<<PD4)) == 0){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
@@ -1029,7 +1015,6 @@ void menu_modificar_hora_rtc()
         hora_to_modify = ReturnToCero(hora+sumador_hora,hora_max);
         minuto_to_modify=minutos;
 
-        sumador_hora=map(analogRead(A2), 0, 1023, 0, hora_max-1);
         
         if((PIND & (1<<PD2)) == 0){ 
           while((PIND & (1<<PD2)) == 0){}
@@ -1064,8 +1049,6 @@ void menu_modificar_hora_rtc()
         lcd.print("Confirmar con 3");
 
         minuto_to_modify = ReturnToCero(minutos+sumador_minuto,minuto_max);
-
-        sumador_hora=map(analogRead(A2), 0, 1023, 0, minuto_max-1);
 
         if((PIND & (1<<PD2)) == 0){ 
           while((PIND & (1<<PD2)) == 0){}
