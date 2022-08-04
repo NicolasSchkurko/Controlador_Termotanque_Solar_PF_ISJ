@@ -182,6 +182,9 @@ void setup()
   DDRD = B11000011; // setea input
   PORTD |= B00111100;
   //
+
+  // bomba tucumana
+  DDRB = B111101; 
   tiempo_sensores=mili_segundos;
 
   save[0].hour=eep.read(1);
@@ -940,7 +943,7 @@ void menu_avanzado()
   }
   
   if (Flag==4){
-  Ypos = map(analogRead(A2), 0, 1023, 0, maxY_menu2-1);
+  Ypos = map(analogRead(A2), 0, 1023, 0, maxY_menu2);
   if ((PIND & (1<<PD2)) == 0 ){ while ((PIND & (1<<PD2)) == 0){} Ypos=ReturnToCero(Ypos-1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD3)) == 0 ){ while ((PIND & (1<<PD3)) == 0){} Ypos=ReturnToCero(Ypos+1,maxY_menu2); lcd.clear(); Blink = true;tiempo_de_standby = 0;}
   if ((PIND & (1<<PD4)) == 0 ){ while ((PIND & (1<<PD4)) == 0){} opcionmenu2=ReturnToCero(Ypos,maxY_menu2)+1; lcd.clear(); }
@@ -1333,10 +1336,10 @@ void guardado_para_menus(bool Menu){
   lcd.setCursor(4,0);
   lcd.print("Guardando...");
   if(mili_segundos>=tiempo_menues+tiempo_de_espera_menu){
-  if(Menu == true){
-    Estadoequipo=menu1;
-    Flag=1;
-  }
+    if(Menu == true){
+      Estadoequipo=menu1;
+      Flag=1;
+    }
   if(Menu == false){
     Estadoequipo=menu2; 
     Flag=3; 
@@ -1491,7 +1494,6 @@ uint8_t CharToUINT(uint8_t function,uint8_t save)
 {
   uint8_t var1_deconvert=0;//solo una variable (_deconvert  nos evita modificar variables globales como bldos)
   uint8_t resto_deconvert=0;
-  String returned;
   // todo el dia con la mielcita jere ¯\_(ツ)_/¯ 
   switch (function)
     {
@@ -1615,8 +1617,8 @@ void Controltemp()
 
 void Controllvl(){
   // control lvl min to max
-  if(nivel_actual <= eep.read(12) && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true;}
-  if(nivel_actual > eep.read(13) && Valvula == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true;}
+  if(nivel_actual <= eep.read(12) && Activar_bomba == true && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB |= B000001;}
+  if(nivel_actual > eep.read(13) && Valvula == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB &= B111110;}
   //======Compara temperatura actual con el minimo seteado=========
   if(nivel_actual < nivel_a_llenar && Valvula == false && PORTD !=(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
   if(nivel_actual >= nivel_a_llenar && Valvula == true && PORTD ==(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
