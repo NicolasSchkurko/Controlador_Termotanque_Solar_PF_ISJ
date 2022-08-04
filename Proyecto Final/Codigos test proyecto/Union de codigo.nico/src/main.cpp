@@ -150,7 +150,7 @@
   String Individualdata[4];
   char WIFISSID [19];
   char WIFIPASS [19];
-  uint8_t CharPos;
+  uint8_t Auxiliar1;
   bool Resistencia;
   bool Valvula;
 
@@ -282,14 +282,20 @@ void menu_basico()
   if(Flag==1){ // inicializa variables utiles para el menu
     Blink=false;
     lcd.clear();
-    Ypos=0;
+    Ypos=map(analogRead(A2), 0, 1023,0,maxY_menu1)%maxY_menu1;
+    Auxiliar1=map(analogRead(A2), 0, 1023,0,maxY_menu1);
     opcionmenu1= 0;
     Flag=2;
     tiempo_de_standby = 0;
     tiempo_menues=mili_segundos;
   }
   if (Flag==2){
-    Ypos = map(analogRead(A2), 0, 1023,0,maxY_menu1);
+    if(Auxiliar1!=map(analogRead(A2), 0, 1023,0,maxY_menu1)){
+      Ypos=ReturnToCero(Ypos+map(analogRead(A2), 0, 1023,0,maxY_menu1)-Auxiliar1,maxY_menu1);
+      tiempo_de_standby=0;
+      lcd.clear();
+      Auxiliar1=map(analogRead(A2), 0, 1023,0,maxY_menu1);
+      }
     if ((PIND & (1<<PD2)) == 0 ){while ((PIND & (1<<PD2)) == 0 ){} Ypos=ReturnToCero(Ypos-1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
     if ((PIND & (1<<PD3)) == 0 ){while ((PIND & (1<<PD3)) == 0 ){}  Ypos=ReturnToCero(Ypos+1,maxY_menu1); lcd.clear(); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos
     if ((PIND & (1<<PD4)) == 0 ){while ((PIND & (1<<PD4)) == 0 ){}  opcionmenu1=Ypos+1; lcd.clear(); } //confirmacion
@@ -519,7 +525,7 @@ void menu_de_auto_por_hora()
       lcd.print("3:");lcd.print(String_de_hora(CharToUINT(1,save[2].hour),CharToUINT(2,save[2].hour)));
 
       ActualStruct = ReturnToCero(Ypos,3);
-      Ypos = map(analogRead(A2), 0, 1023,1,3);
+      Ypos += map(analogRead(A2), 0, 1023,0,2);
       if((PIND & (1<<PD2)) == 0){
           while((PIND & (1<<PD2)) == 0){}
           Ypos=ReturnToCero(Ypos+1,3);
@@ -1232,9 +1238,9 @@ void menu_seteo_wifi(){
       }
     break;
   case 5:
-    for (CharPos=0;CharPos<=19;CharPos++){ 
-    WIFISSID[CharPos]='\0';
-    WIFIPASS[CharPos]='\0';}
+    for (Auxiliar1=0;Auxiliar1<=19;Auxiliar1++){ 
+    WIFISSID[Auxiliar1]='\0';
+    WIFIPASS[Auxiliar1]='\0';}
     Ypos=0;
     Actualchar=0;
     Flag=6;
@@ -1358,13 +1364,13 @@ void Serial_Read_UNO(){
   StringLength= Serial_Input.length();// saca el largo del string
   input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
   // Separador del string en variables:
-  for (CharPos = 2; CharPos <= StringLength; CharPos++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
-    if(Serial_Input.charAt(CharPos)==':') ActualIndividualDataPos++; //si hay : divide los datos
+  for (Auxiliar1 = 2; Auxiliar1 <= StringLength; Auxiliar1++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+    if(Serial_Input.charAt(Auxiliar1)==':') ActualIndividualDataPos++; //si hay : divide los datos
     else{// si no es nungun caracter especial:
-      if(Serial_Input.charAt(CharPos-1)==':' || Serial_Input.charAt(CharPos-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(CharPos);//si es el primer digito lo iguala
-      else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(CharPos);//si es el segundo en adelante lo suma al string
+      if(Serial_Input.charAt(Auxiliar1-1)==':' || Serial_Input.charAt(Auxiliar1-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(Auxiliar1);//si es el primer digito lo iguala
+      else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(Auxiliar1);//si es el segundo en adelante lo suma al string
     }
-    if(CharPos==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
+    if(Auxiliar1==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
   } 
   
   if(Take_Comunication_Data==true){
@@ -1620,9 +1626,7 @@ void Controltemp()
 void Controllvl(){
   // control lvl min to max
   if(nivel_actual <= eep.read(12) && Activar_bomba == true && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB |= B000001;}
-  if(nivel_actual <= eep.read(12) && Activar_bomba == false && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB &= B111110;;}
-  if(nivel_actual > eep.read(13) && Valvula == true && Activar_bomba == false && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=false; PORTB &= B111110;}
-  if(nivel_actual > eep.read(13) && Valvula == true && Activar_bomba == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=false; PORTB |= B000001;}
+  if(nivel_actual > eep.read(13) && Valvula == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB &= B111110;}
   //======Compara temperatura actual con el minimo seteado=========
   if(nivel_actual < nivel_a_llenar && Valvula == false && PORTD !=(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
   if(nivel_actual >= nivel_a_llenar && Valvula == true && PORTD ==(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
