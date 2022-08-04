@@ -184,7 +184,9 @@ void setup()
   //
 
   // bomba tucumana
-  DDRB = B111101; 
+  DDRB &= B111101; 
+//
+
   tiempo_sensores=mili_segundos;
 
   save[0].hour=eep.read(1);
