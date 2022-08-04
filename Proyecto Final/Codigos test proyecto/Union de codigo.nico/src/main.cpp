@@ -1620,7 +1620,9 @@ void Controltemp()
 void Controllvl(){
   // control lvl min to max
   if(nivel_actual <= eep.read(12) && Activar_bomba == true && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB |= B000001;}
-  if(nivel_actual > eep.read(13) && Valvula == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB &= B111110;}
+  if(nivel_actual <= eep.read(12) && Activar_bomba == false && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB &= B111110;;}
+  if(nivel_actual > eep.read(13) && Valvula == true && Activar_bomba == false && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=false; PORTB &= B111110;}
+  if(nivel_actual > eep.read(13) && Valvula == true && Activar_bomba == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=false; PORTB |= B000001;}
   //======Compara temperatura actual con el minimo seteado=========
   if(nivel_actual < nivel_a_llenar && Valvula == false && PORTD !=(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
   if(nivel_actual >= nivel_a_llenar && Valvula == true && PORTD ==(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
