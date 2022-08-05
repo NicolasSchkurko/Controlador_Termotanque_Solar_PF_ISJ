@@ -12,7 +12,7 @@
 //Defines
   //Control de temp
   #define sumador_temperatura 5 
-  #define maxi_cast 90           //puede hacerse un DEFINE porque no se modifica
+  #define maxi_cast 80           //puede hacerse un DEFINE porque no se modifica
   #define temp_threshold 5
   #define min_temp 40    
   #define tiempo_para_temperatura 5000 
@@ -33,7 +33,7 @@
   #define maxY_menu1 7
   #define maxY_menu2 5
   #define tiempo_de_parpadeo 700
-  #define tiempo_de_espera_menu 5000 
+  #define tiempo_de_espera_menu 3000 
   //Datos horas
   #define hora_max 24
   #define minuto_max 60 //I kit actual time because in used in other sites and here didnt work  SUCK MY DIK JEREMAIAS BRTOLSIC na mentira oka
@@ -543,20 +543,20 @@ void menu_de_auto_por_hora()
 
     case 4:
       lcd.setCursor(0,0);
-      lcd.print("Temperatura max:");
+      lcd.print("Temp. max:");
       if(use_farenheit == false) {
         lcd.print(save[ActualStruct].temp); 
-        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("C ");}
-        else{lcd.print((char)223); lcd.print("C");}
+        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("C    ");}
+        else{lcd.print((char)223);lcd.setCursor(20,0); lcd.print("C");}
       }
       if(use_farenheit == true) {
         lcd.print(((9*save[ActualStruct].temp)/5)+32);
-        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("F ");}
+        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("F   ");}
         else{lcd.print((char)223); lcd.print("F");}
       }
 
       lcd.setCursor(0,1);
-      lcd.print("Sumar 5 con 1 ");
+      lcd.print("Sumar 5 con 1");
       lcd.setCursor(0,2);
       lcd.print("Restar 5 con 2");
       lcd.setCursor(0,3);
