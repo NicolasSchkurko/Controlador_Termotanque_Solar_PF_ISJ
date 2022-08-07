@@ -120,7 +120,7 @@
   uint16_t tiempo_de_standby = 0;
   const String Menuprincipal[maxY_menu1] = {
     "C manual",
-    "H manual",
+    "H manual", 
     "H & F in H",
     "C segun lleno",
     "H segun temp",
