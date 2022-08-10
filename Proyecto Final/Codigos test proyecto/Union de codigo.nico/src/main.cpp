@@ -202,7 +202,7 @@ void setup()
     WIFIPASS[i] = eep.read(14 + i);
     WIFISSID[i] = eep.read(34 + i);
   }
-  Serial_Send_UNO(1);
+  while (MessagePoss<6)Serial_Send_UNO(1);
 }
 
 void loop() 
@@ -1418,26 +1418,37 @@ void Serial_Send_UNO(uint8_t WhatSend){
   if (ComunicationError==false){
     switch (WhatSend){
       case 1:
-        if (InitComunication==true){
+        if (InitComunication==true && mili_segundos>=tiempo_menues+2000){
             switch (MessagePoss){
               case 0:
                 Serial.print(("S_"));Serial.print(String(WIFISSID));Serial.print(F(":"));Serial.println(String(WIFIPASS)+":");
+                tiempo_menues=mili_segundos;
                 MessagePoss++;
                 break;
               case 1:
-                Serial.print(("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.print(save[0].level);
+                Serial.print(("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.println(save[0].level);
+                tiempo_menues=mili_segundos;
+                MessagePoss++;
                 break;
               case 2:
                 Serial.print(("K_"));Serial.print(save[1].hour);Serial.print(F(":"));Serial.print(save[1].temp);Serial.print(F(":"));Serial.println(save[1].level);
+                tiempo_menues=mili_segundos;
+                MessagePoss++;
                 break;
               case 3:
                 Serial.print(("K_"));Serial.print(save[2].hour);Serial.print(F(":"));Serial.print(save[2].temp);Serial.print(F(":"));Serial.println(save[2].level);
+                tiempo_menues=mili_segundos;
+                MessagePoss++;
                 break;
               case 4:
                 Serial.print(("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.println(eep.read(11));
+                tiempo_menues=mili_segundos;
+                MessagePoss++;
                 break;
               case 5:
                 Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));
+                tiempo_menues=mili_segundos;
+                MessagePoss++;
                 InitComunication=false;
                 break;
           }  
@@ -1598,11 +1609,11 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 void Controltemp()
 {
   // control temp min to max
-  if(temperatura_actual <= eep.read(10) && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;}
-  if(temperatura_actual > eep.read(11) && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;}
+  if(temperatura_actual <= eep.read(10) && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;PORTB |= B000010;}
+  if(temperatura_actual > eep.read(11) && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;PORTB &= B111101;}
   //=========Compara nivel actual con el minimo seteado============
-  if (temperatura_actual < temperatura_a_calentar && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;}
-  if (temperatura_actual >= temperatura_a_calentar && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;}
+  if (temperatura_actual < temperatura_a_calentar && Resistencia == false && PORTD !=(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=true;PORTB |= B000010;}
+  if (temperatura_actual >= temperatura_a_calentar && Resistencia == true && PORTD ==(1<<PD6)){PORTD ^=(1<<PD6); Resistencia=false;PORTB &= B111101;}
   //=================================================================
 }
 
@@ -1611,8 +1622,8 @@ void Controllvl(){
   if(nivel_actual <= eep.read(12) && Activar_bomba == true && Valvula == false && PORTD !=(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB |= B000001;}
   if(nivel_actual > eep.read(13) && Valvula == true && PORTD ==(1<<PD7)){PORTD ^=(1<<PD7);Valvula=true; PORTB &= B111110;}
   //======Compara temperatura actual con el minimo seteado=========
-  if(nivel_actual < nivel_a_llenar && Valvula == false && PORTD !=(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
-  if(nivel_actual >= nivel_a_llenar && Valvula == true && PORTD ==(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;}
+  if(nivel_actual < nivel_a_llenar && Valvula == false && PORTD !=(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;PORTB |= B000001;}
+  if(nivel_actual >= nivel_a_llenar && Valvula == true && PORTD ==(1<<PD7)) {PORTD ^=(1<<PD7);Valvula=true;PORTB &= B111110;}
   //=================================================================
 }
 
