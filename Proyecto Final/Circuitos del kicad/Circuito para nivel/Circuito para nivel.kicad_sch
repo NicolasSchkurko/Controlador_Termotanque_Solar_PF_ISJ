@@ -684,7 +684,7 @@
     (uuid 5f4508a9-d5ee-43de-b4de-20f14d0af07d)
     (property "Reference" "J1" (id 0) (at 31.496 35.636 0))
     (property "Value" "Conn_01x05" (id 1) (at 31.496 38.176 0))
-    (property "Footprint" "Connector_PinHeader_1.00mm:PinHeader_1x05_P1.00mm_Vertical" (id 2) (at 31.496 46.736 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" (id 2) (at 31.496 46.736 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 31.496 46.736 0)
@@ -821,7 +821,7 @@
     (property "Value" "Conn_01x03" (id 1) (at 200.438 43.6879 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_PinHeader_1.00mm:PinHeader_1x03_P1.00mm_Vertical" (id 2) (at 197.358 42.418 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" (id 2) (at 197.358 42.418 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 197.358 42.418 0)
@@ -888,10 +888,10 @@
       (reference "#PWR0102") (unit 1) (value "VCC") (footprint "")
     )
     (path "/5f4508a9-d5ee-43de-b4de-20f14d0af07d"
-      (reference "J1") (unit 1) (value "Conn_01x05") (footprint "Connector_PinHeader_1.00mm:PinHeader_1x05_P1.00mm_Vertical")
+      (reference "J1") (unit 1) (value "Conn_01x05") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical")
     )
     (path "/d8880d7e-5a80-4057-af12-2576587a5aea"
-      (reference "J2") (unit 1) (value "Conn_01x03") (footprint "Connector_PinHeader_1.00mm:PinHeader_1x03_P1.00mm_Vertical")
+      (reference "J2") (unit 1) (value "Conn_01x03") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
     )
     (path "/352eac11-28a4-4d80-8636-f8e5bd6a8d19"
       (reference "Q1") (unit 1) (value "2N3904") (footprint "Package_TO_SOT_THT:TO-92_Inline")
