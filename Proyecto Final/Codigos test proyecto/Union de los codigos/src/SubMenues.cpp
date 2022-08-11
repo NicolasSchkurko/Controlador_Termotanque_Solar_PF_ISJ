@@ -3,7 +3,7 @@
 #include <LiquidCrystal_I2C.h>
 #include "menu.h"
 #include "FuncionesSoporte.h"
-#include "AT24CX.h"
+#include <AT24CX.h>
 #include "RTClib.h"
 #include "comunicacion.h"
 
