@@ -1,9 +1,0 @@
-void menu_de_calefaccion_auto();
-void menu_de_calefaccion_manual();
-void menu_de_llenado_auto();
-void menu_de_llenado_manual();
-void menu_de_auto_por_hora();
-void menu_modificar_hora_rtc();
-void menu_farenheit_celsius();
-void menu_seteo_wifi();
-void menu_activar_bomba(); 
