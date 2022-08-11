@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "comunicacion.h"
 #include "FuncionesSoporte.h"
 #include "AT24CX.h"
 #include <SPI.h>
@@ -29,7 +30,7 @@ uint8_t ActualIndividualDataPos=0;
 String Serial_Input;
 String Individualdata[4];
 char input=0;
-uint8_t Auxiliar1;
+uint8_t Auxiliar2;
 uint8_t ActualStruct=0; 
 
 bool Take_Comunication_Data=false;
@@ -41,13 +42,13 @@ void Serial_Read_UNO(){
   StringLength= Serial_Input.length();// saca el largo del string
   input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
   // Separador del string en variables:
-  for (Auxiliar1 = 2; Auxiliar1 <= StringLength; Auxiliar1++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
-    if(Serial_Input.charAt(Auxiliar1)==':') ActualIndividualDataPos++; //si hay : divide los datos
+  for (Auxiliar2 = 2; Auxiliar2 <= StringLength; Auxiliar2++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+    if(Serial_Input.charAt(Auxiliar2)==':') ActualIndividualDataPos++; //si hay : divide los datos
     else{// si no es nungun caracter especial:
-      if(Serial_Input.charAt(Auxiliar1-1)==':' || Serial_Input.charAt(Auxiliar1-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(Auxiliar1);//si es el primer digito lo iguala
-      else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(Auxiliar1);//si es el segundo en adelante lo suma al string
+      if(Serial_Input.charAt(Auxiliar2-1)==':' || Serial_Input.charAt(Auxiliar2-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(Auxiliar2);//si es el primer digito lo iguala
+      else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(Auxiliar2);//si es el segundo en adelante lo suma al string
     }
-    if(Auxiliar1==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
+    if(Auxiliar2==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
   } 
   
   if(Take_Comunication_Data==true){

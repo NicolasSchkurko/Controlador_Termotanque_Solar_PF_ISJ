@@ -29,8 +29,8 @@
   void Controllvl();
   void Actualizar_entradas();
 
-AT24C32 eep;
-RTC_DS1307 rtc;
+ AT24C32 eep;
+ RTC_DS1307 rtc;
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t);
 
@@ -66,6 +66,7 @@ uint8_t MessagePoss=0;
 bool calentar;
 char WIFISSID [19];
 char WIFIPASS [19];
+char LCDMessage[20];
 int8_t temperatura_a_calentar; 
 int8_t nivel_a_llenar; 
 int8_t temperatura_actual; // temp actual

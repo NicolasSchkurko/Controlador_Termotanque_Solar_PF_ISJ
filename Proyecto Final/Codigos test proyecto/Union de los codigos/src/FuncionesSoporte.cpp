@@ -1,5 +1,10 @@
-
+#include "FuncionesSoporte.h"
+#include <SPI.h>
+#include <LiquidCrystal_I2C.h>
 #include <Arduino.h>
+
+extern LiquidCrystal_I2C lcd;
+extern char LCDMessage[20];
 
 uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
 { 
@@ -82,7 +87,13 @@ String String_de_hora (uint8_t hora_entrada, uint8_t minuto_entrada){
   if(hora_entrada <= 9 && minuto_entrada>9) return("0"+String(hora_entrada)+":"+String(minuto_entrada));
   if(hora_entrada > 9 && minuto_entrada<=9) return(String(hora_entrada)+":0"+String(minuto_entrada));
   if(hora_entrada <= 9 && minuto_entrada<=9) return("0"+String(hora_entrada)+":0"+String(minuto_entrada));
+}
 
+void Printhora (uint8_t hora_entrada, uint8_t minuto_entrada){
+  if(hora_entrada > 9 && minuto_entrada>9)sprintf(LCDMessage,"%d:%d",hora_entrada,minuto_entrada);
+  if(hora_entrada <= 9 && minuto_entrada>9)sprintf(LCDMessage,"0%d:%d",hora_entrada,minuto_entrada);
+  if(hora_entrada > 9 && minuto_entrada<=9)sprintf(LCDMessage,"%d:0%d",hora_entrada,minuto_entrada);
+  if(hora_entrada <= 9 && minuto_entrada<=9)sprintf(LCDMessage,"0%d:0%d",hora_entrada,minuto_entrada);
 }
 
 char Character_Return(uint8_t Character_pos, bool mayus)
@@ -116,4 +127,35 @@ char Character_Return(uint8_t Character_pos, bool mayus)
     break;
   }
   return (0);
+}
+
+bool PressedButton (uint8_t Wich_Button){
+switch (Wich_Button)
+{
+case 1:
+  if ((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}return true;}
+  else return false;
+  break;
+case 2:
+  if ((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){} return true;}
+  else return false;
+  break;
+case 3:
+  if ((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){} return true;}
+  else return false;
+  break;
+case 4:
+  if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
+  else return false;
+  break;
+default:
+  if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0){while((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0){} return true;} 
+  else return false;
+  break;
+}
+}
+
+void PrintLCD (char buffer[20], uint8_t Column, uint8_t Row){
+lcd.setCursor(Column,Row); 
+lcd.print(buffer);
 }

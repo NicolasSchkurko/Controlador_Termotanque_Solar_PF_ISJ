@@ -1,3 +1,4 @@
+#include "SubMenues.h"
 #include <Arduino.h>
 #include <SPI.h>
 #include <LiquidCrystal_I2C.h>
@@ -39,17 +40,19 @@ extern  bool Activar_bomba;
 extern AT24C32 eep;
 extern RTC_DS1307 rtc;
 
-uint16_t tiempo_menues;   
+uint16_t tiempo_submenues;   
 uint8_t Fleg;
-uint8_t Auxiliar1;
+uint8_t Auxiliar0;
 bool use_farenheit = false; 
 uint8_t hora_to_modify, minuto_to_modify;
 uint8_t sumador_hora, sumador_minuto;
 uint8_t Valorinicial,Valorfinal;
 char Actualchar=0;
 bool mayusculas=false;
-int8_t Ypos;
-uint8_t ActualStruct=0;     
+int8_t Yposo;
+uint8_t ActualStructa=0;     
+
+extern char LCDMessage[20];
 
 void menu_de_llenado_manual(){
     switch (Fleg)
@@ -59,39 +62,36 @@ void menu_de_llenado_manual(){
         Fleg=3;
         break;
       case 3:
-        lcd.setCursor(0,0);
-        lcd.print("Nivel a llenar: ");
-        lcd.print(nivel_a_llenar);
-        if (nivel_a_llenar<100)lcd.print("% ");
-        else lcd.print("%");
-        lcd.setCursor(0,1);
-        lcd.print("Sumar 5 con 1");
-        lcd.setCursor(0,2);
-        lcd.print("Restar 5 con 2");
-        lcd.setCursor(0,3);
-        lcd.print("Confirmar con 3");
+        sprintf(LCDMessage, "Nivel a llenar: %d %", nivel_a_llenar);
+        PrintLCD (LCDMessage,0,0);
+        sprintf(LCDMessage, "Sumar 5 con 1");
+        PrintLCD (LCDMessage,0,1);
+        sprintf(LCDMessage, "Restar 5 con 2");
+        PrintLCD (LCDMessage,0,2);
+        sprintf(LCDMessage, "Confirmar con 3");
+        PrintLCD (LCDMessage,0,3);
 
         if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
         if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
-        if((PIND & (1<<PD2)) == 0 && nivel_a_llenar<max_nivel){
-            while((PIND & (1<<PD2)) == 0){}
+        if(PressedButton(1)&&nivel_a_llenar<max_nivel){
+            while(PressedButton(1)){}
             nivel_a_llenar += sumador_nivel;
           }
-        if((PIND & (1<<PD3)) == 0 && nivel_a_llenar>min_nivel){
-            while((PIND & (1<<PD3)) == 0){}
+        if((PressedButton(2)) == 0 && nivel_a_llenar>min_nivel){
+            while(PressedButton(2)){}
             nivel_a_llenar -= sumador_nivel;
           }
-        if((PIND & (1<<PD4)) == 0){
-            while((PIND & (1<<PD4)) == 0){}
+        if(PressedButton(3)){
+            while(PressedButton(3)){}
             Fleg=4;
             lcd.clear();
           }
-        if((PIND & (1<<PD5)) == 0){
-            while((PIND & (1<<PD5)) == 0){}
+        if(PressedButton(4)){
+            while(PressedButton(4)){}
             Estadoequipo=menu1;
             Fleg=1;
             funcionActual=posicion_inicial;
-            Auxiliar1=0;
+            Auxiliar0=0;
             lcd.clear();
           }
         break; 
@@ -104,7 +104,7 @@ void menu_de_llenado_manual(){
 
           if((PIND & (1<<PD4)) == 0){
               while((PIND & (1<<PD4)) == 0){}
-              tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
+              tiempo_submenues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
               lcd.clear();
               Fleg=5;
             }
@@ -181,7 +181,7 @@ void menu_de_calefaccion_manual(){
           if((PIND & (1<<PD4)) == 0){
               while((PIND & (1<<PD4)) == 0){}
               Fleg=5;
-              tiempo_menues=mili_segundos;
+              tiempo_submenues=mili_segundos;
               lcd.clear();
             }
           if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Fleg=3; lcd.clear();}
@@ -201,13 +201,13 @@ void menu_de_auto_por_hora()
       Fleg=3;
       sumador_hora=0;
       sumador_minuto=0;
-      Ypos=0;
+      Yposo=0;
       hora_to_modify=hora;
       minuto_to_modify=minutos;
       break;
     case 3:
       lcd.setCursor(0,0);
-      lcd.print("Seleccionar:"); lcd.print(ActualStruct+1); lcd.print(" slot");
+      lcd.print("Seleccionar:"); lcd.print(ActualStructa+1); lcd.print(" slot");
       lcd.setCursor(0,1);
       lcd.print("1:");lcd.print(String_de_hora(CharToUINT(1,save[0].hour),CharToUINT(2,save[0].hour)));
       lcd.setCursor(0,2);
@@ -215,19 +215,19 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("3:");lcd.print(String_de_hora(CharToUINT(1,save[2].hour),CharToUINT(2,save[2].hour)));
 
-      ActualStruct = ReturnToCero(Ypos,3);
+      ActualStructa = ReturnToCero(Yposo,3);
       if((PIND & (1<<PD2)) == 0){
           while((PIND & (1<<PD2)) == 0){}
-          Ypos=ReturnToCero(Ypos+1,3);
+          Yposo=ReturnToCero(Yposo+1,3);
         }
       if((PIND & (1<<PD3)) == 0){
           while((PIND & (1<<PD3)) == 0){}
-          Ypos=ReturnToCero(Ypos-1,3);
+          Yposo=ReturnToCero(Yposo-1,3);
       }
       if((PIND & (1<<PD4)) == 0){
           while((PIND & (1<<PD4)) == 0){}
-          save[ActualStruct].temp=min_temp;
-          save[ActualStruct].level=min_nivel;
+          save[ActualStructa].temp=min_temp;
+          save[ActualStructa].level=min_nivel;
           Fleg=4;
         }
       if((PIND & (1<<PD5)) == 0){
@@ -236,8 +236,8 @@ void menu_de_auto_por_hora()
             Fleg=1;
             funcionActual=posicion_inicial;
             lcd.clear();
-            save[ActualStruct].temp = eep.read(3*(ActualStruct+1));
-            save[ActualStruct].level = eep.read(2*(ActualStruct+1));
+            save[ActualStructa].temp = eep.read(3*(ActualStructa+1));
+            save[ActualStructa].level = eep.read(2*(ActualStructa+1));
           }
       break; 
 
@@ -245,13 +245,13 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,0);
       lcd.print("Temp. max:");
       if(use_farenheit == false) {
-        lcd.print(save[ActualStruct].temp); 
-        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("C    ");}
+        lcd.print(save[ActualStructa].temp); 
+        if (save[ActualStructa].temp<100){lcd.print((char)223); lcd.print("C    ");}
         else{lcd.print((char)223);lcd.setCursor(20,0); lcd.print("C");}
       }
       if(use_farenheit == true) {
-        lcd.print(((9*save[ActualStruct].temp)/5)+32);
-        if (save[ActualStruct].temp<100){lcd.print((char)223); lcd.print("F   ");}
+        lcd.print(((9*save[ActualStructa].temp)/5)+32);
+        if (save[ActualStructa].temp<100){lcd.print((char)223); lcd.print("F   ");}
         else{lcd.print((char)223); lcd.print("F");}
       }
 
@@ -262,15 +262,15 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if (save[ActualStruct].temp>maxi_cast)save[ActualStruct].temp=maxi_cast;
-      if (save[ActualStruct].temp<min_temp)save[ActualStruct].temp=min_temp;
-      if((PIND & (1<<PD2)) == 0 && save[ActualStruct].temp < maxi_cast){
+      if (save[ActualStructa].temp>maxi_cast)save[ActualStructa].temp=maxi_cast;
+      if (save[ActualStructa].temp<min_temp)save[ActualStructa].temp=min_temp;
+      if((PIND & (1<<PD2)) == 0 && save[ActualStructa].temp < maxi_cast){
           while((PIND & (1<<PD2)) == 0){}
-          save[ActualStruct].temp += sumador_temperatura;
+          save[ActualStructa].temp += sumador_temperatura;
         }
-      if((PIND & (1<<PD3)) == 0 && save[ActualStruct].temp> min_temp){
+      if((PIND & (1<<PD3)) == 0 && save[ActualStructa].temp> min_temp){
           while((PIND & (1<<PD3)) == 0){}
-          save[ActualStruct].temp -= sumador_temperatura;
+          save[ActualStructa].temp -= sumador_temperatura;
         }
       if((PIND & (1<<PD4)) == 0){
           while((PIND & (1<<PD4)) == 0){}
@@ -283,8 +283,8 @@ void menu_de_auto_por_hora()
       case 5:
        lcd.setCursor(0,0);
       lcd.print("Nivel max:"); 
-      lcd.print(save[ActualStruct].level);
-      if (save[ActualStruct].level<100)lcd.print("% ");
+      lcd.print(save[ActualStructa].level);
+      if (save[ActualStructa].level<100)lcd.print("% ");
       else lcd.print("%");
       lcd.setCursor(0,1);
       lcd.print("Sumar 5 con 1 ");
@@ -293,15 +293,15 @@ void menu_de_auto_por_hora()
       lcd.setCursor(0,3);
       lcd.print("Confirmar con 3");
 
-      if (save[ActualStruct].level>max_nivel)save[ActualStruct].level=max_nivel;
-      if (save[ActualStruct].level<min_nivel)save[ActualStruct].level=min_nivel;
-      if((PIND & (1<<PD2)) == 0 && save[ActualStruct].level<max_nivel){
+      if (save[ActualStructa].level>max_nivel)save[ActualStructa].level=max_nivel;
+      if (save[ActualStructa].level<min_nivel)save[ActualStructa].level=min_nivel;
+      if((PIND & (1<<PD2)) == 0 && save[ActualStructa].level<max_nivel){
           while((PIND & (1<<PD2)) == 0){}
-          save[ActualStruct].level += sumador_nivel;
+          save[ActualStructa].level += sumador_nivel;
         }
-      if((PIND & (1<<PD3)) == 0 && save[ActualStruct].level>min_nivel){
+      if((PIND & (1<<PD3)) == 0 && save[ActualStructa].level>min_nivel){
           while((PIND & (1<<PD3)) == 0){}
-          save[ActualStruct].level -= sumador_nivel;
+          save[ActualStructa].level -= sumador_nivel;
         }
       if((PIND & (1<<PD4)) == 0){
           while((PIND & (1<<PD4)) == 0){}
@@ -354,27 +354,27 @@ void menu_de_auto_por_hora()
         lcd.print("A las:");lcd.print(String_de_hora(hora_to_modify,minuto_to_modify));
         lcd.setCursor(0,1);
         lcd.print("Calentar:");
-        if(use_farenheit == false) {lcd.print(save[ActualStruct].temp); lcd.print((char)223); lcd.print("C");}
-        if(use_farenheit == true) {lcd.print(((9*save[ActualStruct].temp)/5)+32);lcd.print((char)223); lcd.print("F  ");}
+        if(use_farenheit == false) {lcd.print(save[ActualStructa].temp); lcd.print((char)223); lcd.print("C");}
+        if(use_farenheit == true) {lcd.print(((9*save[ActualStructa].temp)/5)+32);lcd.print((char)223); lcd.print("F  ");}
         lcd.setCursor(0,2);
-        lcd.print("Llenar:"); lcd.print(save[ActualStruct].level);lcd.print("%");
+        lcd.print("Llenar:"); lcd.print(save[ActualStructa].level);lcd.print("%");
         lcd.setCursor(0,3);
         lcd.print("     Confirmar?    ");
 
         if((PIND & (1<<PD4)) == 0){
           while((PIND & (1<<PD4)) == 0){}
-          tiempo_menues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
+          tiempo_submenues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
           lcd.clear();
           Fleg=9;
-          save[ActualStruct].hour= StringToChar(1,String_de_hora(hora_to_modify,minuto_to_modify));
+          save[ActualStructa].hour= StringToChar(1,String_de_hora(hora_to_modify,minuto_to_modify));
         }
         if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Fleg=7; lcd.clear();}
         break;
 
       case 9:
-        eep.write((ActualStruct*3)+1, save[ActualStruct].hour);
-        eep.write((ActualStruct*3)+2, save[ActualStruct].level);
-        eep.write((ActualStruct*3)+3, save[ActualStruct].temp);
+        eep.write((ActualStructa*3)+1, save[ActualStructa].hour);
+        eep.write((ActualStructa*3)+2, save[ActualStructa].level);
+        eep.write((ActualStructa*3)+3, save[ActualStructa].temp);
         guardado_para_menus(true);
       break;
     }
@@ -479,7 +479,7 @@ void menu_de_llenado_auto()
       if((PIND & (1<<PD4)) == 0){
         while((PIND & (1<<PD4)) == 0){}
         Fleg=6;
-        tiempo_menues=mili_segundos;
+        tiempo_submenues=mili_segundos;
         lcd.clear();
       }
       if((PIND & (1<<PD5)) == 0){
@@ -502,7 +502,7 @@ void menu_de_calefaccion_auto(){
       Valorinicial=eep.read(10);
       Valorfinal=eep.read(11);
       eep.write(10,min_temp);
-      Ypos=0;
+      Yposo=0;
       Fleg=3;
       break;
     case 3:
@@ -610,7 +610,7 @@ void menu_de_calefaccion_auto(){
         if((PIND & (1<<PD4)) == 0){
             while((PIND & (1<<PD4)) == 0){}
             Fleg=6;
-            tiempo_menues=mili_segundos;
+            tiempo_submenues=mili_segundos;
             lcd.clear();
           }
           if((PIND & (1<<PD5)) == 0){
@@ -716,7 +716,7 @@ void menu_modificar_hora_rtc()
           Fleg=8;
           DateTime now = rtc.now();
           rtc.adjust(DateTime(now.year(),now.month(),now.day(),hora_to_modify,minuto_to_modify,now.second()));
-          tiempo_menues=mili_segundos;
+          tiempo_submenues=mili_segundos;
           lcd.clear();
         }
         if((PIND & (1<<PD5)) == 0){
@@ -767,7 +767,7 @@ switch (Fleg)
 
     case 5:
       lcd.clear();
-      tiempo_menues=mili_segundos;
+      tiempo_submenues=mili_segundos;
       Fleg=6;
     break;
 
@@ -818,7 +818,7 @@ void menu_farenheit_celsius()
 
     case 5:
       lcd.clear();
-      tiempo_menues=mili_segundos;
+      tiempo_submenues=mili_segundos;
       Fleg=6;
     break;
 
@@ -857,10 +857,10 @@ void menu_seteo_wifi(){
       }
     break;
   case 5:
-    for (Auxiliar1=0;Auxiliar1<=18;Auxiliar1++){ 
-    WIFISSID[Auxiliar1]='\0';
-    WIFIPASS[Auxiliar1]='\0';}
-    Ypos=0;
+    for (Auxiliar0=0;Auxiliar0<=18;Auxiliar0++){ 
+    WIFISSID[Auxiliar0]='\0';
+    WIFIPASS[Auxiliar0]='\0';}
+    Yposo=0;
     Actualchar=0;
     Fleg=6;
     break;
@@ -868,13 +868,13 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,0);
     lcd.print("Nombre Wifi:");
     lcd.setCursor(0,1);
-    for (Auxiliar1 = 0; Auxiliar1<=19; Auxiliar1++){
-    if (WIFISSID[Auxiliar1]=='\0' )lcd.print(" ");
-    if (WIFISSID[Auxiliar1]!='\0' )lcd.print(WIFISSID[Auxiliar1]);
+    for (Auxiliar0 = 0; Auxiliar0<=19; Auxiliar0++){
+    if (WIFISSID[Auxiliar0]=='\0' )lcd.print(" ");
+    if (WIFISSID[Auxiliar0]!='\0' )lcd.print(WIFISSID[Auxiliar0]);
     }
     Actualchar=ReturnToCero(Actualchar, 40);
-    Ypos=ReturnToCero(Ypos,20);
-    WIFISSID[Ypos]=Character_Return(Actualchar, mayusculas);
+    Yposo=ReturnToCero(Yposo,20);
+    WIFISSID[Yposo]=Character_Return(Actualchar, mayusculas);
  
     Actualchar=map(analogRead(A2), 0, 1023, 0, 39);
     if((PIND & (1<<PD2)) == 0 )
@@ -882,28 +882,28 @@ void menu_seteo_wifi(){
         while((PIND & (1<<PD2)) == 0){}
         mayusculas=!mayusculas;
       }
-    if((PIND & (1<<PD3)) == 0 && Ypos <= 19)
+    if((PIND & (1<<PD3)) == 0 && Yposo <= 19)
       {
         while((PIND & (1<<PD3)) == 0){}
-        Ypos++;
+        Yposo++;
         Actualchar=0;
       }
     if((PIND & (1<<PD4)) == 0 )
       {
         while((PIND & (1<<PD4)) == 0){}
-        WIFISSID[Ypos]='\0';
+        WIFISSID[Yposo]='\0';
         lcd.clear();
         Fleg=7;
-        Ypos=0;
+        Yposo=0;
         Actualchar=0;
       }
     if((PIND & (1<<PD5)) == 0 )
       {
         while((PIND & (1<<PD5)) == 0){}
-        WIFISSID[Ypos]='\0';
+        WIFISSID[Yposo]='\0';
         lcd.clear();
         Fleg=4;
-        Ypos=0;
+        Yposo=0;
         Actualchar=0;
       }
     break;
@@ -914,8 +914,8 @@ void menu_seteo_wifi(){
     lcd.setCursor(0,1);
     lcd.print(WIFIPASS);
     Actualchar=ReturnToCero(Actualchar, 40);
-    Ypos=ReturnToCero(Ypos,20);
-    WIFIPASS[Ypos]=Character_Return(Actualchar, mayusculas);
+    Yposo=ReturnToCero(Yposo,20);
+    WIFIPASS[Yposo]=Character_Return(Actualchar, mayusculas);
     Actualchar=map(analogRead(A2), 0, 1023, 0, 39);
     if((PIND & (1<<PD2)) == 0 )
       {
@@ -925,25 +925,25 @@ void menu_seteo_wifi(){
     if((PIND & (1<<PD3)) == 0 )
       {
         while((PIND & (1<<PD3)) == 0){}
-        Ypos ++;
+        Yposo ++;
         Actualchar=0;
       }
     if((PIND & (1<<PD4)) == 0 )
       {
         while((PIND & (1<<PD4)) == 0){}
-        WIFIPASS[Ypos]='\0';
+        WIFIPASS[Yposo]='\0';
         lcd.clear();
-        tiempo_menues=mili_segundos;
+        tiempo_submenues=mili_segundos;
         Fleg=8;
-        Ypos=0;
+        Yposo=0;
       }
     if((PIND & (1<<PD5)) == 0 )
       {
         while((PIND & (1<<PD5)) == 0){}
-        WIFISSID[Ypos]='\0';
+        WIFISSID[Yposo]='\0';
         lcd.clear();
         Fleg=4;
-        Ypos=0;
+        Yposo=0;
         Actualchar=0;
       }
     break;

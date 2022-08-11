@@ -1,3 +1,4 @@
+#include "menu.h"
 #include <Arduino.h>
 #include <SPI.h>
 #include <LiquidCrystal_I2C.h>
@@ -15,6 +16,7 @@ extern uint16_t tiempo_de_standby;
 extern uint32_t  mili_segundos;
 extern uint8_t hora,minutos;
 extern uint16_t tiempo_de_standby;
+extern char LCDMessage[20];
 
 bool Blink;
 uint8_t Flog;
@@ -49,15 +51,18 @@ extern LiquidCrystal_I2C lcd;
 
 void standby()
 { 
-  lcd.setCursor(0,0); lcd.print("T:"); 
-  if(use_farenheit == false) {lcd.print(temperatura_actual); lcd.print((char)223); lcd.print("C");}
-  if(use_farenheit == true) {lcd.print(((9*temperatura_actual)/5)+32);lcd.print((char)223); lcd.print("F  ");}
-  lcd.setCursor(12,0);lcd.print("N:");  lcd.print(nivel_actual); lcd.print("% ");
-  lcd.setCursor(6,1);
-  lcd.print(String_de_hora(hora,minutos)+"hs");
+  sprintf(LCDMessage, "T:");
+  PrintLCD (LCDMessage,0,0);
+  if(use_farenheit == false)sprintf(LCDMessage, "%d %cC",temperatura_actual,(char)223);
+  if(use_farenheit == true) sprintf(LCDMessage, "%d %cF",((9*temperatura_actual)/5)+32,(char)223);
+  PrintLCD (LCDMessage,2,0);
+  sprintf(LCDMessage, "N: %d %c",nivel_actual,'%');
+  PrintLCD (LCDMessage,12,0);
+  Printhora (hora,minutos);
+  PrintLCD (LCDMessage,6,1);
 
-  if((PIND & (1<<PD2)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD5)) == 0){
-    while((PIND & (1<<PD2)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD5)) == 0){}
+
+  if(PressedButton (254)){
     switch (Estadoequipo)
     {
       case estado_standby:
