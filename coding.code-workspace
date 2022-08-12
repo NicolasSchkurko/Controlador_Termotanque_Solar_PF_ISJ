@@ -20,5 +20,15 @@
 			"path": "Proyecto Final\\Codigos test proyecto\\Union de los codigos"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"system_error": "cpp"
+		}
+	}
 }

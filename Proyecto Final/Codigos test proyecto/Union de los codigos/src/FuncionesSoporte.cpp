@@ -90,10 +90,10 @@ String String_de_hora (uint8_t hora_entrada, uint8_t minuto_entrada){
 }
 
 void Printhora (uint8_t hora_entrada, uint8_t minuto_entrada){
-  if(hora_entrada > 9 && minuto_entrada>9)sprintf(LCDMessage,"%d:%d",hora_entrada,minuto_entrada);
-  if(hora_entrada <= 9 && minuto_entrada>9)sprintf(LCDMessage,"0%d:%d",hora_entrada,minuto_entrada);
-  if(hora_entrada > 9 && minuto_entrada<=9)sprintf(LCDMessage,"%d:0%d",hora_entrada,minuto_entrada);
-  if(hora_entrada <= 9 && minuto_entrada<=9)sprintf(LCDMessage,"0%d:0%d",hora_entrada,minuto_entrada);
+  if(hora_entrada > 9 && minuto_entrada>9)sprintf(LCDMessage,"%d:%dhs",hora_entrada,minuto_entrada);
+  if(hora_entrada <= 9 && minuto_entrada>9)sprintf(LCDMessage,"0%d:%dhs",hora_entrada,minuto_entrada);
+  if(hora_entrada > 9 && minuto_entrada<=9)sprintf(LCDMessage,"%d:0%dhs",hora_entrada,minuto_entrada);
+  if(hora_entrada <= 9 && minuto_entrada<=9)sprintf(LCDMessage,"0%d:0%dhs",hora_entrada,minuto_entrada);
 }
 
 char Character_Return(uint8_t Character_pos, bool mayus)

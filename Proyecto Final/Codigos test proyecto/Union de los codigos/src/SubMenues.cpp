@@ -39,9 +39,8 @@ extern uint8_t hora,minutos;
 extern  bool Activar_bomba;
 extern AT24C32 eep;
 extern RTC_DS1307 rtc;
-
-uint16_t tiempo_submenues;   
-uint8_t Fleg;
+ 
+uint8_t Fleg=0;
 uint8_t Auxiliar0;
 bool use_farenheit = false; 
 uint8_t hora_to_modify, minuto_to_modify;
@@ -57,12 +56,71 @@ extern char LCDMessage[20];
 void menu_de_llenado_manual(){
     switch (Fleg)
     {
-      case 2:
+      case 0:
         nivel_a_llenar=min_nivel;
-        Fleg=3;
+        Fleg=1;
         break;
-      case 3:
-        sprintf(LCDMessage, "Nivel a llenar: %d %", nivel_a_llenar);
+      case 1:
+        sprintf(LCDMessage, "Nivel a llenar: %d%c",nivel_a_llenar,'%');
+        PrintLCD (LCDMessage,0,0);
+        sprintf(LCDMessage, "Sumar 25 con 1");
+        PrintLCD (LCDMessage,0,1);
+        sprintf(LCDMessage, "Restar 25 con 2");
+        PrintLCD (LCDMessage,0,2);
+        sprintf(LCDMessage, "Confirmar con 3");
+        PrintLCD (LCDMessage,0,3);
+
+        if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
+        if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
+
+        if(PressedButton(1) == true && nivel_a_llenar<max_nivel)nivel_a_llenar += sumador_nivel;
+        if(PressedButton(2) == true  && nivel_a_llenar>min_nivel)nivel_a_llenar -= sumador_nivel;
+        if(PressedButton(3)){
+            Fleg=2;
+            lcd.clear();
+          }
+        if(PressedButton(4)){
+            while(PressedButton(4)){}
+            Estadoequipo=menu1;
+            funcionActual=posicion_inicial;
+            lcd.clear();
+          }
+        break; 
+
+        case 2:
+          sprintf(LCDMessage, "Llenar hasta: %d%c",nivel_a_llenar,'%');
+          PrintLCD (LCDMessage,0,0);
+          sprintf(LCDMessage, "     Confirmar?    ");
+          PrintLCD (LCDMessage,0,3);
+
+          if(PressedButton(3)){
+              lcd.clear();
+              Fleg=3;
+            }
+          if(PressedButton(4)){
+              Fleg=1; 
+              lcd.clear();
+            }
+          break;
+
+        case 3:
+          guardado_para_menus(true);
+          Fleg=0;
+          break;
+    }
+}
+
+void menu_de_calefaccion_manual(){
+    switch (Fleg)
+    {
+      case 0:
+        if (min_temp>temperatura_actual) temperatura_a_calentar=min_temp;
+        else  temperatura_a_calentar = temperatura_actual;
+        Fleg=1;
+        break;
+      case 1:
+        if(use_farenheit == false)sprintf(LCDMessage, "T. a calentar: %d%cC",nivel_a_llenar,(char)223);
+        if(use_farenheit == true)sprintf(LCDMessage, "T. a calentar: %d%cF",((9*temperatura_a_calentar)/5)+32,(char)223);
         PrintLCD (LCDMessage,0,0);
         sprintf(LCDMessage, "Sumar 5 con 1");
         PrintLCD (LCDMessage,0,1);
@@ -71,123 +129,40 @@ void menu_de_llenado_manual(){
         sprintf(LCDMessage, "Confirmar con 3");
         PrintLCD (LCDMessage,0,3);
 
-        if (nivel_a_llenar>max_nivel)nivel_a_llenar=max_nivel;
-        if (nivel_a_llenar<min_nivel)nivel_a_llenar=min_nivel;
-        if(PressedButton(1)&&nivel_a_llenar<max_nivel){
-            while(PressedButton(1)){}
-            nivel_a_llenar += sumador_nivel;
-          }
-        if((PressedButton(2)) == 0 && nivel_a_llenar>min_nivel){
-            while(PressedButton(2)){}
-            nivel_a_llenar -= sumador_nivel;
-          }
+        if (temperatura_a_calentar>maxi_cast)temperatura_a_calentar=maxi_cast;
+        if (temperatura_a_calentar<min_temp)temperatura_a_calentar=min_temp;
+
+        if(PressedButton(1)==true && temperatura_a_calentar<maxi_cast)temperatura_a_calentar += sumador_temperatura;
+        if(PressedButton(2)==true && temperatura_a_calentar>min_temp)temperatura_a_calentar -= sumador_temperatura;
         if(PressedButton(3)){
-            while(PressedButton(3)){}
-            Fleg=4;
+            Fleg=2;
             lcd.clear();
           }
         if(PressedButton(4)){
-            while(PressedButton(4)){}
             Estadoequipo=menu1;
-            Fleg=1;
-            funcionActual=posicion_inicial;
-            Auxiliar0=0;
-            lcd.clear();
-          }
-        break; 
-
-        case 4:
-          lcd.setCursor(0,0);
-          lcd.print("Llenar hasta:"); lcd.print(nivel_a_llenar);lcd.print("%");
-          lcd.setCursor(0,3);
-          lcd.print("     Confirmar?    ");
-
-          if((PIND & (1<<PD4)) == 0){
-              while((PIND & (1<<PD4)) == 0){}
-              tiempo_submenues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
-              lcd.clear();
-              Fleg=5;
-            }
-          if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Fleg=3; lcd.clear();}
-          break;
-
-        case 5:
-          guardado_para_menus(true);
-          break;
-    }
-}
-
-void menu_de_calefaccion_manual(){
-    switch (Fleg)
-    {
-      case 2:
-        if (min_temp>temperatura_actual) temperatura_a_calentar=min_temp;
-        else  temperatura_a_calentar = temperatura_actual;
-        Fleg=3;
-        break;
-      case 3:
-        lcd.setCursor(0,0);
-        lcd.print("T. a calentar:");
-        if(use_farenheit == false) {
-          lcd.print(temperatura_a_calentar); 
-          if (temperatura_a_calentar<100){lcd.print((char)223); lcd.print("C ");}
-          else{lcd.print((char)223); lcd.print("C");}
-        }
-        if(use_farenheit == true) {
-          lcd.print(((9*temperatura_a_calentar)/5)+32);
-          if (temperatura_a_calentar<100){lcd.print((char)223); lcd.print("F ");}
-          else{lcd.print((char)223); lcd.print("F");}
-        }
-        lcd.setCursor(0,1);
-        lcd.print("Sumar 5 con 1");
-        lcd.setCursor(0,2);
-        lcd.print("Restar 5 con 2");
-        lcd.setCursor(0,3);
-        lcd.print("Confirmar con 3");
-
-        if (temperatura_a_calentar>maxi_cast)temperatura_a_calentar=maxi_cast;
-        if (temperatura_a_calentar<min_temp)temperatura_a_calentar=min_temp;
-        if((PIND & (1<<PD2)) == 0 && temperatura_a_calentar<maxi_cast){
-            while((PIND & (1<<PD2)) == 0){}
-            temperatura_a_calentar += sumador_temperatura;
-          }
-        
-        if((PIND & (1<<PD3)) == 0 && temperatura_a_calentar>min_temp){
-            while((PIND & (1<<PD3)) == 0){}
-            temperatura_a_calentar -= sumador_temperatura;
-          }
-
-        if((PIND & (1<<PD4)) == 0){
-            while((PIND & (1<<PD4)) == 0){}
-            Fleg=4;
-            lcd.setCursor(17,0); lcd.print("   ");
-          }
-        if((PIND & (1<<PD5)) == 0){
-            while((PIND & (1<<PD5)) == 0){}
-            Estadoequipo=menu1;
-            Fleg=1;
+            Fleg=0;
             funcionActual=posicion_inicial;
             lcd.clear();
           }
         break; 
 
-        case 4:
-          lcd.setCursor(0,0);
-          lcd.print("Calentar hasta: ");
-          if(use_farenheit == false) {lcd.print(temperatura_a_calentar); lcd.print((char)223); lcd.print("C");}
-          if(use_farenheit == true) {lcd.print(((9*temperatura_a_calentar)/5)+32);lcd.print((char)223); lcd.print("F  ");}
-          lcd.setCursor(0,3);
-          lcd.print("     Confirmar?    ");
-          if((PIND & (1<<PD4)) == 0){
-              while((PIND & (1<<PD4)) == 0){}
-              Fleg=5;
-              tiempo_submenues=mili_segundos;
+        case 2:
+          if(use_farenheit == false)sprintf(LCDMessage, "Calentar hasta: %d%cC",nivel_a_llenar,(char)223);
+          if(use_farenheit == true)sprintf(LCDMessage, "Calentar hasta: %d%cF",((9*temperatura_a_calentar)/5)+32,(char)223);
+          PrintLCD (LCDMessage,0,0);
+          sprintf(LCDMessage, "     Confirmar?    ");
+          PrintLCD (LCDMessage,0,3);
+          if(PressedButton(3)){
+              Fleg=3;
               lcd.clear();
             }
-          if((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} Fleg=3; lcd.clear();}
+          if(PressedButton(4)){
+            Fleg=3; 
+            lcd.clear();
+            }
           break;
 
-        case 5:
+        case 3:
           guardado_para_menus(true);
           break;
     }
@@ -363,7 +338,6 @@ void menu_de_auto_por_hora()
 
         if((PIND & (1<<PD4)) == 0){
           while((PIND & (1<<PD4)) == 0){}
-          tiempo_submenues=mili_segundos;//corregir porque no hace la espera //Dale Teo, una buena noticia dame
           lcd.clear();
           Fleg=9;
           save[ActualStructa].hour= StringToChar(1,String_de_hora(hora_to_modify,minuto_to_modify));
@@ -479,7 +453,6 @@ void menu_de_llenado_auto()
       if((PIND & (1<<PD4)) == 0){
         while((PIND & (1<<PD4)) == 0){}
         Fleg=6;
-        tiempo_submenues=mili_segundos;
         lcd.clear();
       }
       if((PIND & (1<<PD5)) == 0){
@@ -610,7 +583,6 @@ void menu_de_calefaccion_auto(){
         if((PIND & (1<<PD4)) == 0){
             while((PIND & (1<<PD4)) == 0){}
             Fleg=6;
-            tiempo_submenues=mili_segundos;
             lcd.clear();
           }
           if((PIND & (1<<PD5)) == 0){
@@ -716,7 +688,6 @@ void menu_modificar_hora_rtc()
           Fleg=8;
           DateTime now = rtc.now();
           rtc.adjust(DateTime(now.year(),now.month(),now.day(),hora_to_modify,minuto_to_modify,now.second()));
-          tiempo_submenues=mili_segundos;
           lcd.clear();
         }
         if((PIND & (1<<PD5)) == 0){
@@ -767,7 +738,6 @@ switch (Fleg)
 
     case 5:
       lcd.clear();
-      tiempo_submenues=mili_segundos;
       Fleg=6;
     break;
 
@@ -818,7 +788,6 @@ void menu_farenheit_celsius()
 
     case 5:
       lcd.clear();
-      tiempo_submenues=mili_segundos;
       Fleg=6;
     break;
 
@@ -933,7 +902,6 @@ void menu_seteo_wifi(){
         while((PIND & (1<<PD4)) == 0){}
         WIFIPASS[Yposo]='\0';
         lcd.clear();
-        tiempo_submenues=mili_segundos;
         Fleg=8;
         Yposo=0;
       }
