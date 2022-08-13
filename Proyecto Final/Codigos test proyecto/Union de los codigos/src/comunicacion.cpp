@@ -12,8 +12,9 @@ uint16_t tiempo_envio_mensajes;
 extern int8_t temperatura_actual;
 extern uint8_t nivel_actual;
 extern save_data save[3];
-extern char WIFISSID [19];
-extern char WIFIPASS [19];
+extern char WIFISSID [20];
+extern char WIFIPASS [20];
+extern char LCDMessage[20];
 extern int8_t temperatura_a_calentar; 
 extern int8_t nivel_a_llenar; 
 extern int8_t temperatura_actual; // temp actual
@@ -159,7 +160,8 @@ void Serial_Send_UNO(uint8_t WhatSend){
         if(InitComunication==false){Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));}
         break;
       case 5:
-        if(InitComunication==false){Serial.print(("U_"));Serial.print(StringToChar(1,String(hora)+":"+String(minutos)));Serial.print(F(":"));Serial.print(nivel_actual);Serial.print(F(":"));Serial.println(temperatura_actual);}
+        Printhora(hora,minutos);
+        if(InitComunication==false){Serial.print(("U_"));Serial.print(ArrayToChar(1,LCDMessage));Serial.print(F(":"));Serial.print(nivel_actual);Serial.print(F(":"));Serial.println(temperatura_actual);}
         break;
       case 6:
         if(InitComunication==false){Serial.print(("S_"));Serial.print(WIFISSID);Serial.print(F(":"));Serial.println(WIFIPASS);}

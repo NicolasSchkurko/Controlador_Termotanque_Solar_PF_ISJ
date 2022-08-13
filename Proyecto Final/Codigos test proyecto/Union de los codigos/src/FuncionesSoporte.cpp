@@ -47,7 +47,7 @@ uint8_t CharToUINT(uint8_t function,uint8_t save)
     return (0);
 }
 
-uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de colver
+uint8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de colver
 {
   uint8_t var1_convert; // solo una variable (_convert  nos evita modificar variables globales como bldos)
   uint8_t var2_convert; // solo una variable
@@ -55,12 +55,12 @@ uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de c
   switch (function)
   {
     case 1:
-      var1_convert=(toconvert.charAt(0)- '0')*10;// toma el valor del primer digito del string y lo convierte en int (numero de base 10)
-      var1_convert+=(toconvert.charAt(1)-'0');// toma el valor del segundo digito
+      var1_convert=(buffer[0]- '0')*10;// toma el valor del primer digito del string y lo convierte en int (numero de base 10)
+      var1_convert+=(buffer[1]-'0');// toma el valor del segundo digito
       var1_convert=var1_convert*4;//multiplica la hora x 4 (la proporcionalidad esta en la documentacion)
 
-      var2_convert=(toconvert.charAt(3)- '0')*10;//lo mismo que en el var 1 pero con minutos (10:[puntero aca]0)
-      var2_convert+=(toconvert.charAt(4)-'0');//lo mismo que en el var 1 pero con minutos
+      var2_convert=(buffer[3]- '0')*10;//lo mismo que en el var 1 pero con minutos (10:[puntero aca]0)
+      var2_convert+=(buffer[4]-'0');//lo mismo que en el var 1 pero con minutos
       resto_convert=var2_convert%15; //saca el resto (ejemplo 7/5 resto 2)
       if(resto_convert<8) var2_convert= var2_convert-resto_convert; //utiliza el resto para redondear abajo (Esto se da pq en el propio diseño del sistema decidimos guardar todas las horas en un char)
       else var2_convert=var2_convert+15-resto_convert;// utiliza el resto para redondear arriba
@@ -71,22 +71,15 @@ uint8_t StringToChar(uint8_t function, String toconvert) //// ya arregle lo de c
       return var1_convert;
       break;
     case 2:
-      var1_convert= toconvert.toInt();// hace magia y despues de tirar magia convierte el string en un int (fua ta dificil la conversion de ete)
+      var1_convert= atoi(buffer);// hace magia y despues de tirar magia convierte el string en un int (fua ta dificil la conversion de ete)
       return var1_convert;
       break;
     default:
-      var2_convert= toconvert.toInt();// mismo sistema
+      var2_convert= atoi(buffer);// mismo sistema
       return var2_convert;
       break;
   }
   return (0);
-}
-
-String String_de_hora (uint8_t hora_entrada, uint8_t minuto_entrada){
-  if(hora_entrada > 9 && minuto_entrada>9) return(String(hora_entrada)+":"+String(minuto_entrada));
-  if(hora_entrada <= 9 && minuto_entrada>9) return("0"+String(hora_entrada)+":"+String(minuto_entrada));
-  if(hora_entrada > 9 && minuto_entrada<=9) return(String(hora_entrada)+":0"+String(minuto_entrada));
-  if(hora_entrada <= 9 && minuto_entrada<=9) return("0"+String(hora_entrada)+":0"+String(minuto_entrada));
 }
 
 void Printhora (uint8_t hora_entrada, uint8_t minuto_entrada){

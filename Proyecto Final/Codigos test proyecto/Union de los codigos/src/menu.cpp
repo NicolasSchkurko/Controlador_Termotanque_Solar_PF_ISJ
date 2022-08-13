@@ -51,10 +51,8 @@ void standby()
   if(use_farenheit == false)sprintf(LCDMessage, "T:%d%cC",temperatura_actual,(char)223);
   if(use_farenheit == true) sprintf(LCDMessage, "T:%d%cF",((9*temperatura_actual)/5)+32,(char)223);
   PrintLCD (LCDMessage,0,0);
-  sprintf(LCDMessage, "N:%d%c",nivel_actual,'%');
-  PrintLCD (LCDMessage,12,0);
-  Printhora (hora,minutos);
-  PrintLCD (LCDMessage,6,1);
+  sprintf(LCDMessage, "N:%d%c",nivel_actual,'%'); PrintLCD (LCDMessage,12,0);
+  Printhora (hora,minutos);                       PrintLCD (LCDMessage,6,1);
 
   if(PressedButton (254)){
     switch (Estadoequipo)
@@ -95,14 +93,10 @@ void menu_basico()
       if(Blink == false){sprintf(LCDMessage, " "); tiempo_menues-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
       if(Blink == true)sprintf(LCDMessage, "%c", char(62));
       PrintLCD (LCDMessage,0,0);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos,maxY_menu1)]);
-      PrintLCD (LCDMessage,1,0);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+1,maxY_menu1)]);
-      PrintLCD (LCDMessage,1,1);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+2,maxY_menu1)]);
-      PrintLCD (LCDMessage,1,2);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+3,maxY_menu1)]);
-      PrintLCD (LCDMessage,1,3);
+      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos,maxY_menu1)]);   PrintLCD (LCDMessage,1,0);
+      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+1,maxY_menu1)]); PrintLCD (LCDMessage,1,1);
+      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+2,maxY_menu1)]); PrintLCD (LCDMessage,1,2);
+      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+3,maxY_menu1)]); PrintLCD (LCDMessage,1,3);
 
       if (PressedButton(1)){Ypos=ReturnToCero(Ypos-1,maxY_menu1);Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
       if (PressedButton(2)){Ypos=ReturnToCero(Ypos+1,maxY_menu1);Blink = true; tiempo_de_standby = 0;} // resta 1 a Ypos
@@ -172,14 +166,10 @@ void menu_avanzado()
       if(Blink == false){sprintf(LCDMessage, " "); tiempo_menues-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
       if(Blink == true)sprintf(LCDMessage,"%c",char(62));
       PrintLCD (LCDMessage,0,0);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos,maxY_menu2)]);
-      PrintLCD (LCDMessage,1,0);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+1,maxY_menu2)]);
-      PrintLCD (LCDMessage,1,1);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+2,maxY_menu2)]);
-      PrintLCD (LCDMessage,1,2);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+3,maxY_menu2)]);
-      PrintLCD (LCDMessage,1,3);
+      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos,maxY_menu2)]);    PrintLCD (LCDMessage,1,0);
+      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+1,maxY_menu2)]);  PrintLCD (LCDMessage,1,1);
+      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+2,maxY_menu2)]);  PrintLCD (LCDMessage,1,2);
+      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+3,maxY_menu2)]);  PrintLCD (LCDMessage,1,3);
 
       if (PressedButton(1)){Ypos=ReturnToCero(Ypos-1,maxY_menu2); Blink = true; tiempo_de_standby = 0;}// suma 1 a Ypos
       if (PressedButton(2)){Ypos=ReturnToCero(Ypos+1,maxY_menu2); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos

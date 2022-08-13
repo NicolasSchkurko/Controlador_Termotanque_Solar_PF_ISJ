@@ -64,8 +64,8 @@ estadoMEF Estadoequipo = estado_inicial;
 
 uint8_t MessagePoss=0;
 bool calentar;
-char WIFISSID [19];
-char WIFIPASS [19];
+char WIFISSID [20];
+char WIFIPASS [20];
 char LCDMessage[20];
 int8_t temperatura_a_calentar; 
 int8_t nivel_a_llenar; 
