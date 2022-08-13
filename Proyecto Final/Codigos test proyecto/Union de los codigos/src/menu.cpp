@@ -43,7 +43,7 @@ extern LiquidCrystal_I2C lcd;
 
 uint16_t tiempo_menues;
 int8_t Ypos;
-uint8_t opcionmenu=0; 
+uint8_t Posicion_menu=0; 
 bool Blink;  
 
 void standby()
@@ -52,7 +52,7 @@ void standby()
   if(use_farenheit == true) sprintf(LCDMessage, "T:%d%cF",((9*temperatura_actual)/5)+32,(char)223);
   PrintLCD (LCDMessage,0,0);
   sprintf(LCDMessage, "N:%d%c",nivel_actual,'%'); PrintLCD (LCDMessage,12,0);
-  Printhora (hora,minutos);                       PrintLCD (LCDMessage,6,1);
+  Printhora (LCDMessage,hora,minutos);            PrintLCD (LCDMessage,6,1);
 
   if(PressedButton (254)){
     switch (Estadoequipo)
@@ -81,13 +81,13 @@ void standby()
 
 void menu_basico()
 {
-  switch (opcionmenu){
+  switch (Posicion_menu){
     case 0:
       tiempo_de_standby = 0;
       tiempo_menues=mili_segundos;
       Blink=false;
       lcd.clear();
-      opcionmenu=1;
+      Posicion_menu=1;
       break;
     case 1:
       if(Blink == false){sprintf(LCDMessage, " "); tiempo_menues-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
@@ -100,7 +100,7 @@ void menu_basico()
 
       if (PressedButton(1)){Ypos=ReturnToCero(Ypos-1,maxY_menu1);Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
       if (PressedButton(2)){Ypos=ReturnToCero(Ypos+1,maxY_menu1);Blink = true; tiempo_de_standby = 0;} // resta 1 a Ypos
-      if (PressedButton(3))opcionmenu=ReturnToCero(Ypos,maxY_menu1)+2; //confirmacion
+      if (PressedButton(3))Posicion_menu=ReturnToCero(Ypos,maxY_menu1)+2; //confirmacion
 
       if(mili_segundos>=tiempo_menues+tiempo_de_parpadeo){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
@@ -113,30 +113,30 @@ void menu_basico()
     case 2:
       Estadoequipo=funciones;
       funcionActual=llenado_manual;
-      opcionmenu=0; // la declaracion de flag no es del todo necesaria pero se vuelve a declarar x seguridad
+      Posicion_menu=0; // la declaracion de flag no es del todo necesaria pero se vuelve a declarar x seguridad
       break;
     case 3:
       Estadoequipo=funciones;
       funcionActual=calefaccion_manual;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 4:
       Estadoequipo=funciones;
       funcionActual=funcion_menu_de_auto_por_hora;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 5:
       Estadoequipo=funciones;
       funcionActual=llenado_auto;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 6:
       Estadoequipo=funciones;
       funcionActual=calefaccion_auto;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 7:
-      opcionmenu=0; // aumenta pq pasa al menu avanzado
+      Posicion_menu=0; // aumenta pq pasa al menu avanzado
       Ypos=0;
       lcd.clear();
       tiempo_de_standby=0;
@@ -144,7 +144,7 @@ void menu_basico()
       break;
     case 8:
       tiempo_de_standby=0;
-      opcionmenu=0; // disminuye pq pasa al standby
+      Posicion_menu=0; // disminuye pq pasa al standby
       lcd.clear();
       Estadoequipo=estado_inicial;
       break;
@@ -153,14 +153,14 @@ void menu_basico()
 
 void menu_avanzado()
 {
-  switch (opcionmenu)
+  switch (Posicion_menu)
   { 
     case 0:
       Ypos=0;
       tiempo_de_standby = 0;
       Blink=false;
       lcd.clear();
-      opcionmenu=1;
+      Posicion_menu=1;
       break;
     case 1:
       if(Blink == false){sprintf(LCDMessage, " "); tiempo_menues-=100;} //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
@@ -173,7 +173,7 @@ void menu_avanzado()
 
       if (PressedButton(1)){Ypos=ReturnToCero(Ypos-1,maxY_menu2); Blink = true; tiempo_de_standby = 0;}// suma 1 a Ypos
       if (PressedButton(2)){Ypos=ReturnToCero(Ypos+1,maxY_menu2); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos
-      if (PressedButton(3))opcionmenu=ReturnToCero(Ypos,maxY_menu2)+2; //confirmacion
+      if (PressedButton(3))Posicion_menu=ReturnToCero(Ypos,maxY_menu2)+2; //confirmacion
       
       if(mili_segundos>=tiempo_menues+tiempo_de_parpadeo){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
@@ -186,26 +186,26 @@ void menu_avanzado()
     case 2:
       Estadoequipo=funciones;
       funcionActual=funcion_de_menu_modificar_hora_rtc;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 3: 
       Estadoequipo=funciones;
       funcionActual=funcion_farenheit_celsius;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 4:
       Estadoequipo=funciones;
       funcionActual=funcion_activar_bomba;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 5:
       Estadoequipo=funciones;
       funcionActual=funcion_de_menu_seteo_wifi;
-      opcionmenu=0;
+      Posicion_menu=0;
       break;
     case 6:
       tiempo_de_standby=0;
-      opcionmenu=0;
+      Posicion_menu=0;
       Ypos=0;
       lcd.clear();
       Estadoequipo=menu1;
@@ -214,8 +214,7 @@ void menu_avanzado()
 }
 
 void guardado_para_menus(bool Menu){
-  lcd.setCursor(4,0);
-  lcd.print("Guardando...");
+  memcpy(LCDMessage, "Guardando...", 13);                                   PrintLCD (LCDMessage,4,0);
   if(mili_segundos>=tiempo_menues+tiempo_de_espera_menu){
   if(Menu == true){
       Estadoequipo=menu1;

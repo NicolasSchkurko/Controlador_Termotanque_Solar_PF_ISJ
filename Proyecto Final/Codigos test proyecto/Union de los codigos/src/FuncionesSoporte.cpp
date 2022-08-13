@@ -4,18 +4,17 @@
 #include <Arduino.h>
 
 extern LiquidCrystal_I2C lcd;
-extern char LCDMessage[20];
 
 uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
 { 
-  uint8_t realvalue;
+  uint8_t Aux1;
   if (actualpos>=maxpos){
-    realvalue = 0 + actualpos % maxpos;       
-    return realvalue;
+    Aux1 = 0 + actualpos % maxpos;       
+    return Aux1;
   }
   if (actualpos<0){
-    realvalue = maxpos + actualpos;          
-    return realvalue;
+    Aux1 = maxpos + actualpos;          
+    return Aux1;
   }
   if (actualpos>0 && actualpos<maxpos) return actualpos;
   return (0);
@@ -23,20 +22,20 @@ uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
 
 uint8_t CharToUINT(uint8_t function,uint8_t save)
 {
-  uint8_t var1_deconvert=0;//solo una variable (_deconvert  nos evita modificar variables globales como bldos)
-  uint8_t resto_deconvert=0;
+  uint8_t Aux1=0;//solo una variable (_deconvert  nos evita modificar variables globales como bldos)
+  uint8_t resto=0;
   // todo el dia con la mielcita jere ¯\_(ツ)_/¯ 
   switch (function)
     {
       case 1:
-        resto_deconvert= (save) % 4;
-        var1_deconvert= (save-resto_deconvert)/4;
-        return var1_deconvert;
+        resto= (save) % 4;
+        Aux1= (save-resto)/4;
+        return Aux1;
       break;
       case 2:
-        resto_deconvert= (save) % 4;
-        var1_deconvert=resto_deconvert*15;
-        return var1_deconvert;
+        resto= (save) % 4;
+        Aux1=resto*15;
+        return Aux1;
       break;
       case 3:
         return save;
@@ -49,44 +48,52 @@ uint8_t CharToUINT(uint8_t function,uint8_t save)
 
 uint8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de colver
 {
-  uint8_t var1_convert; // solo una variable (_convert  nos evita modificar variables globales como bldos)
-  uint8_t var2_convert; // solo una variable
-  uint8_t resto_convert; //guarda el resto del calculo de tiempo
+  uint8_t Aux1; // solo una variable (_convert  nos evita modificar variables globales como bldos)
+  uint8_t resto; //guarda el resto del calculo de tiempo
   switch (function)
   {
     case 1:
-      var1_convert=(buffer[0]- '0')*10;// toma el valor del primer digito del string y lo convierte en int (numero de base 10)
-      var1_convert+=(buffer[1]-'0');// toma el valor del segundo digito
-      var1_convert=var1_convert*4;//multiplica la hora x 4 (la proporcionalidad esta en la documentacion)
+      Aux1=(buffer[0]- '0')*10;// toma el valor del primer digito del string y lo convierte en int (numero de base 10)
+      Aux1+=(buffer[1]-'0');// toma el valor del segundo digito
+      Aux1=Aux1*4;//multiplica la hora x 4 (la proporcionalidad esta en la documentacion)
 
-      var2_convert=(buffer[3]- '0')*10;//lo mismo que en el var 1 pero con minutos (10:[puntero aca]0)
-      var2_convert+=(buffer[4]-'0');//lo mismo que en el var 1 pero con minutos
-      resto_convert=var2_convert%15; //saca el resto (ejemplo 7/5 resto 2)
-      if(resto_convert<8) var2_convert= var2_convert-resto_convert; //utiliza el resto para redondear abajo (Esto se da pq en el propio diseño del sistema decidimos guardar todas las horas en un char)
-      else var2_convert=var2_convert+15-resto_convert;// utiliza el resto para redondear arriba
-      var2_convert=var2_convert/15;// convierte los minutos en la proporcion del char (1 entero = 15 minutos)
+      Aux1=(buffer[3]- '0')*10;//lo mismo que en el var 1 pero con minutos (10:[puntero aca]0)
+      Aux1+=(buffer[4]-'0');//lo mismo que en el var 1 pero con minutos
+      resto=Aux1%15; //saca el resto (ejemplo 7/5 resto 2)
+      if(resto<8) Aux1= Aux1-resto; //utiliza el resto para redondear abajo (Esto se da pq en el propio diseño del sistema decidimos guardar todas las horas en un char)
+      else Aux1=Aux1+15-resto;// utiliza el resto para redondear arriba
+      Aux1=Aux1/15;// convierte los minutos en la proporcion del char (1 entero = 15 minutos)
 
-      var1_convert+=var2_convert;// suma horas y minutos
-      if(var1_convert>=96)var1_convert=0;
-      return var1_convert;
+      Aux1+=Aux1;// suma horas y minutos
+      if(Aux1>=96)Aux1=0;
+      return Aux1;
       break;
     case 2:
-      var1_convert= atoi(buffer);// hace magia y despues de tirar magia convierte el string en un int (fua ta dificil la conversion de ete)
-      return var1_convert;
+      Aux1= atoi(buffer);// hace magia y despues de tirar magia convierte el string en un int (fua ta dificil la conversion de ete)
+      return Aux1;
       break;
     default:
-      var2_convert= atoi(buffer);// mismo sistema
-      return var2_convert;
+      Aux1= atoi(buffer);// mismo sistema
+      return Aux1;
       break;
   }
   return (0);
 }
 
-void Printhora (uint8_t hora_entrada, uint8_t minuto_entrada){
-  if(hora_entrada > 9 && minuto_entrada>9)sprintf(LCDMessage,"%d:%dhs",hora_entrada,minuto_entrada);
-  if(hora_entrada <= 9 && minuto_entrada>9)sprintf(LCDMessage,"0%d:%dhs",hora_entrada,minuto_entrada);
-  if(hora_entrada > 9 && minuto_entrada<=9)sprintf(LCDMessage,"%d:0%dhs",hora_entrada,minuto_entrada);
-  if(hora_entrada <= 9 && minuto_entrada<=9)sprintf(LCDMessage,"0%d:0%dhs",hora_entrada,minuto_entrada);
+void Printhora (char buffer[20],uint8_t hora_entrada, uint8_t minuto_entrada){
+  uint8_t Aux1;
+  for(Aux1=0; Aux1<20; Aux1++)buffer[Aux1]='\0';
+  Aux1=hora_entrada/10;
+  buffer[0]=Aux1+'0';
+  hora_entrada=hora_entrada-(Aux1*10);
+  buffer[1]=hora_entrada+'0';
+  buffer[2]=':';
+  Aux1=minuto_entrada/10;
+  buffer[3]=Aux1+'0';
+  minuto_entrada=minuto_entrada-(Aux1*10);
+  buffer[4]=minuto_entrada+'0';
+  buffer[5]='h';
+  buffer[6]='s';
 }
 
 char Character_Return(uint8_t Character_pos, bool mayus)

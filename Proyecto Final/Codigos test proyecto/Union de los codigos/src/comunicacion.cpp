@@ -160,7 +160,7 @@ void Serial_Send_UNO(uint8_t WhatSend){
         if(InitComunication==false){Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));}
         break;
       case 5:
-        Printhora(hora,minutos);
+        Printhora(LCDMessage,hora,minutos);
         if(InitComunication==false){Serial.print(("U_"));Serial.print(ArrayToChar(1,LCDMessage));Serial.print(F(":"));Serial.print(nivel_actual);Serial.print(F(":"));Serial.println(temperatura_actual);}
         break;
       case 6:
