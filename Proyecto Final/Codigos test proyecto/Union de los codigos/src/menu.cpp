@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <LiquidCrystal_I2C.h>
 #include "FuncionesSoporte.h"
-
+//a
 #define maxY_menu1 7
 #define maxY_menu2 5
 #define tiempo_de_parpadeo 700
