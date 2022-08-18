@@ -25,32 +25,23 @@
 #define tiempo_para_temperatura 5000 
 #define tiempo_para_nivel 3000
 
-  void Controltemp();
-  void Controllvl();
-  void Actualizar_entradas();
+void Controltemp();
+void Controllvl();
+void Actualizar_entradas();
 
- AT24C32 eep;
- RTC_DS1307 rtc;
+AT24C32 eep;
+RTC_DS1307 rtc;
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t);
 
-
+uint16_t tiempo_envio_mensajes=0;
 uint8_t nivel_actual;
 uint32_t tiempo_sensores;
-uint32_t  mili_segundos = 0;
+uint32_t  mili_segundos=0;
 
-  
-
-// Guardado en memoria 
-  //Variables EEPROM
-  struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;};            //guardado 1/hora/level/temp                                   //guardado 2/hora/level/temp
-  save_data save[3];                                                        //guardado 3/hora/level/temp
-                                                                            //guarda auto temp = 255/temp_min/temp_max
-                                                                            //guarda auto lvl = 255/level_min/level_max
-
-  //Variables menu
-  typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_menu_de_auto_por_hora, llenado_auto, calefaccion_auto, funcion_de_menu_modificar_hora_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_menu_seteo_wifi} Seleccionar_Funciones;  
-  typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF; 
+//Variables menu
+typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_menu_de_auto_por_hora, llenado_auto, calefaccion_auto, funcion_de_menu_modificar_hora_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_menu_seteo_wifi} Seleccionar_Funciones;  
+typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF; 
   
 Seleccionar_Funciones funcionActual = posicion_inicial;
 estadoMEF Estadoequipo = estado_inicial;
@@ -58,9 +49,9 @@ estadoMEF Estadoequipo = estado_inicial;
   //Variables Comunicacion esp/arduino
 
 
-  uint8_t Auxiliar1;
-  bool Resistencia;
-  bool Valvula;
+uint8_t Auxiliar1;
+bool Resistencia;
+bool Valvula;
 
 uint8_t MessagePoss=0;
 bool calentar;
@@ -72,6 +63,7 @@ int8_t nivel_a_llenar;
 int8_t temperatura_actual; // temp actual
 bool Activar_bomba;
 bool llenar;
+bool Can_Read=true;
 uint8_t hora,minutos;
 LiquidCrystal_I2C lcd(0x27,20,4);//LiquidCrystal_I2C lcd(0x27,20,4);
 uint16_t tiempo_de_standby=0;
@@ -88,8 +80,9 @@ void setup()
   Wire.begin();  
   Serial.begin(9600); //inicializacion del serial arduino-esp
   rtc.begin();//inicializacion del rtc arduino-esp
-  //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
 
+  //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
+  Serial.setTimeout(200);
   lcd.init();//Iniciacion del LCD
   pinMode(nivel_del_tanque, INPUT); //pines  nivel
   //Sensr de temperatura
@@ -105,28 +98,28 @@ void setup()
 
   tiempo_sensores=mili_segundos;
 
-  save[0].hour=eep.read(1);
-  save[0].level=eep.read(2);
-  save[0].temp=eep.read(3);
-  save[1].hour=eep.read(4);
-  save[1].level=eep.read(5);
-  save[1].temp=eep.read(6);
-  save[2].hour=eep.read(7);
-  save[2].level=eep.read(8);
-  save[2].temp=eep.read(9);
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
     WIFISSID[i] = eep.read(34 + i);
   }
-  while (MessagePoss<6)Serial_Send_UNO(1);
-}
 
+  mili_segundos=0;
+
+  while(mili_segundos<=3000){
+    if(mili_segundos==1)Serial_Send_UNO(1,0);
+    if(mili_segundos==500)Serial_Send_UNO(1,1);
+    if(mili_segundos==500)Serial_Send_UNO(1,2);
+    if(mili_segundos==1500)Serial_Send_UNO(1,3);
+    if(mili_segundos==2000)Serial_Send_UNO(1,4);
+    if(mili_segundos==2500)Serial_Send_UNO(1,5);
+  }  
+}
 void loop() 
 {
   Actualizar_entradas();
   Controllvl();
   Controltemp();
-  if(Serial.available()>0){Serial_Read_UNO();} // si recibe un dato del serial lo lee
+  if(Can_Read==true && Serial.available()>0)Serial_Read_UNO(); // si recibe un dato del serial lo lee
 
   switch (Estadoequipo){
     case estado_standby:
@@ -171,6 +164,7 @@ void Actualizar_entradas (){ //Sexo y adaptarlo para no usar delay farenheit
     if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
     tiempo_sensores=mili_segundos;
+    if (Can_Read==false)Can_Read=true;
   }
   DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
   hora=now.hour();

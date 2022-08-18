@@ -54,7 +54,7 @@ void standby()
   sprintf(LCDMessage, "N:%d%c",nivel_actual,'%'); PrintLCD (LCDMessage,12,0);
   Printhora (LCDMessage,hora,minutos);            PrintLCD (LCDMessage,6,1);
 
-  if(PressedButton (254)){
+  if(PressedButton (1)){
     switch (Estadoequipo)
     {
       case estado_standby:
@@ -98,9 +98,11 @@ void menu_basico()
       sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+2,maxY_menu1)]); PrintLCD (LCDMessage,1,2);
       sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+3,maxY_menu1)]); PrintLCD (LCDMessage,1,3);
 
-      if (PressedButton(1)){Ypos=ReturnToCero(Ypos-1,maxY_menu1);Blink = true; tiempo_de_standby = 0;} // suma 1 a Ypos
-      if (PressedButton(2)){Ypos=ReturnToCero(Ypos+1,maxY_menu1);Blink = true; tiempo_de_standby = 0;} // resta 1 a Ypos
-      if (PressedButton(3))Posicion_menu=ReturnToCero(Ypos,maxY_menu1)+2; //confirmacion
+      Ypos=ReturnToCero(Ypos,maxY_menu1);
+
+      if (PressedButton(1)){Ypos--; tiempo_de_standby = 0;} // suma 1 a Ypos
+      if (PressedButton(2)){Ypos++; tiempo_de_standby = 0;} // resta 1 a Ypos
+      if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
 
       if(mili_segundos>=tiempo_menues+tiempo_de_parpadeo){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 
@@ -171,9 +173,11 @@ void menu_avanzado()
       sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+2,maxY_menu2)]);  PrintLCD (LCDMessage,1,2);
       sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+3,maxY_menu2)]);  PrintLCD (LCDMessage,1,3);
 
-      if (PressedButton(1)){Ypos=ReturnToCero(Ypos-1,maxY_menu2); Blink = true; tiempo_de_standby = 0;}// suma 1 a Ypos
-      if (PressedButton(2)){Ypos=ReturnToCero(Ypos+1,maxY_menu2); Blink = true; tiempo_de_standby = 0;}// resta 1 a Ypos
-      if (PressedButton(3))Posicion_menu=ReturnToCero(Ypos,maxY_menu2)+2; //confirmacion
+      Ypos=ReturnToCero(Ypos,maxY_menu2);
+
+      if (PressedButton(1)){Ypos--; tiempo_de_standby = 0;}// suma 1 a Ypos
+      if (PressedButton(2)){Ypos++; tiempo_de_standby = 0;}// resta 1 a Ypos
+      if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
       
       if(mili_segundos>=tiempo_menues+tiempo_de_parpadeo){tiempo_menues=mili_segundos;Blink=!Blink;} //prende o apaga la flechita
 

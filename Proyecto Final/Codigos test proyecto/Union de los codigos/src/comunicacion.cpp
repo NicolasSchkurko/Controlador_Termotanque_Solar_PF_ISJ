@@ -4,104 +4,103 @@
 #include "AT24CX.h"
 #include <SPI.h>
 
-void Serial_Send_UNO(uint8_t);
+void Serial_Send_UNO(uint8_t,uint8_t);
 
-struct save_data{ uint8_t hour; uint8_t level; uint8_t temp;}; 
-
-uint16_t tiempo_envio_mensajes;
+extern uint16_t tiempo_envio_mensajes;
 extern int8_t temperatura_actual;
 extern uint8_t nivel_actual;
-extern save_data save[3];
 extern char WIFISSID [20];
 extern char WIFIPASS [20];
-extern char LCDMessage[20];
 extern int8_t temperatura_a_calentar; 
 extern int8_t nivel_a_llenar; 
 extern int8_t temperatura_actual; // temp actual
 extern  bool Activar_bomba;
 extern bool calentar;
 extern bool llenar;
-extern uint8_t MessagePoss;
+extern bool Can_Read;
 extern uint32_t  mili_segundos;
 extern AT24C32 eep;
 extern uint8_t hora,minutos;
 
 uint8_t StringLength=0;
 uint8_t ActualIndividualDataPos=0;
-String Serial_Input;
-String Individualdata[4];
+char Serial_Input [60];
+char Individualdata[4][20];
 char input=0;
 uint8_t Auxiliar2;
 uint8_t ActualStruct=0; 
 
 bool Take_Comunication_Data=false;
 bool ComunicationError=false;
-bool InitComunication = true;  
+bool InitComunication=true;  
 
 void Serial_Read_UNO(){
-  Serial_Input=Serial.readString();// iguala el string del serial a un string input
-  StringLength= Serial_Input.length();// saca el largo del string
-  input=Serial_Input.charAt(0); // toma el char del comando a realizar (usualmente una letra)
+  uint8_t gap;
+  StringLength = Serial.available();
+  for(int i=0; i<StringLength; i++)
+  {
+      Serial_Input[i] = Serial.read();
+  }// iguala el string del serial a un string input
+  input=Serial_Input[0]; // toma el char del comando a realizar (usualmente una letra)
   // Separador del string en variables:
-  for (Auxiliar2 = 2; Auxiliar2 <= StringLength; Auxiliar2++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
-    if(Serial_Input.charAt(Auxiliar2)==':') ActualIndividualDataPos++; //si hay : divide los datos
-    else{// si no es nungun caracter especial:
-      if(Serial_Input.charAt(Auxiliar2-1)==':' || Serial_Input.charAt(Auxiliar2-1)=='_')Individualdata[ActualIndividualDataPos]=Serial_Input.charAt(Auxiliar2);//si es el primer digito lo iguala
-      else Individualdata[ActualIndividualDataPos]+=Serial_Input.charAt(Auxiliar2);//si es el segundo en adelante lo suma al string
+  for (Auxiliar2 = 2; Auxiliar2 <=StringLength; Auxiliar2++){ // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+    if(Serial_Input[Auxiliar2]==':'){
+      ActualIndividualDataPos++;
+      gap=Auxiliar2;
+    } //si hay : divide los datos
+
+    if(Serial_Input[Auxiliar2]!=':'){// si no es nungun caracter especial:
+      Individualdata[ActualIndividualDataPos][Auxiliar2-gap]=Serial_Input[Auxiliar2];//copia al individual
     }
-    if(Auxiliar2==StringLength)Take_Comunication_Data=true; //comienza a igualar variables
+    if(Auxiliar2==80)Take_Comunication_Data=true; //comienza a igualar variables
   } 
   
   if(Take_Comunication_Data==true){
     switch (input){//dependiendo del char de comando
     case 'H':
-      temperatura_a_calentar=Individualdata[0].toInt();
+      temperatura_a_calentar=atoi(Individualdata[0]);
       if(Individualdata[1]=="ON")calentar=true;
       if(Individualdata[1]=="Off")calentar=false;
       Take_Comunication_Data=false;
       break;
 
     case 'C':
-      nivel_a_llenar=Individualdata[0].toInt();
+      nivel_a_llenar=atoi(Individualdata[0]);
       if(Individualdata[1]=="ON")llenar=true;
       if(Individualdata[1]=="Off")llenar=false;
       Take_Comunication_Data=false;
       break;
 
     case 'K':
-      ActualStruct=Individualdata[3].toInt();
+      ActualStruct=atoi(Individualdata[3]);
       if (ActualStruct<=2 && ActualStruct>=0){
-          eep.write((ActualStruct*3)+1, Individualdata[0].toInt());
-          save[ActualStruct].hour=Individualdata[0].toInt();
-          eep.write((ActualStruct*3)+2, Individualdata[1].toInt());
-          save[ActualStruct].temp=Individualdata[0].toInt();
-          eep.write((ActualStruct*3)+3, Individualdata[2].toInt());
-          save[ActualStruct].level=Individualdata[0].toInt();
+          eep.write((ActualStruct*3)+1,atoi(Individualdata[0]));
+          eep.write((ActualStruct*3)+2,atoi(Individualdata[1]));
+          eep.write((ActualStruct*3)+3,atoi(Individualdata[2]));
           ActualIndividualDataPos=0;
           Take_Comunication_Data=false;
         }
       break;
 
     case 'J':
-      eep.write(10,Individualdata[0].toInt());
-      eep.write(11,Individualdata[1].toInt());
+      eep.write(10,atoi(Individualdata[0]));
+      eep.write(11,atoi(Individualdata[1]));
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
       break;
     case 'V':
-      eep.write(12,Individualdata[0].toInt());
-      eep.write(13,Individualdata[1].toInt());
+      eep.write(12,atoi(Individualdata[0]));
+      eep.write(13,atoi(Individualdata[1]));
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
       break;
     case 'E':
-      Serial_Send_UNO(6);
+      Serial_Send_UNO(6,0);
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
       break;
     case 'O':
       if(Individualdata[0]=="OK"){
-      if (InitComunication==true)Serial_Send_UNO(1);
       ActualIndividualDataPos=0;
       Take_Comunication_Data=false;
       }
@@ -110,61 +109,94 @@ void Serial_Read_UNO(){
   }
 }
 
-void Serial_Send_UNO(uint8_t WhatSend){
+void Serial_Send_UNO(uint8_t WhatSend,uint8_t What_slot){
+  uint8_t HourChar;
   if (ComunicationError==false){
     switch (WhatSend){
       case 1:
-        if (InitComunication==true && mili_segundos>=tiempo_envio_mensajes+2000){
-            switch (MessagePoss){
+        if (InitComunication==true){
+            switch (What_slot){
               case 0:
-                Serial.print(("S_"));Serial.print(String(WIFISSID));Serial.print(F(":"));Serial.println(String(WIFIPASS)+":");
+                sprintf( Serial_Input, "S_%s:%s:",WIFISSID,WIFIPASS);
+                Serial.println( Serial_Input);
                 tiempo_envio_mensajes=mili_segundos;
-                MessagePoss++;
                 break;
               case 1:
-                Serial.print(("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.println(save[0].level);
+                sprintf( Serial_Input, "K_%d:%d:%d",eep.read(1),eep.read(2),eep.read(3));
+                Serial.println( Serial_Input);
                 tiempo_envio_mensajes=mili_segundos;
-                MessagePoss++;
                 break;
               case 2:
-                Serial.print(("K_"));Serial.print(save[1].hour);Serial.print(F(":"));Serial.print(save[1].temp);Serial.print(F(":"));Serial.println(save[1].level);
+                sprintf( Serial_Input, "K_%d:%d:%d",eep.read(4),eep.read(5),eep.read(6));
+                Serial.println( Serial_Input);
                 tiempo_envio_mensajes=mili_segundos;
-                MessagePoss++;
                 break;
               case 3:
-                Serial.print(("K_"));Serial.print(save[2].hour);Serial.print(F(":"));Serial.print(save[2].temp);Serial.print(F(":"));Serial.println(save[2].level);
+                sprintf( Serial_Input, "K_%d:%d:%d",eep.read(7),eep.read(8),eep.read(9));
+                Serial.println( Serial_Input);
                 tiempo_envio_mensajes=mili_segundos;
-                MessagePoss++;
                 break;
               case 4:
-                Serial.print(("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.println(eep.read(11));
+                sprintf( Serial_Input, "J_%d:%d",eep.read(10),eep.read(11));
+                Serial.println( Serial_Input);
                 tiempo_envio_mensajes=mili_segundos;
-                MessagePoss++;
                 break;
               case 5:
-                Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));
+                sprintf( Serial_Input, "V_%d:%d",eep.read(12),eep.read(13));
+                Serial.println( Serial_Input);
                 tiempo_envio_mensajes=mili_segundos;
-                MessagePoss++;
                 InitComunication=false;
+                Can_Read=false;
+                 
                 break;
           }  
         }
       break;
       case 2:
-        if(InitComunication==false){Serial.print(("K_"));Serial.print(save[0].hour);Serial.print(F(":"));Serial.print(save[0].temp);Serial.print(F(":"));Serial.println(save[0].level);}
+        if(InitComunication==false){
+          sprintf( Serial_Input, "K_%d:%d:%d",eep.read((What_slot*3)+1),eep.read((What_slot*3)+2),eep.read((What_slot*3)+3));
+          Serial.println( Serial_Input);
+          Can_Read=false;
+           
+          }
         break;
       case 3:
-        if(InitComunication==false){Serial.print(("J_"));Serial.print(eep.read(10));Serial.print(F(":"));Serial.println(eep.read(11));}
+        if(InitComunication==false){
+          sprintf( Serial_Input, "J_%d:%d",eep.read(10),eep.read(11));
+          Serial.println( Serial_Input);
+          Can_Read=false;
+           
+          }
         break;
       case 4:
-        if(InitComunication==false){Serial.print(("V_"));Serial.print(eep.read(12));Serial.print(F(":"));Serial.println(eep.read(13));}
+        if(InitComunication==false){                
+          sprintf( Serial_Input, "V_%d:%d",eep.read(12),eep.read(13));
+          Serial.println( Serial_Input);
+          Can_Read=false;
+           
+          }
         break;
-      case 5:
-        Printhora(LCDMessage,hora,minutos);
-        if(InitComunication==false){Serial.print(("U_"));Serial.print(ArrayToChar(1,LCDMessage));Serial.print(F(":"));Serial.print(nivel_actual);Serial.print(F(":"));Serial.println(temperatura_actual);}
+        case 5:
+        if(InitComunication==false){
+          Printhora( Serial_Input,hora,minutos);
+          HourChar=ArrayToChar(1, Serial_Input);
+          sprintf( Serial_Input, "U_%d:%d:%d",HourChar,nivel_actual,temperatura_actual);
+          Can_Read=false;
+           
+        }
+          Serial.println( Serial_Input);
         break;
       case 6:
-        if(InitComunication==false){Serial.print(("S_"));Serial.print(WIFISSID);Serial.print(F(":"));Serial.println(WIFIPASS);}
+        if(InitComunication==false){
+          sprintf( Serial_Input, "S_%s:%s:",WIFISSID,WIFIPASS);
+          Serial.println( Serial_Input);;
+          Can_Read=false;
+           
+          }
+      default:
+        Can_Read=false;
+         
+        break;
     }
   }
   if (ComunicationError==true){Serial.println(F("?_RESET"));}//resetea esp 

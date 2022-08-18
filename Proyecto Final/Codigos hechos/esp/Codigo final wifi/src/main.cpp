@@ -328,6 +328,7 @@ void Serial_Read_NODEMCU(){
             ConvertString=false;
             Serial_Send_NODEMCU(7);
             EnviarIP=true;
+            WiFi.begin(ssid, password);
       
     break;
     case 'U':

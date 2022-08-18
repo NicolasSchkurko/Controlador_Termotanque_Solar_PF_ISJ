@@ -46,16 +46,16 @@ uint8_t CharToUINT(uint8_t function,uint8_t save)
     return (0);
 }
 
-uint8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de colver
+int8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de colver
 {
-  uint8_t Aux1; // solo una variable (_convert  nos evita modificar variables globales como bldos)
-  uint8_t resto; //guarda el resto del calculo de tiempo
+  uint8_t Aux1, resto; // solo una variable (_convert  nos evita modificar variables globales como bldos)
+  int8_t NumeroFinal;
   switch (function)
   {
     case 1:
       Aux1=(buffer[0]- '0')*10;// toma el valor del primer digito del string y lo convierte en int (numero de base 10)
       Aux1+=(buffer[1]-'0');// toma el valor del segundo digito
-      Aux1=Aux1*4;//multiplica la hora x 4 (la proporcionalidad esta en la documentacion)
+      NumeroFinal=Aux1*4;//multiplica la hora x 4 (la proporcionalidad esta en la documentacion)
 
       Aux1=(buffer[3]- '0')*10;//lo mismo que en el var 1 pero con minutos (10:[puntero aca]0)
       Aux1+=(buffer[4]-'0');//lo mismo que en el var 1 pero con minutos
@@ -64,12 +64,12 @@ uint8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de co
       else Aux1=Aux1+15-resto;// utiliza el resto para redondear arriba
       Aux1=Aux1/15;// convierte los minutos en la proporcion del char (1 entero = 15 minutos)
 
-      Aux1+=Aux1;// suma horas y minutos
-      if(Aux1>=96)Aux1=0;
-      return Aux1;
+      NumeroFinal+=Aux1;// suma horas y minutos
+      if(Aux1>=96)NumeroFinal=0;
+      return NumeroFinal;
       break;
     case 2:
-      Aux1= atoi(buffer);// hace magia y despues de tirar magia convierte el string en un int (fua ta dificil la conversion de ete)
+      Aux1= atoi(buffer);// mismo sistema
       return Aux1;
       break;
     default:
@@ -149,7 +149,7 @@ case 4:
   else return false;
   break;
 default:
-  if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0){while((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0){} return true;} 
+  if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0)return true;
   else return false;
   break;
 }
