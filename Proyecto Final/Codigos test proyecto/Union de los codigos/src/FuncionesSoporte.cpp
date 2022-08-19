@@ -68,10 +68,6 @@ int8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de col
       if(Aux1>=96)NumeroFinal=0;
       return NumeroFinal;
       break;
-    case 2:
-      Aux1= atoi(buffer);// mismo sistema
-      return Aux1;
-      break;
     default:
       Aux1= atoi(buffer);// mismo sistema
       return Aux1;
@@ -80,7 +76,7 @@ int8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de col
   return (0);
 }
 
-void Printhora (char buffer[20],uint8_t hora_entrada, uint8_t minuto_entrada){
+void Printhora (char buffer[6],uint8_t hora_entrada, uint8_t minuto_entrada){
   uint8_t Aux1;
   for(Aux1=0; Aux1<20; Aux1++)buffer[Aux1]='\0';
   Aux1=hora_entrada/10;

@@ -27,6 +27,8 @@ String errorS= "     ";
 String errorLVL= "    ";
 String errorTEMP= "    ";
 
+char Output_message[60]; 
+
 uint8_t TEMP_VAL=0;
 uint8_t LVL_VAL=0;
 uint8_t HOUR_VAL=0;
@@ -253,33 +255,37 @@ return String();
 
 void Serial_Send_NODEMCU(uint8_t WhatSend)
   {
-    String message;
+    char message;
     switch (WhatSend){
       case 1:
-        if (HEATING_STATE == true)message = "ON";
-        if (HEATING_STATE == false)message = "OFF";
-        Serial.println("H_"+TVal+":"+message);
+        if (HEATING_STATE == true)message = 'O';
+        if (HEATING_STATE == false)message = 'I';
+        sprintf(Output_message, "H_%c:%c",TEMP_VAL,message);
+        Serial.println(Output_message);
         break;
       case 2:
-        if (CHARGING_STATE == true)message = "ON";
-        if (CHARGING_STATE == false)message = "OFF";
-        Serial.println("C_"+LVal+":"+message);
+        if (CHARGING_STATE == true)message = 'O';
+        if (CHARGING_STATE == false)message = 'I';
+        sprintf(Output_message, "C_%c:%c",LVL_VAL,message);
+        Serial.println(Output_message);
         break;
       case 3:
-    
-        Serial.println("K_"+String(save[Struct].hour)+":"+desconvercionhora(2,save[Struct].temp)+":"+desconvercionhora(3,save[Struct].level)+":"+String(Struct));
+        sprintf(Output_message, "K_%c:%c:%c:%c",save[Struct].hour,save[Struct].temp,save[Struct].level,Struct);
+        Serial.println(Output_message);
         break;
       case 4:
-        Serial.println("J_"+String(Temp_Min)+":"+String(Temp_Max));
+        sprintf(Output_message, "J_%c:%c",Temp_Min,Temp_Max);
+        Serial.println(Output_message);
         break;
       case 5:
-        Serial.println("V_"+String(Level_Min)+":"+String(Level_Max));
+        sprintf(Output_message, "V_%c:%c",Level_Min,Level_Max);
+        Serial.println(Output_message);
         break;
       case 6:
-        Serial.println("E_ERROR:");// Si no entiende un mensaje envia error
+        Serial.println("E_ERROR");// Si no entiende un mensaje envia error
         break;
       case 7:
-        Serial.println("O_OK:");// Si entiende el mensaje manda ok
+        Serial.println("O_O");// Si entiende el mensaje manda ok
         break;
     }
     
