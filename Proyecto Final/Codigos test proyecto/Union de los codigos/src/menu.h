@@ -1,3 +1,4 @@
+#define tiempo_de_espera_menu 3000 
 
 void standby();
 void menu_basico();

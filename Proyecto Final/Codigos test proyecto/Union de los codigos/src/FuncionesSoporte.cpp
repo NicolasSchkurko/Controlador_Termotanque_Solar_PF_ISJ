@@ -4,7 +4,6 @@
 #include <Arduino.h>
 
 extern LiquidCrystal_I2C lcd;
-
 uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
 { 
   uint8_t Aux1;
@@ -155,3 +154,4 @@ void PrintLCD (char buffer[20], uint8_t Column, uint8_t Row){
 lcd.setCursor(Column,Row); 
 lcd.print(buffer);
 }
+

@@ -7,7 +7,6 @@
 #define maxY_menu1 7
 #define maxY_menu2 5
 #define tiempo_de_parpadeo 700
-#define tiempo_de_espera_menu 3000 
 
 typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_menu_de_auto_por_hora, llenado_auto, calefaccion_auto, funcion_de_menu_modificar_hora_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_menu_seteo_wifi} Seleccionar_Funciones;  
 typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF; 
@@ -35,7 +34,7 @@ extern int8_t temperatura_actual;
 extern uint8_t nivel_actual;
 extern uint8_t hora,minutos;
 extern bool use_farenheit;
-
+extern uint8_t encoder0Pos;
 extern Seleccionar_Funciones funcionActual;
 extern estadoMEF Estadoequipo;
 extern LiquidCrystal_I2C lcd;
@@ -52,8 +51,8 @@ void standby()
   PrintLCD (LCDMessage,0,0);
   sprintf(LCDMessage, "N:%d%c",nivel_actual,'%'); PrintLCD (LCDMessage,12,0);
   Printhora (LCDMessage,hora,minutos);            PrintLCD (LCDMessage,6,1);
-
-  if(PressedButton (1)){
+  
+  if(PressedButton (1) || Ypos!=encoder0Pos){
     switch (Estadoequipo)
     {
       case estado_standby:
@@ -71,6 +70,7 @@ void standby()
         Estadoequipo = estado_standby;
         break;
     }   
+    Ypos=encoder0Pos;
   }
   if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
     Estadoequipo = estado_standby;
@@ -87,6 +87,7 @@ void menu_basico()
       tiempo_parpadeo=mili_segundos;
       lcd.clear();
       Posicion_menu=1;
+      encoder0Pos=0;
       break;
     case 1: //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
       sprintf(LCDMessage, "%c", char(62));PrintLCD (LCDMessage,0,0);
@@ -95,10 +96,16 @@ void menu_basico()
       sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+2,maxY_menu1)]); PrintLCD (LCDMessage,1,2);
       sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+3,maxY_menu1)]); PrintLCD (LCDMessage,1,3);
 
-      Ypos=ReturnToCero(Ypos,maxY_menu1);
+      encoder0Pos=ReturnToCero(encoder0Pos,maxY_menu1*2);
 
-      if (PressedButton(1)){Ypos--; tiempo_de_standby=mili_segundos;} // suma 1 a Ypos
-      if (PressedButton(2)){Ypos++; tiempo_de_standby=mili_segundos;} // resta 1 a Ypos
+      if(encoder0Pos/2!=Ypos){
+        tiempo_de_standby=mili_segundos;
+        lcd.clear();
+        Ypos=encoder0Pos/2;
+      }
+
+      if (PressedButton(1))encoder0Pos-=2; // suma 1 a Ypos
+      if (PressedButton(2))encoder0Pos+=2; // resta 1 a Ypos
       if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
 
       if(mili_segundos>=tiempo_parpadeo+tiempo_de_parpadeo){
@@ -164,6 +171,7 @@ void menu_avanzado()
       tiempo_de_standby=mili_segundos;
       lcd.clear();
       Posicion_menu=1;
+      encoder0Pos=0;
       break;
     case 1:
       sprintf(LCDMessage,"%c",char(62));                                        PrintLCD (LCDMessage,0,0);
@@ -172,10 +180,16 @@ void menu_avanzado()
       sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+2,maxY_menu2)]);  PrintLCD (LCDMessage,1,2);
       sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+3,maxY_menu2)]);  PrintLCD (LCDMessage,1,3);
 
-      Ypos=ReturnToCero(Ypos,maxY_menu2);
+      encoder0Pos=ReturnToCero(encoder0Pos,maxY_menu2*2);
 
-      if (PressedButton(1)){Ypos--; tiempo_de_standby=mili_segundos;}// suma 1 a Ypos
-      if (PressedButton(2)){Ypos++; tiempo_de_standby=mili_segundos;}// resta 1 a Ypos
+      if(encoder0Pos/2!=Ypos){
+        tiempo_de_standby=mili_segundos;
+        lcd.clear();
+        Ypos=encoder0Pos/2;
+      }
+      
+      if (PressedButton(1))encoder0Pos-=2; // suma 1 a Ypos
+      if (PressedButton(2))encoder0Pos+=2; // resta 1 a Ypos
       if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
       
       if(mili_segundos>=tiempo_parpadeo+tiempo_de_parpadeo){
@@ -217,21 +231,5 @@ void menu_avanzado()
       lcd.clear();
       Estadoequipo=menu1;
       break;
-  }
-}
-
-void guardado_para_menus(bool Menu){
-  if(mili_segundos>=tiempo_de_standby+8000)tiempo_de_standby=mili_segundos;
-  memcpy(LCDMessage, "Guardando...", 13);                                   PrintLCD (LCDMessage,4,0);
-  if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
-  if(Menu == true){
-      Estadoequipo=menu1;
-  }
-  if(Menu == false){
-    Estadoequipo=menu2;  
-  }
-  funcionActual=posicion_inicial;
-  lcd.clear();
-  tiempo_de_standby=mili_segundos;
   }
 }

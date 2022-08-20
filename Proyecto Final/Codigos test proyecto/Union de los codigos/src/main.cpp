@@ -17,8 +17,9 @@
 //Defines
   //Control de temp
   //Entradas y salidas
-#define Pote A2
-#define nivel_del_tanque A0 
+#define encoder0PinA A0
+#define encoder0PinB A1
+#define nivel_del_tanque A3 
 #define electrovalvula 10
 #define resistencia 11
 #define onewire 9 // pin del onewire
@@ -29,6 +30,9 @@ void Controltemp();
 void Controllvl();
 void ControlPorHora();
 void Actualizar_entradas();
+void Sum_Encoder();
+
+
 
 AT24C32 eep;
 RTC_DS1307 rtc;
@@ -45,13 +49,18 @@ estadoMEF Estadoequipo = estado_inicial;
 char WIFISSID [20];
 char WIFIPASS [20];
 char LCDMessage[20];
+
+uint8_t encoder0Pos;
+uint8_t last_encoder_state;
 uint16_t mili_segundos=0;
 uint16_t tiempo_sensores;
+uint16_t Tiempo_encoder;
 uint8_t nivel_actual;
 uint8_t temperatura_a_calentar; 
 uint8_t nivel_a_llenar; 
 uint8_t hora,minutos;
 int8_t temperatura_actual; // temp actual
+
 bool Resistencia;
 bool Valvula;
 bool calentar;
@@ -67,6 +76,10 @@ void setup()
   TIMSK2 = TIMSK2|0b00000001;
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
+  //
+  pinMode(encoder0PinA, INPUT_PULLUP); 
+  pinMode(encoder0PinB, INPUT_PULLUP);
+  // encoder pin on interrupt 0 (pin 2)
   //
   Wire.begin();  
   Serial.begin(9600); //inicializacion del serial arduino-esp
@@ -100,10 +113,12 @@ void setup()
     if(mili_segundos==2000)Serial_Send_UNO(1,4);
     if(mili_segundos==2500)Serial_Send_UNO(1,5);
   }
-  tiempo_sensores=mili_segundos;  
+  tiempo_sensores=mili_segundos; 
+  last_encoder_state=digitalRead(encoder0PinA);
 }
 void loop() 
 {
+  Sum_Encoder();
   Actualizar_entradas();
   Controllvl();
   Controltemp();
@@ -143,7 +158,6 @@ ISR(TIMER2_OVF_vect){
 }
 
 void Actualizar_entradas (){ //Sexo y adaptarlo para no usar delay farenheit
-
   if(mili_segundos>=tiempo_sensores+tiempo_para_temperatura){
     Sensor_temp.requestTemperatures();
     temperatura_actual = Sensor_temp.getTempCByIndex(0);
@@ -166,16 +180,16 @@ void Controltemp()
   if(temperatura_actual <= eep.read(10)|| temperatura_actual < temperatura_a_calentar )Resistencia=true;
   if(temperatura_actual > eep.read(11) ||temperatura_actual >= temperatura_a_calentar)Resistencia=false;
 
-  if(Resistencia)PORTD = PORTD | 0b00000010; // make bit 2 of PORT D a 0 (clear the bit), leaving rest alone
-  else PORTD = PORTD & 0b11111101;
+  if(Resistencia)PORTD = PORTD | 0b01000000; // make bit 2 of PORT D a 0 (clear the bit), leaving rest alone
+  else PORTD = PORTD & 0b10111111;
 }
 
 void Controllvl(){
   if(nivel_actual <= eep.read(12) || nivel_actual < nivel_a_llenar)Valvula=true;
   if(nivel_actual > eep.read(13) ||nivel_actual >= nivel_a_llenar)Valvula=false;
   
-  if(Valvula)PORTD = PORTD | 0b00000001; // make bit 2 of PORT D a 0 (clear the bit), leaving rest alone
-  else PORTD = PORTD & 0b11111110;
+  if(Valvula)PORTD = PORTD | 0b10000000; // make bit 2 of PORT D a 0 (clear the bit), leaving rest alone
+  else PORTD = PORTD & 0b01111111;
 }
 
 void ControlPorHora(){
@@ -191,3 +205,16 @@ void ControlPorHora(){
     nivel_a_llenar=eep.read(i+3); 
   }
 }
+
+void Sum_Encoder(){
+    if(mili_segundos > Tiempo_encoder+20){
+      if(digitalRead(encoder0PinA)!=last_encoder_state){
+        if (digitalRead(encoder0PinB) == digitalRead(encoder0PinA))encoder0Pos--;
+        else encoder0Pos++;
+        last_encoder_state=digitalRead(encoder0PinA);
+      }
+      Tiempo_encoder=mili_segundos;
+    }
+  }
+
+
