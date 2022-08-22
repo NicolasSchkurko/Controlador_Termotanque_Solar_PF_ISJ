@@ -95,9 +95,12 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   
   //pulsadores pra manejar los menus//
-  DDRD = B11000011; // setea input
-  PORTD |= B00111100;
+  DDRD |= B11000011; // setea input
+  DDRC &= B11111100;
   DDRB &= B111101; 
+
+  PORTD |= B00111100;
+  PORTC |= B00000000;
 
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
@@ -208,10 +211,10 @@ void ControlPorHora(){
 
 void Sum_Encoder(){
     if(mili_segundos > Tiempo_encoder+20){
-      if(digitalRead(encoder0PinA)!=last_encoder_state){
-        if (digitalRead(encoder0PinB) == digitalRead(encoder0PinA))encoder0Pos--;
+      if((PINC & (1<<PC0)) == last_encoder_state){
+        if ( (PINC & (1<<PC1)) == (PINC & (1<<PC0)))encoder0Pos--;
         else encoder0Pos++;
-        last_encoder_state=digitalRead(encoder0PinA);
+        last_encoder_state=(PINC & (1<<PC0));
       }
       Tiempo_encoder=mili_segundos;
     }

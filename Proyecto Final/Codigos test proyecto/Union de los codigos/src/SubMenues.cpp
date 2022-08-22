@@ -54,7 +54,7 @@ void menu_de_llenado_manual(){
         Flag=1;
         break;
       case 1:
-        sprintf(LCDMessage,"Nivel a llenar: %d%c",nivel_a_llenar,'%');     PrintLCD (LCDMessage,0,0);
+        sprintf(LCDMessage,"Nivel a llenar: %d%c",nivel_a_llenar,'%');      PrintLCD (LCDMessage,0,0);
         memcpy(LCDMessage, "Sumar 25 con 1", 15);                           PrintLCD (LCDMessage,0,1);
         memcpy(LCDMessage, "Restar 25 con 2", 16);                          PrintLCD (LCDMessage,0,2);
         memcpy(LCDMessage, "Confirmar con 3", 16);                          PrintLCD (LCDMessage,0,3);
@@ -113,7 +113,7 @@ void menu_de_calefaccion_manual(){
         break;
 
       case 1:
-        memcpy(LCDMessage, "Calentar a", 11);          PrintLCD (LCDMessage,0,0);
+        memcpy(LCDMessage, "Calentar a", 11);             PrintLCD (LCDMessage,0,0);
         if(use_farenheit == false)sprintf(LCDMessage, "%d%cC",temperatura_a_calentar,(char)223);
         if(use_farenheit == true)sprintf(LCDMessage, "%d%cF",((9*temperatura_a_calentar)/5)+32,(char)223);
         PrintLCD (LCDMessage,12,0);
