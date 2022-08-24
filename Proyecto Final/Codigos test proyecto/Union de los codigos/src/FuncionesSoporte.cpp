@@ -143,6 +143,14 @@ case 4:
   if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
   else return false;
   break;
+case 40:
+  if ((PINC & (1<<PC0)) == 0){return true;}
+  else return false;
+  break;
+case 41:
+  if ((PINC & (1<<PC1)) == 0){return true;}
+  else return false;
+  break;
 default:
   if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0)return true;
   else return false;

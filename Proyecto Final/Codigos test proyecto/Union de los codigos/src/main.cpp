@@ -51,7 +51,7 @@ char WIFIPASS [20];
 char LCDMessage[20];
 
 uint8_t encoder0Pos;
-uint8_t last_encoder_state;
+bool last_encoder_state;
 uint16_t mili_segundos=0;
 uint16_t tiempo_sensores;
 uint16_t Tiempo_encoder;
@@ -100,7 +100,7 @@ void setup()
   DDRB &= B111101; 
 
   PORTD |= B00111100;
-  PORTC |= B00000000;
+  PORTC |= B00000011;
 
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
@@ -117,7 +117,8 @@ void setup()
     if(mili_segundos==2500)Serial_Send_UNO(1,5);
   }
   tiempo_sensores=mili_segundos; 
-  last_encoder_state=digitalRead(encoder0PinA);
+
+  last_encoder_state=PressedButton(40);
 }
 void loop() 
 {
@@ -211,10 +212,10 @@ void ControlPorHora(){
 
 void Sum_Encoder(){
     if(mili_segundos > Tiempo_encoder+20){
-      if((PINC & (1<<PC0)) == last_encoder_state){
-        if ( (PINC & (1<<PC1)) == (PINC & (1<<PC0)))encoder0Pos--;
+      if(PressedButton(40) != last_encoder_state){
+        if ( PressedButton(41) == PressedButton(40))encoder0Pos--;
         else encoder0Pos++;
-        last_encoder_state=(PINC & (1<<PC0));
+        last_encoder_state=(PressedButton(40));
       }
       Tiempo_encoder=mili_segundos;
     }

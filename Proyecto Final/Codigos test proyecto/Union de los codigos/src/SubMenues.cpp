@@ -328,6 +328,11 @@ void menu_de_llenado_auto()
       if (eep.read(12)>max_nivel-sumador_nivel)eep.write(12,max_nivel-sumador_nivel);
       if (eep.read(12)<min_nivel)eep.write(12,min_nivel);
 
+      encoder0Pos=ReturnToCero(encoder0Pos,3);
+      if((encoder0Pos+1)*sumador_nivel!=eep.read(12)){
+        eep.write(12,(encoder0Pos+1)*sumador_nivel);
+      }
+
 
       if(PressedButton(1)==true)eep.write(12,eep.read(12)+sumador_nivel);
       if(PressedButton(2)==true)eep.write(12,eep.read(12)-sumador_nivel);
@@ -354,6 +359,11 @@ void menu_de_llenado_auto()
 
       if (eep.read(13)>max_nivel)eep.write(13,max_nivel);
       if (eep.read(13)<eep.read(12)+sumador_nivel)eep.write(13,eep.read(12)+sumador_nivel);
+
+      encoder0Pos=ReturnToCero(encoder0Pos,eep.read(12)/sumador_nivel);
+      if((encoder0Pos+1)*sumador_nivel!=eep.read(13)){
+        eep.write(12,(encoder0Pos+1)*sumador_nivel);
+      }
 
       if(PressedButton(1)==true)eep.write(13,eep.read(13)+sumador_nivel); 
       if(PressedButton(2)==true)eep.write(13,eep.read(13)-sumador_nivel); 
@@ -393,6 +403,7 @@ void menu_de_calefaccion_auto(){
 
       if(use_farenheit == false)sprintf(LCDMessage, "%d%cC",eep.read(10),(char)223);
       if(use_farenheit == true)sprintf(LCDMessage, "%d%cF",((9*eep.read(10))/5)+32,(char)223);
+
       PrintLCD (LCDMessage,12,0);
 
       memcpy(LCDMessage, "Sumar 5 con 1", 20);          PrintLCD (LCDMessage,0,1);
