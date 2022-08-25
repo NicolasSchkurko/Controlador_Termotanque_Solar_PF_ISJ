@@ -17,8 +17,8 @@
 //Defines
   //Control de temp
   //Entradas y salidas
-#define encoder0PinA A0
-#define encoder0PinB A1
+#define encoder0PinA 2
+#define encoder0PinB 3
 #define nivel_del_tanque A3 
 #define electrovalvula 10
 #define resistencia 11
@@ -31,7 +31,8 @@ void Controllvl();
 void ControlPorHora();
 void Actualizar_entradas();
 void Sum_Encoder();
-
+void doEncodeA();
+void doEncodeB();
 
 
 AT24C32 eep;
@@ -79,6 +80,8 @@ void setup()
   //
   pinMode(encoder0PinA, INPUT_PULLUP); 
   pinMode(encoder0PinB, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(encoder0PinA), doEncodeA, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoder0PinB), doEncodeB, CHANGE);
   // encoder pin on interrupt 0 (pin 2)
   //
   Wire.begin();  
@@ -95,12 +98,10 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   
   //pulsadores pra manejar los menus//
-  DDRD |= B11000011; // setea input
-  DDRC &= B11111100;
-  DDRB &= B111101; 
+  DDRD |= B00001111; // setea input
+  DDRB &= B00011100; 
 
-  PORTD |= B00111100;
-  PORTC |= B00000011;
+  PORTD |= B11110000; // setea pull up o pull down
 
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
@@ -121,7 +122,6 @@ void setup()
 }
 void loop() 
 {
-  Sum_Encoder();
   Actualizar_entradas();
   Controllvl();
   Controltemp();
@@ -182,17 +182,14 @@ void Controltemp()
 {
   if(temperatura_actual <= eep.read(10)|| temperatura_actual < temperatura_a_calentar )Resistencia=true;
   if(temperatura_actual > eep.read(11) ||temperatura_actual >= temperatura_a_calentar)Resistencia=false;
-
-  if(Resistencia)PORTD = PORTD | 0b01000000; // make bit 2 of PORT D a 0 (clear the bit), leaving rest alone
-  else PORTD = PORTD & 0b10111111;
+  PrintOutput(10,Resistencia);
 }
 
 void Controllvl(){
   if(nivel_actual <= eep.read(12) || nivel_actual < nivel_a_llenar)Valvula=true;
   if(nivel_actual > eep.read(13) ||nivel_actual >= nivel_a_llenar)Valvula=false;
-  
-  if(Valvula)PORTD = PORTD | 0b10000000; // make bit 2 of PORT D a 0 (clear the bit), leaving rest alone
-  else PORTD = PORTD & 0b01111111;
+  PrintOutput(11,Valvula);
+  if(Activar_bomba)PrintOutput(12,Valvula);
 }
 
 void ControlPorHora(){
@@ -209,14 +206,22 @@ void ControlPorHora(){
   }
 }
 
-void Sum_Encoder(){
-    if(mili_segundos > Tiempo_encoder+20){
-      if(PressedButton(40) != last_encoder_state){
-        if ( PressedButton(41) == PressedButton(40))encoder0Pos--;
-        else encoder0Pos++;
-        last_encoder_state=(PressedButton(40));
-      }
-      Tiempo_encoder=mili_segundos;
-    }
-  }
 
+void doEncodeA()
+{
+   if (mili_segundos > Tiempo_encoder+50)
+   {
+      if (PressedButton(40) == PressedButton(41))encoder0Pos++;
+      else encoder0Pos--;
+      Tiempo_encoder=mili_segundos;
+   }
+}
+void doEncodeB()
+{
+   if (mili_segundos > Tiempo_encoder+50)
+   {
+      if ( PressedButton(40) != PressedButton(41))encoder0Pos++;
+      else encoder0Pos--;
+      Tiempo_encoder=mili_segundos;
+   }
+}

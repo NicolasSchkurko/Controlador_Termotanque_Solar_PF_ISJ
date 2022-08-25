@@ -127,33 +127,53 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 
 bool PressedButton (uint8_t Wich_Button){
 if(Wich_Button== 1){
-  if ((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}return true;}
+  if ((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD2)) == 0){}return true;}
   else return false;
 }
 else if(Wich_Button== 2){
-  if ((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){} return true;}
+  if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD3)) == 0){} return true;}
   else return false;
 }
 else if(Wich_Button== 3){
-  if ((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){} return true;}
+  if ((PIND & (1<<PD6)) == 0){while((PIND & (1<<PD4)) == 0){} return true;}
   else return false;
 }
 else if(Wich_Button== 4){
-  if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
+  if ((PIND & (1<<PD7)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
   else return false;
 }
 else if(Wich_Button== 40){
-  if ((PINC & (1<<PC0)) == 0){return true;}
+  if ((PIND & (1<<PD2)) == 0){return true;}
   else return false;
 }
 else if(Wich_Button== 41){
-  if ((PINC & (1<<PC1)) == 0){return true;}
+  if ((PIND & (1<<PD3)) == 0){return true;}
   else return false;
 }
 else{
   if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0)return true;
   else return false;
 }
+}
+
+void PrintOutput(uint8_t Wich_pin, bool state){
+  switch (Wich_pin)
+  {
+  case 10:
+    if(state)  PORTB = PORTB | B00000100;
+    if(!state) PORTB = PORTB & B11111011;
+    break;
+  
+  case 11:
+    if(state)  PORTB = PORTB | B00001000;
+    if(!state) PORTB = PORTB & B11110111;
+    break;
+
+  case 12:  
+    if(state)  PORTB = PORTB | B00010000;
+    if(!state) PORTB = PORTB & B11101111;
+    break;
+  }
 }
 
 void PrintLCD (char buffer[20], uint8_t Column, uint8_t Row){
