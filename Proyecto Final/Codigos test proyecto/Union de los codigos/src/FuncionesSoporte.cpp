@@ -28,12 +28,12 @@ uint8_t CharToUINT(uint8_t function,uint8_t save)
   switch (function)
     {
       case 1:
-        resto= (save) % 4;
+        resto= save % 4;
         Aux1= (save-resto)/4;
         return Aux1;
       break;
       case 2:
-        resto= (save) % 4;
+        resto= save % 4;
         Aux1=resto*15;
         return Aux1;
       break;
@@ -126,36 +126,33 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 }
 
 bool PressedButton (uint8_t Wich_Button){
-switch (Wich_Button)
-{
-case 1:
+if(Wich_Button== 1){
   if ((PIND & (1<<PD2)) == 0){while((PIND & (1<<PD2)) == 0){}return true;}
   else return false;
-  break;
-case 2:
+}
+else if(Wich_Button== 2){
   if ((PIND & (1<<PD3)) == 0){while((PIND & (1<<PD3)) == 0){} return true;}
   else return false;
-  break;
-case 3:
+}
+else if(Wich_Button== 3){
   if ((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){} return true;}
   else return false;
-  break;
-case 4:
+}
+else if(Wich_Button== 4){
   if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
   else return false;
-  break;
-case 40:
+}
+else if(Wich_Button== 40){
   if ((PINC & (1<<PC0)) == 0){return true;}
   else return false;
-  break;
-case 41:
+}
+else if(Wich_Button== 41){
   if ((PINC & (1<<PC1)) == 0){return true;}
   else return false;
-  break;
-default:
+}
+else{
   if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0)return true;
   else return false;
-  break;
 }
 }
 
@@ -164,19 +161,5 @@ lcd.setCursor(Column,Row);
 lcd.print(buffer);
 }
 
-uint16_t Tiempo_encoder;
-bool last_encoder_state;
 
-void Sum_Encoder(uint16_t timer_INO,uint8_t sumador_encoder,uint8_t function){
-  if(function==1)last_encoder_state=PressedButton(40);
-  if(function==2){
-    if(timer_INO > Tiempo_encoder+20){
-      if(PressedButton(40) != last_encoder_state){
-        if ( PressedButton(41) == PressedButton(40))sumador_encoder--;
-        else sumador_encoder++;
-        last_encoder_state=(PressedButton(40));
-      }
-      Tiempo_encoder=timer_INO;
-    }
-  }
-  }
+

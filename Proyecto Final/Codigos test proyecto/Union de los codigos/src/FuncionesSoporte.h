@@ -10,6 +10,5 @@ char Character_Return(uint8_t , bool);
 bool PressedButton (uint8_t);
 void PrintLCD (char[20], uint8_t, uint8_t);
 void Printhora (char[20],uint8_t, uint8_t);
-void Sum_Encoder(uint16_t,uint8_t,uint8_t);
 
 

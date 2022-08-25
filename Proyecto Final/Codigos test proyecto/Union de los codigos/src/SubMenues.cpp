@@ -17,10 +17,6 @@ extern Seleccionar_Funciones funcionActual;
 extern estadoMEF Estadoequipo;
 extern LiquidCrystal_I2C lcd;//LiquidCrystal_I2C lcd(0x27,20,4);
 
-
-extern char WIFISSID [20];
-extern char WIFIPASS [20];
-
 extern char LCDMessage[20];
 extern uint16_t mili_segundos;
 extern AT24C32 eep;
@@ -529,58 +525,56 @@ void menu_farenheit_celsius(bool Unidad_medida, uint8_t Sumador_encoder)
   }
 }
 
-void menu_seteo_wifi(){  
+void menu_seteo_wifi(char nombre_wifi [20],char password_wifi [20],uint8_t Sumador_encoder){  
 
   switch (Flag)
   {
   case 0:
     memcpy(LCDMessage, "SSID:", 6);                                PrintLCD (LCDMessage,0,0);
     memcpy(LCDMessage, "PASS:", 6);                                PrintLCD (LCDMessage,0,1);
-    sprintf(LCDMessage, "%s",WIFISSID);                            PrintLCD (LCDMessage,6,0);
-    sprintf(LCDMessage, "%s",WIFIPASS);                            PrintLCD (LCDMessage,6,1);
+    sprintf(LCDMessage, "%s",nombre_wifi);                         PrintLCD (LCDMessage,6,0);
+    sprintf(LCDMessage, "%s",password_wifi);                       PrintLCD (LCDMessage,6,1);
     memcpy(LCDMessage, "modificar?", 11);                          PrintLCD (LCDMessage,0,2);
     memcpy(LCDMessage, "3:Si", 5);                                 PrintLCD (LCDMessage,3,3);
     memcpy(LCDMessage, "4:No", 5);                                 PrintLCD (LCDMessage,11,3);
 
     if(PressedButton(1)){lcd.clear();Flag=1;}
-    if(PressedButton(2)){
-        Estadoequipo=menu2;
-        Flag=0;
-        funcionActual=posicion_inicial;
-        lcd.clear();
-      }
+    if(PressedButton(2)){Estadoequipo=menu2;Flag=0;funcionActual=posicion_inicial;lcd.clear();}
 
     break;
   case 1:
     for (uint8_t Auxiliar0=0;Auxiliar0<=19;Auxiliar0++){ 
-    WIFISSID[Auxiliar0]='\0';
-    WIFIPASS[Auxiliar0]='\0';}
+    nombre_wifi[Auxiliar0]='\0';
+    password_wifi[Auxiliar0]='\0';
+    }
     Aux=0;
     Actualchar=0;
     Flag=2;
     break;
   case 2:
     memcpy(LCDMessage, "Nombre Wifi:", 13);                                   PrintLCD (LCDMessage,0,0);
-    sprintf(LCDMessage, "%s",WIFISSID);                                       PrintLCD (LCDMessage,0,1);
+    sprintf(LCDMessage, "%s",nombre_wifi);                                    PrintLCD (LCDMessage,0,1);
     memcpy(LCDMessage, "modificar?", 11);                                     PrintLCD (LCDMessage,0,2);
     memcpy(LCDMessage, "3:Si", 5);                                            PrintLCD (LCDMessage,3,3);
     memcpy(LCDMessage, "4:No", 5);                                            PrintLCD (LCDMessage,11,3);
 
-    Actualchar=ReturnToCero(Actualchar, 40);
+    Actualchar=Sumador_encoder/2;
+    Sumador_encoder=ReturnToCero(Sumador_encoder,80);
     Aux=ReturnToCero(Aux,20);
-    WIFISSID[Aux]=Character_Return(Actualchar, mayusculas);
+
+    nombre_wifi[Aux]=Character_Return(Actualchar, mayusculas);
 
     if(PressedButton(1))mayusculas=!mayusculas;
     if(PressedButton(2) == true && Aux <= 19){Aux++; Actualchar=0;}
     if(PressedButton(3)){
-        WIFISSID[Aux]='\0';
+        nombre_wifi[Aux]='\0';
         lcd.clear();
         Flag=3;
         Aux=0;
         Actualchar=0;
       }
     if(PressedButton(4)){
-        WIFISSID[Aux]='\0';
+        nombre_wifi[Aux]='\0';
         lcd.clear();
         Flag=0;
         Aux=0;
@@ -590,25 +584,27 @@ void menu_seteo_wifi(){
 
   case 3:
     memcpy(LCDMessage, "Pass Wifi:", 11);                                     PrintLCD (LCDMessage,0,0);
-    sprintf(LCDMessage, "%s",WIFIPASS);                                       PrintLCD (LCDMessage,0,1);
+    sprintf(LCDMessage, "%s",password_wifi);                                       PrintLCD (LCDMessage,0,1);
     memcpy(LCDMessage, "modificar?", 11);                                     PrintLCD (LCDMessage,0,2);
     memcpy(LCDMessage, "3:Si", 5);                                            PrintLCD (LCDMessage,3,3);
     memcpy(LCDMessage, "4:No", 5);                                            PrintLCD (LCDMessage,11,3);
 
-    Actualchar=ReturnToCero(Actualchar, 40);
+    Actualchar=Sumador_encoder/2;
+    Sumador_encoder=ReturnToCero(Sumador_encoder,80);
     Aux=ReturnToCero(Aux,20);
-    WIFIPASS[Aux]=Character_Return(Actualchar, mayusculas);
+    
+    password_wifi[Aux]=Character_Return(Actualchar, mayusculas);
 
     if(PressedButton(1))mayusculas=!mayusculas;
     if(PressedButton(2)){Aux ++;  Actualchar=0;}
     if(PressedButton(3)){
-        WIFIPASS[Aux]='\0';
+        password_wifi[Aux]='\0';
         lcd.clear();
         Flag=4;
         Aux=0;
       }
     if(PressedButton(4)){
-        WIFISSID[Aux]='\0';
+        nombre_wifi[Aux]='\0';
         lcd.clear();
         Flag=2;
         Aux=0;
@@ -617,8 +613,8 @@ void menu_seteo_wifi(){
     break;
   case 4:
     for (uint8_t i = 0; i < 19; i++){
-    eep.write(14 + i, WIFIPASS[i]);
-    eep.write(34 + i, WIFISSID[i]);
+    eep.write(14 + i, password_wifi[i]);
+    eep.write(34 + i, nombre_wifi[i]);
     }
     Serial_Send_UNO(6,0);
     guardado_para_menus(false);

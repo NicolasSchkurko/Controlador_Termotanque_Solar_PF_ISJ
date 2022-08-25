@@ -58,7 +58,9 @@ uint8_t temperatura_a_calentar;
 uint8_t nivel_a_llenar; 
 uint8_t hora,minutos;
 int8_t temperatura_actual; // temp actual
+uint16_t Tiempo_encoder;
 
+bool last_encoder_state;
 bool Resistencia;
 bool Valvula;
 bool calentar;
@@ -115,11 +117,11 @@ void setup()
     if(mili_segundos==2500)Serial_Send_UNO(1,5);
   }
   tiempo_sensores=mili_segundos; 
-  Sum_Encoder(mili_segundos,encoder0Pos,1);
+  last_encoder_state=PressedButton(40);
 }
 void loop() 
 {
-  Sum_Encoder(mili_segundos,encoder0Pos,2);
+  Sum_Encoder();
   Actualizar_entradas();
   Controllvl();
   Controltemp();
@@ -149,7 +151,7 @@ void loop()
       if(funcionActual==funcion_de_menu_modificar_hora_rtc)menu_modificar_hora_rtc(hora,minutos,encoder0Pos);  //Menu avanzado
       if(funcionActual==funcion_farenheit_celsius)menu_farenheit_celsius(Activar_bomba,encoder0Pos);  //Menu avanzado
       if(funcionActual==funcion_activar_bomba)menu_activar_bomba(use_farenheit,encoder0Pos);        //Menu avanzado
-      if(funcionActual==funcion_de_menu_seteo_wifi)menu_seteo_wifi();    //Menu avanzado
+      if(funcionActual==funcion_de_menu_seteo_wifi)menu_seteo_wifi(WIFISSID,WIFIPASS,encoder0Pos);    //Menu avanzado
       break;
   }
 }
@@ -207,5 +209,14 @@ void ControlPorHora(){
   }
 }
 
-
+void Sum_Encoder(){
+    if(mili_segundos > Tiempo_encoder+20){
+      if(PressedButton(40) != last_encoder_state){
+        if ( PressedButton(41) == PressedButton(40))encoder0Pos--;
+        else encoder0Pos++;
+        last_encoder_state=(PressedButton(40));
+      }
+      Tiempo_encoder=mili_segundos;
+    }
+  }
 

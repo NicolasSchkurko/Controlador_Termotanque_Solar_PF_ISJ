@@ -101,7 +101,7 @@ void menu_basico(uint8_t posicion_encoder)
 
       if (PressedButton(1))posicion_encoder-=2; // suma 1 a Ypos
       if (PressedButton(2))posicion_encoder+=2; // resta 1 a Ypos
-      if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
+      if (PressedButton(3)){Posicion_menu=Ypos+2;lcd.clear();} //confirmacion
 
       if(mili_segundos>=tiempo_parpadeo+tiempo_de_parpadeo){
         tiempo_parpadeo=mili_segundos;
@@ -185,7 +185,7 @@ void menu_avanzado(uint8_t posicion_encoder)
       
       if (PressedButton(1))posicion_encoder-=2; // suma 1 a Ypos
       if (PressedButton(2))posicion_encoder+=2; // resta 1 a Ypos
-      if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
+      if (PressedButton(3)){Posicion_menu=Ypos+2;lcd.clear();}//confirmacion
       
       if(mili_segundos>=tiempo_parpadeo+tiempo_de_parpadeo){
         tiempo_parpadeo=mili_segundos;

@@ -18,6 +18,6 @@ void menu_de_calefaccion_auto(bool,uint8_t);
 void menu_modificar_hora_rtc(uint8_t, uint8_t, uint8_t);
 void menu_activar_bomba(bool,uint8_t);
 void menu_farenheit_celsius(bool,uint8_t);
-void menu_seteo_wifi();
+void menu_seteo_wifi(char[20],char[20],uint8_t);
 
 void guardado_para_menus(bool);
