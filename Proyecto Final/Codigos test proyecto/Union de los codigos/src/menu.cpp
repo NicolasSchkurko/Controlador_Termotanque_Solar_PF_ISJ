@@ -8,8 +8,13 @@
 #define maxY_menu2 5
 #define tiempo_de_parpadeo 700
 
-typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_menu_de_auto_por_hora, llenado_auto, calefaccion_auto, funcion_de_menu_modificar_hora_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_menu_seteo_wifi} Seleccionar_Funciones;  
+typedef enum{posicion_inicial, llenado_manual, calefaccion_manual, funcion_menu_de_auto_por_hora_display, llenado_auto, calefaccion_auto, funcion_de_menu_modificar_hora_display_rtc,funcion_farenheit_celsius, funcion_activar_bomba, funcion_de_menu_seteo_wifi} Seleccionar_Funciones;  
 typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF; 
+
+extern uint16_t  mili_segundos;
+extern Seleccionar_Funciones funcionActual;
+extern estadoMEF Estadoequipo;
+extern LiquidCrystal_I2C lcd;
 
 const char* Menuprincipal[maxY_menu1] = {
   "C manual",
@@ -21,38 +26,28 @@ const char* Menuprincipal[maxY_menu1] = {
   "volver"
 };
 const char* menuavanzado[maxY_menu2] = {
-  "Setear hora",
+  "Setear hora_display",
   "c° o F°",
   "Activar la bomba",
   "conexion wifi",
   "volver"
 };
 
-extern char LCDMessage[20];
-extern uint16_t  mili_segundos;
-extern int8_t temperatura_actual;
-extern uint8_t nivel_actual;
-extern uint8_t hora,minutos;
-extern bool use_farenheit;
-extern uint8_t encoder0Pos;
-extern Seleccionar_Funciones funcionActual;
-extern estadoMEF Estadoequipo;
-extern LiquidCrystal_I2C lcd;
-
+char imprimir_lcd[20];
 uint16_t tiempo_de_standby;
 uint16_t tiempo_parpadeo;
 int8_t Ypos;
 uint8_t Posicion_menu=0;  
 
-void standby()
+void standby(bool Display_farenheit,uint8_t nivel_display,int8_t temperatura_display, uint8_t hora_display, uint8_t minutos_display, uint8_t posicion_encoder)
 { 
-  if(use_farenheit == false)sprintf(LCDMessage, "T:%d%cC",temperatura_actual,(char)223);
-  if(use_farenheit == true) sprintf(LCDMessage, "T:%d%cF",((9*temperatura_actual)/5)+32,(char)223);
-  PrintLCD (LCDMessage,0,0);
-  sprintf(LCDMessage, "N:%d%c",nivel_actual,'%'); PrintLCD (LCDMessage,12,0);
-  Printhora (LCDMessage,hora,minutos);            PrintLCD (LCDMessage,6,1);
+  if(Display_farenheit == false)sprintf(imprimir_lcd, "T:%d%cC",temperatura_display,(char)223);
+  if(Display_farenheit == true) sprintf(imprimir_lcd, "T:%d%cF",((9*temperatura_display)/5)+32,(char)223);
+  PrintLCD (imprimir_lcd,0,0);
+  sprintf(imprimir_lcd, "N:%d%c",nivel_display,'%'); PrintLCD (imprimir_lcd,12,0);
+  Printhora(imprimir_lcd,hora_display,minutos_display);            PrintLCD (imprimir_lcd,6,1);
   
-  if(PressedButton (1) || Ypos!=encoder0Pos){
+  if(PressedButton (1) || Ypos!=posicion_encoder){
     switch (Estadoequipo)
     {
       case estado_standby:
@@ -70,7 +65,7 @@ void standby()
         Estadoequipo = estado_standby;
         break;
     }   
-    Ypos=encoder0Pos;
+    Ypos=posicion_encoder;
   }
   if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
     Estadoequipo = estado_standby;
@@ -79,7 +74,7 @@ void standby()
   }
 }
 
-void menu_basico()
+void menu_basico(uint8_t posicion_encoder)
 {
   switch (Posicion_menu){
     case 0:
@@ -87,31 +82,31 @@ void menu_basico()
       tiempo_parpadeo=mili_segundos;
       lcd.clear();
       Posicion_menu=1;
-      encoder0Pos=0;
+      posicion_encoder=0;
       break;
     case 1: //¿Por que hago tiempo actual -=100? en el lcd se ve mejor cuando el tiempo de "apagado" es menor al de encendio
-      sprintf(LCDMessage, "%c", char(62));PrintLCD (LCDMessage,0,0);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos,maxY_menu1)]);   PrintLCD (LCDMessage,1,0);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+1,maxY_menu1)]); PrintLCD (LCDMessage,1,1);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+2,maxY_menu1)]); PrintLCD (LCDMessage,1,2);
-      sprintf(LCDMessage, "%s",Menuprincipal[ReturnToCero(Ypos+3,maxY_menu1)]); PrintLCD (LCDMessage,1,3);
+      sprintf(imprimir_lcd, "%c", char(62));PrintLCD (imprimir_lcd,0,0);
+      sprintf(imprimir_lcd, "%s",Menuprincipal[ReturnToCero(Ypos,maxY_menu1)]);   PrintLCD (imprimir_lcd,1,0);
+      sprintf(imprimir_lcd, "%s",Menuprincipal[ReturnToCero(Ypos+1,maxY_menu1)]); PrintLCD (imprimir_lcd,1,1);
+      sprintf(imprimir_lcd, "%s",Menuprincipal[ReturnToCero(Ypos+2,maxY_menu1)]); PrintLCD (imprimir_lcd,1,2);
+      sprintf(imprimir_lcd, "%s",Menuprincipal[ReturnToCero(Ypos+3,maxY_menu1)]); PrintLCD (imprimir_lcd,1,3);
 
-      encoder0Pos=ReturnToCero(encoder0Pos,maxY_menu1*2);
+      posicion_encoder=ReturnToCero(posicion_encoder,maxY_menu1*2);
 
-      if(encoder0Pos/2!=Ypos){
+      if(posicion_encoder/2!=Ypos){
         tiempo_de_standby=mili_segundos;
         lcd.clear();
-        Ypos=encoder0Pos/2;
+        Ypos=posicion_encoder/2;
       }
 
-      if (PressedButton(1))encoder0Pos-=2; // suma 1 a Ypos
-      if (PressedButton(2))encoder0Pos+=2; // resta 1 a Ypos
+      if (PressedButton(1))posicion_encoder-=2; // suma 1 a Ypos
+      if (PressedButton(2))posicion_encoder+=2; // resta 1 a Ypos
       if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
 
       if(mili_segundos>=tiempo_parpadeo+tiempo_de_parpadeo){
         tiempo_parpadeo=mili_segundos;
-        sprintf(LCDMessage, " ");
-        PrintLCD (LCDMessage,0,0);
+        sprintf(imprimir_lcd, " ");
+        PrintLCD (imprimir_lcd,0,0);
       } //prende o apaga la flechita
 
       if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
@@ -133,7 +128,7 @@ void menu_basico()
       break;
     case 4:
       Estadoequipo=funciones;
-      funcionActual=funcion_menu_de_auto_por_hora;
+      funcionActual=funcion_menu_de_auto_por_hora_display;
       Posicion_menu=0;
       break;
     case 5:
@@ -162,7 +157,7 @@ void menu_basico()
   }
 }
 
-void menu_avanzado()
+void menu_avanzado(uint8_t posicion_encoder)
 {
   switch (Posicion_menu)
   { 
@@ -171,31 +166,31 @@ void menu_avanzado()
       tiempo_de_standby=mili_segundos;
       lcd.clear();
       Posicion_menu=1;
-      encoder0Pos=0;
+      posicion_encoder=0;
       break;
     case 1:
-      sprintf(LCDMessage,"%c",char(62));                                        PrintLCD (LCDMessage,0,0);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos,maxY_menu2)]);    PrintLCD (LCDMessage,1,0);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+1,maxY_menu2)]);  PrintLCD (LCDMessage,1,1);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+2,maxY_menu2)]);  PrintLCD (LCDMessage,1,2);
-      sprintf(LCDMessage, "%s",menuavanzado[ReturnToCero(Ypos+3,maxY_menu2)]);  PrintLCD (LCDMessage,1,3);
+      sprintf(imprimir_lcd,"%c",char(62));                                        PrintLCD (imprimir_lcd,0,0);
+      sprintf(imprimir_lcd, "%s",menuavanzado[ReturnToCero(Ypos,maxY_menu2)]);    PrintLCD (imprimir_lcd,1,0);
+      sprintf(imprimir_lcd, "%s",menuavanzado[ReturnToCero(Ypos+1,maxY_menu2)]);  PrintLCD (imprimir_lcd,1,1);
+      sprintf(imprimir_lcd, "%s",menuavanzado[ReturnToCero(Ypos+2,maxY_menu2)]);  PrintLCD (imprimir_lcd,1,2);
+      sprintf(imprimir_lcd, "%s",menuavanzado[ReturnToCero(Ypos+3,maxY_menu2)]);  PrintLCD (imprimir_lcd,1,3);
 
-      encoder0Pos=ReturnToCero(encoder0Pos,maxY_menu2*2);
+      posicion_encoder=ReturnToCero(posicion_encoder,maxY_menu2*2);
 
-      if(encoder0Pos/2!=Ypos){
+      if(posicion_encoder/2!=Ypos){
         tiempo_de_standby=mili_segundos;
         lcd.clear();
-        Ypos=encoder0Pos/2;
+        Ypos=posicion_encoder/2;
       }
       
-      if (PressedButton(1))encoder0Pos-=2; // suma 1 a Ypos
-      if (PressedButton(2))encoder0Pos+=2; // resta 1 a Ypos
+      if (PressedButton(1))posicion_encoder-=2; // suma 1 a Ypos
+      if (PressedButton(2))posicion_encoder+=2; // resta 1 a Ypos
       if (PressedButton(3))Posicion_menu=Ypos+2; //confirmacion
       
       if(mili_segundos>=tiempo_parpadeo+tiempo_de_parpadeo){
         tiempo_parpadeo=mili_segundos;
-        sprintf(LCDMessage, " ");
-        PrintLCD (LCDMessage,0,0);
+        sprintf(imprimir_lcd, " ");
+        PrintLCD (imprimir_lcd,0,0);
         } //prende o apaga la flechita
 
       if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
@@ -206,7 +201,7 @@ void menu_avanzado()
       break;
     case 2:
       Estadoequipo=funciones;
-      funcionActual=funcion_de_menu_modificar_hora_rtc;
+      funcionActual=funcion_de_menu_modificar_hora_display_rtc;
       Posicion_menu=0;
       break;
     case 3: 

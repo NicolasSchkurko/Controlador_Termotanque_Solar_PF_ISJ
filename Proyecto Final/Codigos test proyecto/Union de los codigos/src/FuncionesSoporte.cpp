@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 extern LiquidCrystal_I2C lcd;
+
 uint8_t ReturnToCero (int8_t actualpos, uint8_t maxpos)
 { 
   uint8_t Aux1;
@@ -163,3 +164,19 @@ lcd.setCursor(Column,Row);
 lcd.print(buffer);
 }
 
+uint16_t Tiempo_encoder;
+bool last_encoder_state;
+
+void Sum_Encoder(uint16_t timer_INO,uint8_t sumador_encoder,uint8_t function){
+  if(function==1)last_encoder_state=PressedButton(40);
+  if(function==2){
+    if(timer_INO > Tiempo_encoder+20){
+      if(PressedButton(40) != last_encoder_state){
+        if ( PressedButton(41) == PressedButton(40))sumador_encoder--;
+        else sumador_encoder++;
+        last_encoder_state=(PressedButton(40));
+      }
+      Tiempo_encoder=timer_INO;
+    }
+  }
+  }
