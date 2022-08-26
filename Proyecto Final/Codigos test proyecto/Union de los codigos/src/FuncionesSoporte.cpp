@@ -127,31 +127,27 @@ char Character_Return(uint8_t Character_pos, bool mayus)
 
 bool PressedButton (uint8_t Wich_Button){
 if(Wich_Button== 1){
-  if ((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD2)) == 0){}return true;}
+  if ((PIND & (1<<PD4)) == 0){while((PIND & (1<<PD4)) == 0){}return true;}
   else return false;
 }
-else if(Wich_Button== 2){
-  if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD3)) == 0){} return true;}
+if(Wich_Button== 2){
+  if ((PIND & (1<<PD5)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
   else return false;
 }
-else if(Wich_Button== 3){
-  if ((PIND & (1<<PD6)) == 0){while((PIND & (1<<PD4)) == 0){} return true;}
+if(Wich_Button== 3){
+  if ((PIND & (1<<PD6)) == 0){while((PIND & (1<<PD6)) == 0){} return true;}
   else return false;
 }
-else if(Wich_Button== 4){
-  if ((PIND & (1<<PD7)) == 0){while((PIND & (1<<PD5)) == 0){} return true;}
+if(Wich_Button== 4){
+  if ((PIND & (1<<PD7)) == 0){while((PIND & (1<<PD7)) == 0){} return true;}
   else return false;
 }
-else if(Wich_Button== 40){
+if(Wich_Button== 40){
   if ((PIND & (1<<PD2)) == 0){return true;}
   else return false;
 }
-else if(Wich_Button== 41){
+if(Wich_Button== 41){
   if ((PIND & (1<<PD3)) == 0){return true;}
-  else return false;
-}
-else{
-  if ((PIND & (1<<PD5)) == 0 || (PIND & (1<<PD4)) == 0 || (PIND & (1<<PD3)) == 0 || (PIND & (1<<PD2)) == 0)return true;
   else return false;
 }
 }
@@ -181,5 +177,12 @@ lcd.setCursor(Column,Row);
 lcd.print(buffer);
 }
 
+extern uint8_t encoder0Pos;
 
+void encoder_value(uint8_t value,uint8_t funcion){
+  if(funcion==1)encoder0Pos=value;
+  if(funcion==2)encoder0Pos+=value;
+  if(funcion==3)encoder0Pos-=value;
+  if(funcion==4)encoder0Pos=ReturnToCero(encoder0Pos,value);
+}
 

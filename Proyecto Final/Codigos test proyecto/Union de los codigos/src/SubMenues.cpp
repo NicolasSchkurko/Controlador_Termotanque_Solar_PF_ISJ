@@ -29,29 +29,31 @@ bool mayusculas=false;
 int8_t Aux;
 uint8_t hora_to_modify, minuto_to_modify;
 
-
-void menu_de_llenado_manual(uint8_t nivel_a_setear, uint8_t Sumador_encoder){
+uint8_t nivel_setear;
+uint8_t menu_de_llenado_manual(uint8_t nivel_actual, uint8_t Sumador_encoder){
     switch (Flag)
     {
       case 0:
-        nivel_a_setear=min_nivel;
+        if(nivel_actual>min_nivel)nivel_setear=nivel_actual;
+        if(nivel_actual<=min_nivel)nivel_setear=min_nivel;
         lcd.clear();
+        encoder_value(0,1);
         Flag=1;
         break;
       case 1:
 
         memcpy(LCDMessage, "Nivel a llenar:", 16);                          PrintLCD (LCDMessage,0,0);
-        sprintf(LCDMessage,"%d%c",nivel_a_setear,'%');                      PrintLCD (LCDMessage,16,0);
+        sprintf(LCDMessage,"%d%c",nivel_setear,'%');                      PrintLCD (LCDMessage,16,0);
         memcpy(LCDMessage, "Sumar 25 con 1", 15);                           PrintLCD (LCDMessage,0,1);
         memcpy(LCDMessage, "Restar 25 con 2", 16);                          PrintLCD (LCDMessage,0,2);
         memcpy(LCDMessage, "Confirmar con 3", 16);                          PrintLCD (LCDMessage,0,3);
 
-        Sumador_encoder=ReturnToCero(Sumador_encoder,4);
-        if((Sumador_encoder+1)*sumador_nivel!=nivel_a_setear){
-          nivel_a_setear=(Sumador_encoder+1)*sumador_nivel;
+        encoder_value(4,4);
+        if((Sumador_encoder+1)*sumador_nivel!=nivel_setear){
+          nivel_setear=(Sumador_encoder+1)*sumador_nivel;
         }
-        if (PressedButton(1))Sumador_encoder--; // suma 1 a Ypos
-        if (PressedButton(2))Sumador_encoder++; // resta 1 a Ypos
+        if (PressedButton(1))encoder_value(1,2); // suma 1 a Ypos
+        if (PressedButton(2))encoder_value(1,3); // resta 1 a Ypos
         if (PressedButton(3)){Flag=2; lcd.clear();}
         if (PressedButton(4)){Estadoequipo=menu1; funcionActual=posicion_inicial; lcd.clear();}
         break; 
@@ -59,7 +61,7 @@ void menu_de_llenado_manual(uint8_t nivel_a_setear, uint8_t Sumador_encoder){
       case 2:
 
         memcpy(LCDMessage, "Llenar hasta:", 14);                      PrintLCD (LCDMessage,0,0);
-        sprintf(LCDMessage, "%d%c",nivel_a_setear,'%');               PrintLCD (LCDMessage,14,0);
+        sprintf(LCDMessage, "%d%c",nivel_setear,'%');               PrintLCD (LCDMessage,14,0);
         memcpy(LCDMessage, "Confirmar?", 11);                         PrintLCD (LCDMessage,5,3);
 
         if(PressedButton(3)){lcd.clear(); Flag=3;}
@@ -68,6 +70,7 @@ void menu_de_llenado_manual(uint8_t nivel_a_setear, uint8_t Sumador_encoder){
 
       case 3:
         guardado_para_menus(true);
+        return nivel_setear;
         break;
     }
 }
@@ -80,6 +83,7 @@ void menu_de_calefaccion_manual(int8_t valor_temperatura_actual, uint8_t tempera
         else  temperatura_calentar_setear = valor_temperatura_actual;
         lcd.clear();
         Flag=1;
+        encoder_value(0,1);
         break;
 
       case 1:
@@ -98,8 +102,8 @@ void menu_de_calefaccion_manual(int8_t valor_temperatura_actual, uint8_t tempera
           temperatura_calentar_setear=(Sumador_encoder+8)*sumador_temperatura;
         }
 
-        if (PressedButton(1))Sumador_encoder--; // suma 1 a Ypos
-        if (PressedButton(2))Sumador_encoder++; // resta 1 a Ypos
+        if (PressedButton(1))encoder_value(1,2); // suma 1 a Ypos
+        if (PressedButton(2))encoder_value(1,3); // resta 1 a Ypos
         if(PressedButton(3)){ Flag=2; lcd.clear();}
         if(PressedButton(4)){ Estadoequipo=menu1; Flag=0; funcionActual=posicion_inicial; lcd.clear();}
         break; 

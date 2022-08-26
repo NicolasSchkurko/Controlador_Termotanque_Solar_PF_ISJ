@@ -98,7 +98,7 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   
   //pulsadores pra manejar los menus//
-  DDRD |= B00001111; // setea input
+  DDRD &= B00001111; // setea input
   DDRB &= B00011100; 
 
   PORTD |= B11110000; // setea pull up o pull down
@@ -143,7 +143,7 @@ void loop()
       menu_avanzado(encoder0Pos);
       break;
     case funciones:
-      if(funcionActual==llenado_manual)menu_de_llenado_manual(nivel_a_llenar,encoder0Pos);
+      if(funcionActual==llenado_manual)nivel_a_llenar=menu_de_llenado_manual(nivel_actual,encoder0Pos);
       if(funcionActual==calefaccion_manual)menu_de_calefaccion_manual(temperatura_actual,temperatura_a_calentar,use_farenheit,encoder0Pos);
       if(funcionActual==funcion_menu_de_auto_por_hora)menu_de_auto_por_hora(hora,minutos,use_farenheit,encoder0Pos);
       if(funcionActual==llenado_auto)menu_de_llenado_auto(encoder0Pos);                 //Menu principal 

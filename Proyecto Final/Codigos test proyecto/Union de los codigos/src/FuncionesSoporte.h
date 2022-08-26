@@ -11,5 +11,6 @@ bool PressedButton (uint8_t);
 void PrintLCD (char[20], uint8_t, uint8_t);
 void Printhora (char[20],uint8_t, uint8_t);
 void PrintOutput(uint8_t,bool);
+void encoder_value(uint8_t,uint8_t);
 
 
