@@ -112,8 +112,10 @@ void menu_basico(uint8_t posicion_encoder)
 
       if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
         Estadoequipo = estado_standby;
+        encoder_value(0,1);
         tiempo_de_standby=mili_segundos;
         lcd.clear();
+        Ypos=0;
       }
 
       break;
@@ -196,8 +198,10 @@ void menu_avanzado(uint8_t posicion_encoder)
 
       if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
         Estadoequipo = estado_standby;
+        encoder_value(0,1);
         tiempo_de_standby=mili_segundos;
         lcd.clear();
+        Ypos=0;
       }
       break;
     case 2:

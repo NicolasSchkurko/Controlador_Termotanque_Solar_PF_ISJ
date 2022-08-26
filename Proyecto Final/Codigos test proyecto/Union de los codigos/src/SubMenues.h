@@ -10,7 +10,7 @@
 #define minuto_max 60
 
 uint8_t menu_de_llenado_manual(uint8_t,uint8_t);
-void menu_de_calefaccion_manual(int8_t,uint8_t,bool,uint8_t);
+uint8_t menu_de_calefaccion_manual(int8_t,bool,uint8_t);
 void menu_de_auto_por_hora(uint8_t,uint8_t,bool,uint8_t);
 void menu_de_llenado_auto(uint8_t);
 void menu_de_calefaccion_auto(bool,uint8_t);

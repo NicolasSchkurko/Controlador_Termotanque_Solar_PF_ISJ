@@ -144,7 +144,7 @@ void loop()
       break;
     case funciones:
       if(funcionActual==llenado_manual)nivel_a_llenar=menu_de_llenado_manual(nivel_actual,encoder0Pos);
-      if(funcionActual==calefaccion_manual)menu_de_calefaccion_manual(temperatura_actual,temperatura_a_calentar,use_farenheit,encoder0Pos);
+      if(funcionActual==calefaccion_manual)temperatura_a_calentar=menu_de_calefaccion_manual(temperatura_actual,use_farenheit,encoder0Pos);
       if(funcionActual==funcion_menu_de_auto_por_hora)menu_de_auto_por_hora(hora,minutos,use_farenheit,encoder0Pos);
       if(funcionActual==llenado_auto)menu_de_llenado_auto(encoder0Pos);                 //Menu principal 
       if(funcionActual==calefaccion_auto)menu_de_calefaccion_auto(use_farenheit,encoder0Pos);         //Menu principal
@@ -170,7 +170,7 @@ void Actualizar_entradas (){ //Sexo y adaptarlo para no usar delay farenheit
     if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = 50;
     if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
-
+    Serial.print(nivel_a_llenar);
     tiempo_sensores=mili_segundos;
   }
   DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc

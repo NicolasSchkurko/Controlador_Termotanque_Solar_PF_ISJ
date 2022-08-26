@@ -116,21 +116,21 @@ void Serial_Send_UNO(uint8_t WhatSend,uint8_t What_slot){
                 Serial.println( OutputMessage);
                 break;
               case 2:
-                sprintf( OutputMessage, "K_%d:%d:%d:2",eep.read(4),eep.read(5),eep.read(6));
-                Serial.println( OutputMessage);
-                break;
-              case 3:
-                sprintf( OutputMessage, "K_%d:%d:%d:3",eep.read(7),eep.read(8),eep.read(9));
-                Serial.println( OutputMessage);
-                break;
-              case 4:
                 sprintf( OutputMessage, "J_%d:%d",eep.read(10),eep.read(11));
                 Serial.println( OutputMessage);
                 break;
-              case 5:
+              case 3:
+                sprintf(OutputMessage, "K_%d:%d:%d:2",eep.read(4),eep.read(5),eep.read(6));
+                Serial.println( OutputMessage);
+                break;
+              case 4:
                 sprintf( OutputMessage, "V_%d:%d",eep.read(12),eep.read(13));
                 Serial.println( OutputMessage);
                 InitComunication=false;
+                break;
+              case 5:
+                sprintf( OutputMessage, "K_%d:%d:%d:3",eep.read(7),eep.read(8),eep.read(9));
+                Serial.println( OutputMessage);
                 break;
           }  
         }
@@ -163,6 +163,10 @@ void Serial_Send_UNO(uint8_t WhatSend,uint8_t What_slot){
         break;
       case 6:
         if(InitComunication==false){
+          for (uint8_t i = 0; i < 19; i++){
+            WIFIPASS[i] = eep.read(14 + i);
+            WIFISSID[i] = eep.read(34 + i);
+          }
           sprintf( OutputMessage, "S_%s:%s:",WIFISSID,WIFIPASS);
           Serial.println( OutputMessage);;
           }
