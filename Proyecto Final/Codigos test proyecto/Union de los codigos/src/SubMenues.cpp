@@ -15,7 +15,6 @@ typedef enum{estado_standby,estado_inicial,menu1,menu2,funciones} estadoMEF;
   
 extern Seleccionar_Funciones funcionActual;
 extern estadoMEF Estadoequipo;
-extern LiquidCrystal_I2C lcd;//LiquidCrystal_I2C lcd(0x27,20,4);
 
 extern char LCDMessage[20];
 extern uint16_t mili_segundos;
@@ -418,8 +417,8 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
       memcpy(LCDMessage, "Restar 5 con 2", 20);                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                PrintLCD (LCDMessage,0,3);
 
-      if((Sumador_encoder+eep.read(13)/sumador_nivel+1)*sumador_nivel!=eep.read(13)){
-        eep.write(13,((Sumador_encoder+eep.read(13)/sumador_nivel+1)*sumador_nivel));
+      if((Sumador_encoder+(eep.read(13)/sumador_nivel))*sumador_nivel!=eep.read(13)){
+        eep.write(13,((Sumador_encoder+(eep.read(13)/sumador_nivel))*sumador_nivel));
       }
 
       if(PressedButton(1)==true)encoder_value(1,2);
@@ -436,7 +435,7 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
         encoder_value(0,1);
       }
 
-      encoder_value(eep.read(12)/sumador_nivel,4);
+      encoder_value(3-(eep.read(13)/sumador_nivel),4);
       break;
 
     case 3: 
@@ -486,8 +485,8 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       if(Unidad_medida == true)sprintf(LCDMessage, "%d%cF",((9*eep.read(10))/5)+32,(char)223);
       PrintLCD (LCDMessage,12,0);
 
-      if((Sumador_encoder+1)*sumador_temperatura!=eep.read(10)){
-        eep.write(10,(Sumador_encoder+1)*sumador_temperatura);
+      if((Sumador_encoder+8)*sumador_temperatura!=eep.read(10)){
+        eep.write(10,(Sumador_encoder+8)*sumador_temperatura);
       }
 
       if(PressedButton(1))encoder_value(1,2);
@@ -508,7 +507,7 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
         encoder_value(0,1);
       }
 
-      encoder_value(3,4);
+      encoder_value(8,4);
       break; 
 
     case 2:
@@ -522,8 +521,8 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       memcpy(LCDMessage, "Restar 5 con 2", 20);         PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);        PrintLCD (LCDMessage,0,3);
   
-      if((Sumador_encoder+eep.read(11)/sumador_nivel+1)*sumador_nivel!=eep.read(11)){
-        eep.write(11,(Sumador_encoder+eep.read(11)/sumador_nivel+1)*sumador_temperatura);
+      if((Sumador_encoder+(eep.read(10)/sumador_nivel))*sumador_nivel!=eep.read(11)){
+        eep.write(11,(Sumador_encoder+(eep.read(10)/sumador_nivel))*sumador_temperatura);
       }
 
       if(PressedButton(1))encoder_value(1,2);
@@ -537,7 +536,7 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       if(PressedButton(4)){
         Flag=1;  
         lcd.clear();
-        encoder_value(0,1);
+        encoder_value(8-(eep.read(10)/sumador_nivel),1);
       }
 
       encoder_value(eep.read(10)/sumador_temperatura,4);
