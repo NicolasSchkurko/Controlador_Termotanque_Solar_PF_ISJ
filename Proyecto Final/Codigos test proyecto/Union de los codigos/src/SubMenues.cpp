@@ -385,7 +385,7 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
       memcpy(LCDMessage, "Restar 5 con 2", 20);                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                PrintLCD (LCDMessage,0,3);
 
-      if((Sumador_encoder+1)*sumador_nivel!=eep.read(12)){
+      if((Sumador_encoder+1)*sumador_nivel!=eep.read(12)){ 
         eep.write(12,(Sumador_encoder+1)*sumador_nivel);
       }
 
