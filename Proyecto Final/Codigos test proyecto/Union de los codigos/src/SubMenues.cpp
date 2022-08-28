@@ -49,14 +49,23 @@ uint8_t menu_de_llenado_manual(uint8_t nivel_actual, uint8_t Sumador_encoder){
         memcpy(LCDMessage, "Restar 25 con 2", 16);                          PrintLCD (LCDMessage,0,2);
         memcpy(LCDMessage, "Confirmar con 3", 16);                          PrintLCD (LCDMessage,0,3);
 
-        encoder_value(4,4);
         if((Sumador_encoder+1)*sumador_nivel!=Nivel_a_setear){
           Nivel_a_setear=(Sumador_encoder+1)*sumador_nivel;
         }
+
         if (PressedButton(1))encoder_value(1,2); // suma 1 a Ypos
         if (PressedButton(2))encoder_value(1,3); // resta 1 a Ypos
-        if (PressedButton(3)){Flag=2; lcd.clear();}
-        if (PressedButton(4)){Estadoequipo=menu1; funcionActual=posicion_inicial; lcd.clear();}
+        if (PressedButton(3)){
+          Flag=2; 
+          lcd.clear();
+        }
+        if (PressedButton(4)){
+          Estadoequipo=menu1; 
+          funcionActual=posicion_inicial; 
+          lcd.clear();
+        }
+
+        encoder_value(4,4);
         break; 
 
       case 2:
@@ -65,8 +74,17 @@ uint8_t menu_de_llenado_manual(uint8_t nivel_actual, uint8_t Sumador_encoder){
         sprintf(LCDMessage, "%d%c",Nivel_a_setear,'%');               PrintLCD (LCDMessage,14,0);
         memcpy(LCDMessage, "Confirmar?", 11);                         PrintLCD (LCDMessage,5,3);
 
-        if(PressedButton(3)){lcd.clear(); Flag=3;}
-        if(PressedButton(4)){ Flag=1; lcd.clear();}
+        if(PressedButton(3)){
+          lcd.clear(); 
+          Flag=3;
+          mili_segundos=tiempo_de_standby;
+        }
+
+        if(PressedButton(4)){ 
+          Flag=1; 
+          lcd.clear();
+          mili_segundos=tiempo_de_standby;
+        }
         break;
 
       case 3:
@@ -97,7 +115,6 @@ uint8_t menu_de_calefaccion_manual(int8_t valor_temperatura_actual,bool Unidad_m
 
         if(Unidad_medida == false)sprintf(LCDMessage, "%d%cC",Temp_a_setear,(char)223);
         if(Unidad_medida == true)sprintf(LCDMessage, "%d%cF",((9*Temp_a_setear)/5)+32,(char)223);
-        PrintLCD (LCDMessage,12,0);
 
         encoder_value(9,4);
         if((Sumador_encoder+8)*sumador_temperatura!=Temp_a_setear){
@@ -106,8 +123,19 @@ uint8_t menu_de_calefaccion_manual(int8_t valor_temperatura_actual,bool Unidad_m
 
         if (PressedButton(1))encoder_value(1,2); // suma 1 a Ypos
         if (PressedButton(2))encoder_value(1,3); // resta 1 a Ypos
-        if(PressedButton(3)){ Flag=2; lcd.clear();}
-        if(PressedButton(4)){ Estadoequipo=menu1; Flag=0; funcionActual=posicion_inicial; lcd.clear();}
+        if(PressedButton(3)){ 
+          Flag=2; 
+          lcd.clear();
+        }
+
+        if(PressedButton(4)){ 
+          Estadoequipo=menu1; 
+          Flag=0; 
+          funcionActual=posicion_inicial; 
+          lcd.clear();
+        }
+
+        PrintLCD (LCDMessage,12,0);
         break; 
 
       case 2:
@@ -118,8 +146,16 @@ uint8_t menu_de_calefaccion_manual(int8_t valor_temperatura_actual,bool Unidad_m
         if(Unidad_medida == true)sprintf(LCDMessage, "%d%cF",((9*Temp_a_setear)/5)+32,(char)223);
         PrintLCD (LCDMessage,12,0);
 
-        if(PressedButton(3)){Flag=3; lcd.clear();}
-        if(PressedButton(4)){Flag=1; lcd.clear();}
+        if(PressedButton(3)){
+          Flag=3; 
+          lcd.clear(); 
+          mili_segundos=tiempo_de_standby;
+        }
+
+        if(PressedButton(4)){
+          Flag=1; 
+          lcd.clear();
+        }
         break;
 
       case 3:
@@ -153,12 +189,26 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual,bool Unid
       Printhora(LCDMessage,CharToUINT(1,eep.read(8)),CharToUINT(2,eep.read(8)));  PrintLCD (LCDMessage,3,3);
 
       ActualSlot = Sumador_encoder/4;
-      encoder_value(12,4);
 
       if (PressedButton(1))encoder_value(4,2); // suma 1 a Ypos
       if (PressedButton(2))encoder_value(4,3); // resta 1 a Ypos
-      if(PressedButton(3)){Temp_a_setear=min_temp; Nivel_a_setear=min_nivel; lcd.clear(); Flag=2;encoder_value(0,1);}
-      if(PressedButton(4)){Estadoequipo=menu1; Flag=0; funcionActual=posicion_inicial; lcd.clear();encoder_value(0,1);}
+      if(PressedButton(3)){
+        Temp_a_setear=min_temp; 
+        Nivel_a_setear=min_nivel; 
+        lcd.clear(); 
+        Flag=2;
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)){
+        Estadoequipo=menu1; 
+        Flag=0; 
+        funcionActual=posicion_inicial; 
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      encoder_value(12,4);
       break; 
 
     case 2:        
@@ -171,33 +221,53 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual,bool Unid
       if(Unidad_medida == true)sprintf(LCDMessage, "%d%cF",((9*Temp_a_setear)/5)+32,(char)223);
       PrintLCD (LCDMessage,12,0);
 
-      encoder_value(9,4);
       if((Sumador_encoder+8)*sumador_temperatura!=Temp_a_setear){
         Temp_a_setear=(Sumador_encoder+8)*sumador_temperatura;
       }
 
       if (PressedButton(1))encoder_value(1,2);
       if (PressedButton(2))encoder_value(1,3);
-      if(PressedButton(3)){Flag=3;  lcd.clear(); encoder_value(0,1);}
-      if(PressedButton(4)){Flag=1;  lcd.clear(); encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=3;  
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)){
+        Flag=1;  
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
+
+      encoder_value(9,4);
       break;
 
     case 3:
       memcpy(LCDMessage, "Nivel max", 20);          PrintLCD (LCDMessage,0,0);
-      sprintf(LCDMessage, "%d%c",Nivel_a_setear,'%');       PrintLCD (LCDMessage,10,0);
+      sprintf(LCDMessage, "%d%c ",Nivel_a_setear,'%');       PrintLCD (LCDMessage,10,0);
       memcpy(LCDMessage, "Sumar 5 con 1", 20);          PrintLCD (LCDMessage,0,1);
       memcpy(LCDMessage, "Restar 5 con 2", 20);         PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);        PrintLCD (LCDMessage,0,3);
 
-      encoder_value(4,4);
       if((Sumador_encoder+1)*sumador_nivel!=Nivel_a_setear){
         Nivel_a_setear=(Sumador_encoder+1)*sumador_nivel;
       }
 
       if (PressedButton(1))encoder_value(1,2);
       if (PressedButton(2))encoder_value(1,3);
-      if(PressedButton(3)){Flag=4;Sumador_encoder=0;lcd.clear();encoder_value(0,1);}
-      if(PressedButton(4)){Flag=2; lcd.clear();encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=4;
+        Sumador_encoder=0;
+        lcd.clear();
+        encoder_value(0,1);
+      }
+      if(PressedButton(4)){
+        Flag=2; 
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      encoder_value(4,4);
       break;
 
     case 4:
@@ -207,13 +277,25 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual,bool Unid
       memcpy(LCDMessage, "disminuir con 2", 20);                                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                                 PrintLCD (LCDMessage,0,3);
 
-      encoder_value(hora_max,4);
       hora_to_modify = ReturnToCero((hora_actual+Sumador_encoder),hora_max);
 
       if (PressedButton(1))encoder_value(1,2);
       if (PressedButton(2))encoder_value(1,3);
-      if(PressedButton(3)){Flag=5; lcd.clear(); Sumador_encoder=0;encoder_value(0,1);}
-      if(PressedButton(4)){Flag=3; lcd.clear(); Sumador_encoder=0;encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=5; 
+        lcd.clear(); 
+        Sumador_encoder=0;
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)){
+        Flag=3; 
+        lcd.clear(); 
+        Sumador_encoder=0;
+        encoder_value(0,1);
+      }
+
+      encoder_value(hora_max,4);
       break;
 
     case 5:
@@ -223,13 +305,23 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual,bool Unid
       memcpy(LCDMessage, "disminuir con 2", 20);                                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                                 PrintLCD (LCDMessage,0,3);
 
-      encoder_value(minuto_max,4);
       minuto_to_modify = ReturnToCero((minutos_actual+Sumador_encoder),minuto_max);
 
       if (PressedButton(1))encoder_value(1,2); // suma 1 a Ypos
       if (PressedButton(2))encoder_value(1,3);// resta 1 a Ypos
-      if(PressedButton(3)){Flag=6; lcd.clear();encoder_value(0,1);}
-      if(PressedButton(4)){Flag=4; lcd.clear();encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=6; 
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)){
+        Flag=4; 
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      encoder_value(minuto_max,4);
       break;
 
     case 6:
@@ -244,12 +336,23 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual,bool Unid
       if(Unidad_medida == true) {sprintf(LCDMessage, "%d%cF",((9*Temp_a_setear)/5)+32,(char)223);}
       PrintLCD (LCDMessage,11,1);
 
-      if(PressedButton(3)){lcd.clear(); Flag=7;encoder_value(0,1);}
-      if(PressedButton(4)){Flag=5; lcd.clear();encoder_value(0,1);}
+      if(PressedButton(3)){
+        lcd.clear(); 
+        Flag=7;
+        encoder_value(0,1);
+        mili_segundos=tiempo_de_standby;
+      }
+
+      if(PressedButton(4)){
+        Flag=5; 
+        lcd.clear();
+        encoder_value(0,1);
+      }
       break;
 
     case 7:
       Printhora(LCDMessage,hora_to_modify,minuto_to_modify); 
+
       eep.write((ActualSlot*3)+1,ArrayToChar(1,LCDMessage));
       eep.write((ActualSlot*3)+2, Nivel_a_setear);
       eep.write((ActualSlot*3)+3, Temp_a_setear);
@@ -276,39 +379,64 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
       break;
 
     case 1:
-      memcpy(LCDMessage, "Nivel min:", 20);                  PrintLCD (LCDMessage,0,0);
-      sprintf(LCDMessage, "%d%c",eep.read(12),'%');             PrintLCD (LCDMessage,11,0);
+      memcpy(LCDMessage, "Nivel min:", 20);                     PrintLCD (LCDMessage,0,0);
+      sprintf(LCDMessage, "%d%c ",eep.read(12),'%');            PrintLCD (LCDMessage,11,0);
       memcpy(LCDMessage, "Sumar 5 con 1", 20);                  PrintLCD (LCDMessage,0,1);
       memcpy(LCDMessage, "Restar 5 con 2", 20);                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                PrintLCD (LCDMessage,0,3);
 
-      encoder_value(3,4);
       if((Sumador_encoder+1)*sumador_nivel!=eep.read(12)){
         eep.write(12,(Sumador_encoder+1)*sumador_nivel);
       }
 
       if(PressedButton(1)==true)encoder_value(1,2);
       if(PressedButton(2)==true)encoder_value(1,3);
-      if(PressedButton(3)==true){Flag=2;eep.write(13,eep.read(12)+sumador_nivel);lcd.clear(); encoder_value(0,1);}
-      if(PressedButton(4)==true){eep.write(12,Valor_guardado_inicial); eep.write(13,Valor_guardado_final); Estadoequipo=menu1; Flag=0; funcionActual=posicion_inicial; lcd.clear(); encoder_value(0,1);}
+      if(PressedButton(3)==true){
+        Flag=2;
+        eep.write(13,eep.read(12)+sumador_nivel);
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)==true){
+        eep.write(12,Valor_guardado_inicial); 
+        eep.write(13,Valor_guardado_final); 
+        Estadoequipo=menu1; 
+        Flag=0; 
+        funcionActual=posicion_inicial; 
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
+
+      encoder_value(3,4);
       break;
       
     case 2:
-      memcpy(LCDMessage, "Nivel max:", 20);                     PrintLCD (LCDMessage,0,1);
+      memcpy(LCDMessage, "Nivel max:", 20);                     PrintLCD (LCDMessage,0,0);
       sprintf(LCDMessage, "%d%c",eep.read(13),'%');             PrintLCD (LCDMessage,11,0);
       memcpy(LCDMessage, "Sumar 5 con 1", 20);                  PrintLCD (LCDMessage,0,1);
       memcpy(LCDMessage, "Restar 5 con 2", 20);                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                PrintLCD (LCDMessage,0,3);
 
-      encoder_value(eep.read(12)/sumador_nivel,4);
-      if((Sumador_encoder+1)*sumador_nivel!=eep.read(13)){
-        eep.write(12,(Sumador_encoder+1)*sumador_nivel);
+      if((Sumador_encoder+eep.read(13)/sumador_nivel+1)*sumador_nivel!=eep.read(13)){
+        eep.write(13,((Sumador_encoder+eep.read(13)/sumador_nivel+1)*sumador_nivel));
       }
 
       if(PressedButton(1)==true)encoder_value(1,2);
       if(PressedButton(2)==true)encoder_value(1,3);
-      if(PressedButton(3)){Flag=3;  lcd.clear(); encoder_value(0,1);}
-      if(PressedButton(4)){Flag=1;  lcd.clear(); encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=3;  
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)){
+        Flag=1;  
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
+
+      encoder_value(eep.read(12)/sumador_nivel,4);
       break;
 
     case 3: 
@@ -316,13 +444,22 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
       sprintf(LCDMessage, "LLenar hasta %d%c",eep.read(13),'%');  PrintLCD (LCDMessage,0,1);
       memcpy(LCDMessage, "Confirmar?", 20);                       PrintLCD (LCDMessage,5,3);
 
-      if(PressedButton(3)){Flag=4;lcd.clear(); encoder_value(0,1);}
-      if(PressedButton(4)){Flag=2;lcd.clear(); encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=4;
+        lcd.clear(); 
+        encoder_value(0,1);
+        mili_segundos=tiempo_de_standby;
+      }
+
+      if(PressedButton(4)){
+        Flag=2;
+        lcd.clear(); 
+        encoder_value(0,1);
+      }
       break;
 
     case 4:
       guardado_para_menus(true);
-      Flag=0;
       break; 
   }
 }
@@ -349,15 +486,29 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       if(Unidad_medida == true)sprintf(LCDMessage, "%d%cF",((9*eep.read(10))/5)+32,(char)223);
       PrintLCD (LCDMessage,12,0);
 
-      encoder_value(3,4);
-      if((Sumador_encoder+1)*sumador_temperatura!=eep.read(12)){
-        eep.write(12,(Sumador_encoder+1)*sumador_temperatura);
+      if((Sumador_encoder+1)*sumador_temperatura!=eep.read(10)){
+        eep.write(10,(Sumador_encoder+1)*sumador_temperatura);
       }
 
-      if(PressedButton(1)==true)encoder_value(1,2);
-      if(PressedButton(2)==true)encoder_value(1,3);
-      if(PressedButton(3)){Flag=2;  eep.write(11,eep.read(10)+sumador_temperatura);encoder_value(0,1);}
-      if(PressedButton(4)){eep.write(10,Valor_guardado_inicial);eep.write(11,Valor_guardado_inicial);Estadoequipo=menu1;Flag=0;funcionActual=posicion_inicial;lcd.clear();encoder_value(0,1);}
+      if(PressedButton(1))encoder_value(1,2);
+      if(PressedButton(2))encoder_value(1,3);
+      if(PressedButton(3)){
+        Flag=2;  
+        eep.write(11,eep.read(10)+sumador_temperatura);
+        encoder_value(0,1);
+      }
+      
+      if(PressedButton(4)){
+        eep.write(10,Valor_guardado_inicial);
+        eep.write(11,Valor_guardado_inicial);
+        Estadoequipo=menu1;
+        Flag=0;
+        funcionActual=posicion_inicial;
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      encoder_value(3,4);
       break; 
 
     case 2:
@@ -371,15 +522,25 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       memcpy(LCDMessage, "Restar 5 con 2", 20);         PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);        PrintLCD (LCDMessage,0,3);
   
-      encoder_value(eep.read(10)/sumador_temperatura,4);
-      if((Sumador_encoder+1)*sumador_nivel!=eep.read(11)){
-        eep.write(11,(Sumador_encoder+1)*sumador_temperatura);
+      if((Sumador_encoder+eep.read(11)/sumador_nivel+1)*sumador_nivel!=eep.read(11)){
+        eep.write(11,(Sumador_encoder+eep.read(11)/sumador_nivel+1)*sumador_temperatura);
       }
 
       if(PressedButton(1))encoder_value(1,2);
       if(PressedButton(2))encoder_value(1,3);
-      if(PressedButton(3)){Flag=3;  lcd.clear();encoder_value(0,1);}
-      if(PressedButton(4)){Flag=1;  lcd.clear();encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=3;  
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      if(PressedButton(4)){
+        Flag=1;  
+        lcd.clear();
+        encoder_value(0,1);
+      }
+
+      encoder_value(eep.read(10)/sumador_temperatura,4);
       break;
 
     case 3:
@@ -398,13 +559,22 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       
       memcpy(LCDMessage, "Confirmar con 3", 20);                         PrintLCD (LCDMessage,0,3);
 
-      if(PressedButton(3)){Flag=4;  lcd.clear();encoder_value(0,1);}
-      if(PressedButton(4)){Flag=2;  lcd.clear();encoder_value(0,1);}
+      if(PressedButton(3)){
+        Flag=4;  
+        lcd.clear();
+        encoder_value(0,1);
+        mili_segundos=tiempo_de_standby;
+      }
+
+      if(PressedButton(4)){
+        Flag=2;  
+        lcd.clear();
+        encoder_value(0,1);
+      }
         break;
 
     case 4:
       guardado_para_menus(true);
-      Flag=0;
       break; 
   }
 }
@@ -428,12 +598,25 @@ void menu_modificar_hora_rtc(uint8_t hora_actual, uint8_t minutos_actual, uint8_
         memcpy(LCDMessage, "Confirmar con 3", 16);                                 PrintLCD (LCDMessage,0,3);
 
         hora_to_modify = ReturnToCero(hora_actual+Sumador_encoder,hora_max);
-        encoder_value(hora_max,4);
 
         if(PressedButton(1))encoder_value(1,2);
         if(PressedButton(2))encoder_value(1,3);
-        if(PressedButton(3)){Flag=2;  lcd.clear(); encoder_value(0,1);}
-        if(PressedButton(4)){Estadoequipo=menu2; Flag=0; funcionActual=posicion_inicial; lcd.clear(); encoder_value(0,1);}
+        if(PressedButton(3)){
+          Flag=2;  
+          lcd.clear(); 
+          encoder_value(0,1);
+        }
+
+        if(PressedButton(4)){
+          Estadoequipo=menu2; 
+          Flag=0; 
+          funcionActual=posicion_inicial; 
+          lcd.clear(); 
+          mili_segundos=tiempo_de_standby;
+          encoder_value(0,1);
+        }
+
+        encoder_value(hora_max,4);
         break;          
 
       case 2:
@@ -444,12 +627,23 @@ void menu_modificar_hora_rtc(uint8_t hora_actual, uint8_t minutos_actual, uint8_
         memcpy(LCDMessage, "Confirmar con 3", 16);                                 PrintLCD (LCDMessage,0,3);
 
         minuto_to_modify = ReturnToCero(minutos_actual+Sumador_encoder,minuto_max);
-        encoder_value(minuto_max,4);
 
         if(PressedButton(1))encoder_value(1,2);
         if(PressedButton(2))encoder_value(1,3);
-        if(PressedButton(3)){Flag=1;  lcd.clear(); encoder_value(0,1);}
-        if(PressedButton(4)){Flag=3;  lcd.clear(); encoder_value(0,1);}
+        if(PressedButton(3)){
+          Flag=1;  
+          lcd.clear(); 
+          encoder_value(0,1);
+        }
+
+        if(PressedButton(4)){
+          Flag=3;  
+          lcd.clear(); 
+          mili_segundos=tiempo_de_standby;
+          encoder_value(0,1);
+        }
+
+        encoder_value(minuto_max,4);
         break;
 
       case 3:
@@ -462,14 +656,19 @@ void menu_modificar_hora_rtc(uint8_t hora_actual, uint8_t minutos_actual, uint8_
           DateTime now = rtc.now();
           rtc.adjust(DateTime(now.year(),now.month(),now.day(),hora_to_modify,minuto_to_modify,now.second()));
           lcd.clear();
+          mili_segundos=tiempo_de_standby;
           encoder_value(0,1);
         }
-        if(PressedButton(4)){Flag=2;  lcd.clear(); encoder_value(0,1);}
+
+        if(PressedButton(4)){
+          Flag=2;  
+          lcd.clear(); 
+          encoder_value(0,1);
+        }
         break;
 
       case 4:
         guardado_para_menus(false);
-        Flag=0;
         break; 
     }
   }
@@ -488,11 +687,16 @@ switch (Flag)
 
       if (Sumador_encoder>8)Estado_bomba=true;
       if (Sumador_encoder<=8)Estado_bomba=false;
-      encoder_value(16,4);
 
       if (PressedButton(1))encoder_value(8,2); // suma 1 a Ypos
       if (PressedButton(2))encoder_value(8,3); // resta 1 a Ypos
-      if(PressedButton(3)){Flag=1;  lcd.clear();}
+      if  (PressedButton(3) || PressedButton(4)){
+        Flag=1;  
+        lcd.clear();
+        mili_segundos=tiempo_de_standby;
+      }
+
+      encoder_value(16,4);
     break;
     case 1:
       guardado_para_menus(false);
@@ -518,11 +722,16 @@ void menu_farenheit_celsius(bool Unidad_medida, uint8_t Sumador_encoder)
 
       if (Sumador_encoder>8)Unidad_medida=true;
       if (Sumador_encoder<=8)Unidad_medida=false;
-      encoder_value(16,4);
 
       if (PressedButton(1))encoder_value(8,2); // suma 1 a Ypos
       if (PressedButton(2))encoder_value(8,3); // resta 1 a Ypos
-      if(PressedButton(3)){Flag=1;lcd.clear();}
+      if(PressedButton(3) || PressedButton(4)){
+        Flag=1;
+        lcd.clear();
+        mili_segundos=tiempo_de_standby;
+      }
+
+      encoder_value(16,4);
     break;
 
     case 1:
@@ -632,16 +841,23 @@ void menu_seteo_wifi(char nombre_wifi [20],char password_wifi [20],uint8_t Sumad
 }
 
 void guardado_para_menus(bool Menu){
-  memcpy(LCDMessage, "Guardando...", 13);                                   PrintLCD (LCDMessage,4,0);
+
+  while(mili_segundos<=tiempo_de_standby+tiempo_de_espera_menu){
+    memcpy(LCDMessage, "Guardando...", 13);                                   PrintLCD (LCDMessage,4,0);
+  }
+
   if(mili_segundos>=tiempo_de_standby+tiempo_de_espera_menu){
+
   if(Menu == true){
     Estadoequipo=menu1;
     Flag=0;
   }
+
   if(Menu == false){
     Estadoequipo=menu2;  
     Flag=0;
   }
+
   funcionActual=posicion_inicial;
   lcd.clear();
   tiempo_de_standby=mili_segundos;

@@ -20,8 +20,6 @@
 #define encoder0PinA 2
 #define encoder0PinB 3
 #define nivel_del_tanque A3 
-#define electrovalvula 10
-#define resistencia 11
 #define onewire 9 // pin del onewire
 #define tiempo_para_temperatura 5000 
 #define tiempo_para_nivel 3000
@@ -78,30 +76,27 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   //
+    //pulsadores pra manejar los menus//
+  DDRD &= B00001111; // setea input
+  DDRB &= B00011100; 
+
+  PORTD |= B11110000; // setea pull up o pull down
+
+  pinMode(nivel_del_tanque, INPUT); //pines  nivel
   pinMode(encoder0PinA, INPUT_PULLUP); 
   pinMode(encoder0PinB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(encoder0PinA), doEncodeA, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoder0PinB), doEncodeB, CHANGE);
   // encoder pin on interrupt 0 (pin 2)
-  //
   Wire.begin();  
   Serial.begin(9600); //inicializacion del serial arduino-esp
   rtc.begin();//inicializacion del rtc arduino-esp
-
-  //RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); //subirlo solo una unica vez y despues subirlo nuevamente pero comentando (sino cuando reinicia borra config hora)
   Serial.setTimeout(200);
   lcd.init();//Iniciacion del LCD
-  pinMode(nivel_del_tanque, INPUT); //pines  nivel
   //Sensr de temperatura
   Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
-  
-  //pulsadores pra manejar los menus//
-  DDRD &= B00001111; // setea input
-  DDRB &= B00011100; 
-
-  PORTD |= B11110000; // setea pull up o pull down
 
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
@@ -209,7 +204,7 @@ void ControlPorHora(){
 
 void doEncodeA()
 {
-   if (mili_segundos > Tiempo_encoder+50)
+   if (mili_segundos > Tiempo_encoder+25)
    {
       if (PressedButton(40) == PressedButton(41))encoder0Pos++;
       else encoder0Pos--;
@@ -218,7 +213,7 @@ void doEncodeA()
 }
 void doEncodeB()
 {
-   if (mili_segundos > Tiempo_encoder+50)
+   if (mili_segundos > Tiempo_encoder+25)
    {
       if ( PressedButton(40) != PressedButton(41))encoder0Pos++;
       else encoder0Pos--;

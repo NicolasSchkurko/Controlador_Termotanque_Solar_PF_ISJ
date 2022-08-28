@@ -156,18 +156,18 @@ void PrintOutput(uint8_t Wich_pin, bool state){
   switch (Wich_pin)
   {
   case 10:
-    if(state)  PORTB = PORTB | B00000100;
-    if(!state) PORTB = PORTB & B11111011;
+    if(state)  PORTB |= B00000100;
+    if(!state) PORTB &= B11111011;
     break;
   
   case 11:
-    if(state)  PORTB = PORTB | B00001000;
-    if(!state) PORTB = PORTB & B11110111;
+    if(state)  PORTB |= B00001000;
+    if(!state) PORTB &= B11110111;
     break;
 
   case 12:  
-    if(state)  PORTB = PORTB | B00010000;
-    if(!state) PORTB = PORTB & B11101111;
+    if(state)  PORTB |= B00010000;
+    if(!state) PORTB &= B11101111;
     break;
   }
 }
