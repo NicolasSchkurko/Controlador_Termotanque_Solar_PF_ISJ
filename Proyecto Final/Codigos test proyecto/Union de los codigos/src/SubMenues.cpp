@@ -419,8 +419,8 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
       memcpy(LCDMessage, "Restar 5 con 2", 20);                 PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);                PrintLCD (LCDMessage,0,3);
 
-      if((Sumador_encoder+(eep.read(12)/sumador_nivel))*sumador_nivel!=eep.read(13)){
-        eep.write(13,((Sumador_encoder+(eep.read(12)/sumador_nivel))*sumador_nivel));
+      if((Sumador_encoder+1+(eep.read(12)/sumador_nivel))*sumador_nivel!=eep.read(13)){
+        eep.write(13,((Sumador_encoder+1+(eep.read(12)/sumador_nivel))*sumador_nivel));
       }
 
       if(PressedButton(1)==true)encoder_value(1,2);
@@ -437,7 +437,7 @@ void menu_de_llenado_auto(uint8_t Sumador_encoder)
         encoder_value(0,1);
       }
 
-      encoder_value(5-(eep.read(12)/sumador_nivel),4);
+      encoder_value(4-(eep.read(12)/sumador_nivel),4);
       break;
 
     case 3: 
@@ -523,8 +523,8 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
       memcpy(LCDMessage, "Restar 5 con 2", 20);         PrintLCD (LCDMessage,0,2);
       memcpy(LCDMessage, "Confirmar con 3", 20);        PrintLCD (LCDMessage,0,3);
   
-      if((Sumador_encoder+(eep.read(10)/sumador_nivel))*sumador_nivel!=eep.read(11)){
-        eep.write(11,(Sumador_encoder+(eep.read(10)/sumador_nivel))*sumador_temperatura);
+      if((Sumador_encoder+1+(eep.read(10)/sumador_temperatura))*sumador_temperatura!=eep.read(11)){
+        eep.write(11,(Sumador_encoder+1+(eep.read(10)/sumador_temperatura))*sumador_temperatura);
       }
 
       if(PressedButton(1))encoder_value(1,2);
@@ -541,7 +541,7 @@ void menu_de_calefaccion_auto(bool Unidad_medida,uint8_t Sumador_encoder){
         encoder_value(0,1);
       }
       
-      encoder_value(17-(eep.read(10)/sumador_temperatura),4);
+      encoder_value(16-(eep.read(10)/sumador_temperatura),4);
       break;
 
     case 3:
