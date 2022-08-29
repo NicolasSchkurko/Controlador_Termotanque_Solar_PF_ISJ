@@ -22,11 +22,14 @@ niveles nivel_seteado;
 void setup() {
   pinMode(nivel_del_tanque, INPUT);
   pinMode(electrovalvula, OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop() {
   sensar_nivel();
   nivel_auto();
+  Serial.print("Nivel:");
+  Serial.println(nivel_actual);
 }
 
 void nivel_auto (){
