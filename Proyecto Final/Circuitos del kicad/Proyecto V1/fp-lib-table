@@ -1,5 +1,5 @@
 (fp_lib_table
   (lib (name "Desktop")(type "KiCad")(uri "C:/Users/alumno/Desktop.pretty")(options "")(descr ""))
   (lib (name "Nueva carpeta")(type "KiCad")(uri "C:/Users/alumno/Desktop/Nueva carpeta.pretty")(options "")(descr ""))
-  (lib (name "ESP8266 LOLiN v3")(type "KiCad")(uri "C:/Users/alumno/Desktop/ESP8266 LOLiN v3.pretty")(options "")(descr ""))
+  (lib (name "ESP8266 LOLiN v3")(type "KiCad")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266 LOLiN v3.pretty")(options "")(descr ""))
 )
