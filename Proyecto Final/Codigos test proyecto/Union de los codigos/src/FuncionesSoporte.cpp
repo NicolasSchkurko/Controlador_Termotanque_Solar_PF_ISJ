@@ -48,8 +48,7 @@ uint8_t CharToUINT(uint8_t function,uint8_t save)
 
 int8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de colver
 {
-  uint8_t Aux1, resto; // solo una variable (_convert  nos evita modificar variables globales como bldos)
-  int8_t NumeroFinal;
+  uint8_t Aux1, resto,NumeroFinal; // solo una variable (_convert  nos evita modificar variables globales como bldos)
   switch (function)
   {
     case 1:
@@ -76,7 +75,7 @@ int8_t ArrayToChar(uint8_t function,  char buffer[20]) //// ya arregle lo de col
   return (0);
 }
 
-void Printhora (char buffer[6],uint8_t hora_entrada, uint8_t minuto_entrada){
+void Printhora (char buffer[4],uint8_t hora_entrada, uint8_t minuto_entrada){
   uint8_t Aux1;
   for(Aux1=0; Aux1<20; Aux1++)buffer[Aux1]='\0';
   Aux1=hora_entrada/10;
@@ -88,8 +87,6 @@ void Printhora (char buffer[6],uint8_t hora_entrada, uint8_t minuto_entrada){
   buffer[3]=Aux1+'0';
   minuto_entrada=minuto_entrada-(Aux1*10);
   buffer[4]=minuto_entrada+'0';
-  buffer[5]='h';
-  buffer[6]='s';
 }
 
 char Character_Return(uint8_t Character_pos, bool mayus)
