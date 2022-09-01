@@ -97,7 +97,7 @@ void setup()
   Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
-
+  
   for (uint8_t i = 0; i < 19; i++){
     WIFIPASS[i] = eep.read(14 + i);
     WIFISSID[i] = eep.read(34 + i);
@@ -113,7 +113,6 @@ void setup()
     if(mili_segundos==2500)Serial_Send_UNO(1,5);
   }
   tiempo_sensores=mili_segundos; 
-  last_encoder_state=PressedButton(40);
 }
 void loop() 
 {
@@ -165,7 +164,6 @@ void Actualizar_entradas (){ //Sexo y adaptarlo para no usar delay farenheit
     if (analogRead(nivel_del_tanque) >= 256 && analogRead(nivel_del_tanque) < 512)    nivel_actual = 50;
     if (analogRead(nivel_del_tanque) >=512  && analogRead(nivel_del_tanque) < 768)    nivel_actual = 75;
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)  nivel_actual = 100;
-    Serial.print(nivel_a_llenar);
     tiempo_sensores=mili_segundos;
   }
   DateTime now = rtc.now(); //iguala la variable datetime al valor del rtc
@@ -188,16 +186,13 @@ void Controllvl(){
 }
 
 void ControlPorHora(){
-  uint8_t Byte_hora_actual;
   char Array_hora[6];
-
   Printhora(Array_hora,hora,minutos);
-  Byte_hora_actual=ArrayToChar(1,Array_hora);
-
-  for(uint8_t i; i<3;i++)
-  if(Byte_hora_actual==eep.read(i+1)){
+  for(uint8_t i; i<3;i++){
+  if(ArrayToChar(1,Array_hora)==eep.read(i+1)){
     temperatura_a_calentar=eep.read(i+2); 
     nivel_a_llenar=eep.read(i+3); 
+  }
   }
 }
 
