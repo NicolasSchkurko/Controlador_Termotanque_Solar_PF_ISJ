@@ -10,7 +10,6 @@
 #include "RTClib.h"
 #include "Declaraciones.h"
 
-
 //████████████████████████████████████████████████████████████████████
 // Defines
 // Control de temp
@@ -65,9 +64,9 @@ estadoMEF Estadoequipo = estado_inicial;
 char nombre_wifi_setear[20];
 char password_wifi_setear[20];
 char imprimir_lcd[20];
-char OutputMessage [40];
+char OutputMessage[40];
 char Individualdata[4];
-char Actualchar=0;
+char Actualchar = 0;
 
 uint16_t tiempo_de_standby;
 uint16_t tiempo_parpadeo;
@@ -75,10 +74,9 @@ uint16_t mili_segundos = 0;
 uint16_t tiempo_sensores;
 uint16_t Tiempo_encoder;
 
-uint8_t Vaux1, Vaux2,Vaux3,Vaux4;
+uint8_t Vaux1, Vaux2, Vaux3, Vaux4;
 uint8_t Flag = 0;
 uint8_t posicion_encoder;
-
 
 uint8_t nivel_actual;
 uint8_t temperatura_a_calentar;
@@ -86,12 +84,12 @@ uint8_t nivel_a_llenar;
 int8_t temperatura_actual; // temp actual
 uint8_t hora, minutos;
 
-uint8_t ActualIndividualDataPos=0;
+uint8_t ActualIndividualDataPos = 0;
 uint8_t hora_to_modify, minuto_to_modify;
 
-bool Take_Comunication_Data=false;
-bool ComunicationError=false;
-bool InitComunication=true;  
+bool Take_Comunication_Data = false;
+bool ComunicationError = false;
+bool InitComunication = true;
 bool mayusculas = false;
 bool last_encoder_state;
 bool Resistencia;
@@ -188,17 +186,17 @@ void loop()
     if (funcionActual == calefaccion_manual)
       temperatura_a_calentar = menu_de_calefaccion_manual(use_farenheit);
     if (funcionActual == funcion_menu_de_auto_por_hora)
-      menu_de_auto_por_hora(hora, minutos, use_farenheit );
+      menu_de_auto_por_hora(hora, minutos, use_farenheit);
     if (funcionActual == llenado_auto)
       menu_de_llenado_auto(); // Menu principal
     if (funcionActual == calefaccion_auto)
-      menu_de_calefaccion_auto(use_farenheit ); // Menu principal
+      menu_de_calefaccion_auto(use_farenheit); // Menu principal
     if (funcionActual == funcion_de_menu_modificar_hora_rtc)
       menu_modificar_hora_rtc(); // Menu avanzado
     if (funcionActual == funcion_farenheit_celsius)
-      menu_farenheit_celsius(Activar_bomba ); // Menu avanzado
+      menu_farenheit_celsius(Activar_bomba); // Menu avanzado
     if (funcionActual == funcion_activar_bomba)
-      menu_activar_bomba(use_farenheit ); // Menu avanzado
+      menu_activar_bomba(use_farenheit); // Menu avanzado
     if (funcionActual == funcion_de_menu_seteo_wifi)
       menu_seteo_wifi(); // Menu avanzado
     break;
@@ -504,10 +502,6 @@ void menu_avanzado()
   }
 }
 
-
-
-
-
 uint8_t menu_de_llenado_manual()
 {
   switch (Flag)
@@ -592,7 +586,7 @@ uint8_t menu_de_llenado_manual()
   }
 }
 
-uint8_t menu_de_calefaccion_manual( bool Unidad_medida)
+uint8_t menu_de_calefaccion_manual(bool Unidad_medida)
 {
   /*
   Vaux2=temp a setear
@@ -1081,7 +1075,7 @@ void menu_de_llenado_auto()
   }
 }
 
-void menu_de_calefaccion_auto(bool Unidad_medida )
+void menu_de_calefaccion_auto(bool Unidad_medida)
 {
   switch (Flag)
   {
@@ -1347,7 +1341,7 @@ void menu_modificar_hora_rtc()
   }
 }
 
-void menu_activar_bomba(bool Estado_bomba )
+void menu_activar_bomba(bool Estado_bomba)
 {
   switch (Flag)
   {
@@ -1393,7 +1387,7 @@ void menu_activar_bomba(bool Estado_bomba )
   }
 }
 
-void menu_farenheit_celsius(bool Unidad_medida )
+void menu_farenheit_celsius(bool Unidad_medida)
 {
   switch (Flag)
   {
@@ -1873,150 +1867,177 @@ void encoder_value(uint8_t value, uint8_t funcion)
 
 //████████████████████████████████████████████COMUNICACIONES██████████████████████████████████████████
 
-void Serial_Read_UNO(){
+void Serial_Read_UNO()
+{
   Vaux1 = Serial.available();
-  for(uint8_t i=0; i<Vaux1; i++)
+  for (uint8_t i = 0; i < Vaux1; i++)
   {
-    if(i==0)Actualchar=Serial.read();
-    if(i>=2){
-      if(Serial.read()==':'){
+    if (i == 0)
+      Actualchar = Serial.read();
+    if (i >= 2)
+    {
+      if (Serial.read() == ':')
+      {
         ActualIndividualDataPos++;
-      } //si hay : divide los datos
+      } // si hay : divide los datos
 
-      if(Serial.read()!=':'){// si no es nungun caracter especial:
-        Individualdata[ActualIndividualDataPos]=Serial.read();//copia al individual
+      if (Serial.read() != ':')
+      {                                                          // si no es nungun caracter especial:
+        Individualdata[ActualIndividualDataPos] = Serial.read(); // copia al individual
       }
     }
   }
-  
-  if(Take_Comunication_Data==true){
-    switch (Actualchar){//dependiendo del char de comando
+
+  if (Take_Comunication_Data == true)
+  {
+    switch (Actualchar)
+    { // dependiendo del char de comando
     case 'H':
-      temperatura_a_calentar=Individualdata[0];
-      if(Individualdata[1] == 'O' )calentar=true;
-      if(Individualdata[1] == 'I' )calentar=false;
-      Take_Comunication_Data=false;
+      temperatura_a_calentar = Individualdata[0];
+      if (Individualdata[1] == 'O')
+        calentar = true;
+      if (Individualdata[1] == 'I')
+        calentar = false;
+      Take_Comunication_Data = false;
       break;
 
     case 'C':
-      nivel_a_llenar=Individualdata[0];
-      if(Individualdata[1] == 'O')llenar=true;
-      if(Individualdata[1] == 'I')llenar=false;
-      Take_Comunication_Data=false;
+      nivel_a_llenar = Individualdata[0];
+      if (Individualdata[1] == 'O')
+        llenar = true;
+      if (Individualdata[1] == 'I')
+        llenar = false;
+      Take_Comunication_Data = false;
       break;
 
     case 'K':
-      Vaux2=Individualdata[3];
-      if (Vaux2<=2 && Vaux2>=0){
-          eep.write((Vaux2*3)+1,Individualdata[0]);
-          eep.write((Vaux2*3)+2,Individualdata[1]);
-          eep.write((Vaux2*3)+3,Individualdata[2]);
-          ActualIndividualDataPos=0;
-          Take_Comunication_Data=false;
-        }
+      Vaux2 = Individualdata[3];
+      if (Vaux2 <= 2 && Vaux2 >= 0)
+      {
+        eep.write((Vaux2 * 3) + 1, Individualdata[0]);
+        eep.write((Vaux2 * 3) + 2, Individualdata[1]);
+        eep.write((Vaux2 * 3) + 3, Individualdata[2]);
+        ActualIndividualDataPos = 0;
+        Take_Comunication_Data = false;
+      }
       break;
 
     case 'J':
-      eep.write(10,Individualdata[0]);
-      eep.write(11,Individualdata[1]);
-      ActualIndividualDataPos=0;
-      Take_Comunication_Data=false;
+      eep.write(10, Individualdata[0]);
+      eep.write(11, Individualdata[1]);
+      ActualIndividualDataPos = 0;
+      Take_Comunication_Data = false;
       break;
     case 'V':
-      eep.write(12,Individualdata[0]);
-      eep.write(13,Individualdata[1]);
-      ActualIndividualDataPos=0;
-      Take_Comunication_Data=false;
+      eep.write(12, Individualdata[0]);
+      eep.write(13, Individualdata[1]);
+      ActualIndividualDataPos = 0;
+      Take_Comunication_Data = false;
       break;
     case 'E':
-      Serial_Send_UNO(6,0);
-      ActualIndividualDataPos=0;
-      Take_Comunication_Data=false;
+      Serial_Send_UNO(6, 0);
+      ActualIndividualDataPos = 0;
+      Take_Comunication_Data = false;
       break;
     case 'O':
-      if(Individualdata[1]=='O' ){
-      ActualIndividualDataPos=0;
-      Take_Comunication_Data=false;
+      if (Individualdata[1] == 'O')
+      {
+        ActualIndividualDataPos = 0;
+        Take_Comunication_Data = false;
       }
       break;
     }
   }
 }
 
-void Serial_Send_UNO(uint8_t WhatSend,uint8_t What_slot){
+void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
+{
   uint8_t HourChar;
-  if (ComunicationError==false){
-    switch (WhatSend){
-      case 1:
-        if (InitComunication==true){
-            switch (What_slot){
-              case 0:
-                sprintf( OutputMessage, "S_%s:%s",nombre_wifi_setear,password_wifi_setear);
-                Serial.println( OutputMessage);
-                break;
-              case 1:
-                sprintf( OutputMessage, "K_%d:%d:%d:1",eep.read(1),eep.read(2),eep.read(3));
-                Serial.println( OutputMessage);
-                break;
-              case 2:
-                sprintf( OutputMessage, "J_%d:%d",eep.read(10),eep.read(11));
-                Serial.println( OutputMessage);
-                break;
-              case 3:
-                sprintf(OutputMessage, "K_%d:%d:%d:2",eep.read(4),eep.read(5),eep.read(6));
-                Serial.println( OutputMessage);
-                break;
-              case 4:
-                sprintf( OutputMessage, "V_%d:%d",eep.read(12),eep.read(13));
-                Serial.println( OutputMessage);
-                InitComunication=false;
-                break;
-              case 5:
-                sprintf( OutputMessage, "K_%d:%d:%d:3",eep.read(7),eep.read(8),eep.read(9));
-                Serial.println( OutputMessage);
-                break;
-          }  
-        }
-      break;
-      case 2:
-        if(InitComunication==false){
-          sprintf( OutputMessage, "K_%d:%d:%d:%d",eep.read((What_slot*3)+1),eep.read((What_slot*3)+2),eep.read((What_slot*3)+3),What_slot);
-          Serial.println( OutputMessage);
-          }
-        break;
-      case 3:
-        if(InitComunication==false){
-          sprintf( OutputMessage, "J_%d:%d",eep.read(10),eep.read(11));
-          Serial.println( OutputMessage);
-          }
-        break;
-      case 4:
-        if(InitComunication==false){                
-          sprintf( OutputMessage, "V_%d:%d",eep.read(12),eep.read(13));
-          Serial.println( OutputMessage);
-          }
-        break;
+  if (ComunicationError == false)
+  {
+    switch (WhatSend)
+    {
+    case 1:
+      if (InitComunication == true)
+      {
+        switch (What_slot)
+        {
+        case 0:
+          sprintf(OutputMessage, "S_%s:%s", nombre_wifi_setear, password_wifi_setear);
+          Serial.println(OutputMessage);
+          break;
+        case 1:
+          sprintf(OutputMessage, "K_%d:%d:%d:1", eep.read(1), eep.read(2), eep.read(3));
+          Serial.println(OutputMessage);
+          break;
+        case 2:
+          sprintf(OutputMessage, "J_%d:%d", eep.read(10), eep.read(11));
+          Serial.println(OutputMessage);
+          break;
+        case 3:
+          sprintf(OutputMessage, "K_%d:%d:%d:2", eep.read(4), eep.read(5), eep.read(6));
+          Serial.println(OutputMessage);
+          break;
+        case 4:
+          sprintf(OutputMessage, "V_%d:%d", eep.read(12), eep.read(13));
+          Serial.println(OutputMessage);
+          InitComunication = false;
+          break;
         case 5:
-        if(InitComunication==false){
-          Printhora( OutputMessage,hora,minutos);
-          HourChar=ArrayToChar(1, OutputMessage);
-          sprintf( OutputMessage, "U_%d:%d:%d",HourChar,nivel_actual,temperatura_actual);
+          sprintf(OutputMessage, "K_%d:%d:%d:3", eep.read(7), eep.read(8), eep.read(9));
+          Serial.println(OutputMessage);
+          break;
         }
-          Serial.println( OutputMessage);
-        break;
-      case 6:
-        if(InitComunication==false){
-          for (uint8_t i = 0; i < 19; i++){
-            password_wifi_setear[i] = eep.read(14 + i);
-            nombre_wifi_setear[i] = eep.read(34 + i);
-          }
-          sprintf( OutputMessage, "S_%s:%s:",nombre_wifi_setear,password_wifi_setear);
-          Serial.println( OutputMessage);;
-          }
-      default:
-        break;
+      }
+      break;
+    case 2:
+      if (InitComunication == false)
+      {
+        sprintf(OutputMessage, "K_%d:%d:%d:%d", eep.read((What_slot * 3) + 1), eep.read((What_slot * 3) + 2), eep.read((What_slot * 3) + 3), What_slot);
+        Serial.println(OutputMessage);
+      }
+      break;
+    case 3:
+      if (InitComunication == false)
+      {
+        sprintf(OutputMessage, "J_%d:%d", eep.read(10), eep.read(11));
+        Serial.println(OutputMessage);
+      }
+      break;
+    case 4:
+      if (InitComunication == false)
+      {
+        sprintf(OutputMessage, "V_%d:%d", eep.read(12), eep.read(13));
+        Serial.println(OutputMessage);
+      }
+      break;
+    case 5:
+      if (InitComunication == false)
+      {
+        Printhora(OutputMessage, hora, minutos);
+        HourChar = ArrayToChar(1, OutputMessage);
+        sprintf(OutputMessage, "U_%d:%d:%d", HourChar, nivel_actual, temperatura_actual);
+      }
+      Serial.println(OutputMessage);
+      break;
+    case 6:
+      if (InitComunication == false)
+      {
+        for (uint8_t i = 0; i < 19; i++)
+        {
+          password_wifi_setear[i] = eep.read(14 + i);
+          nombre_wifi_setear[i] = eep.read(34 + i);
+        }
+        sprintf(OutputMessage, "S_%s:%s:", nombre_wifi_setear, password_wifi_setear);
+        Serial.println(OutputMessage);
+        ;
+      }
+    default:
+      break;
     }
   }
-  if (ComunicationError==true){Serial.println(F("?_RESET"));}//resetea esp 
+  if (ComunicationError == true)
+  {
+    Serial.println(F("?_RESET"));
+  } // resetea esp
 }
-
