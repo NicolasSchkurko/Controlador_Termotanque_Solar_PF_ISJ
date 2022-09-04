@@ -125,6 +125,7 @@ void setup()
   Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
+  Vaux1=0;
 
   for (uint8_t i = 0; i < 19; i++)
   {
@@ -133,20 +134,48 @@ void setup()
   }
 
   mili_segundos = 0;
-  while (mili_segundos <= 3000)
+  while (mili_segundos <= 3500)
   {
-    if (mili_segundos == 1)
-      Serial_Send_UNO(1, 0);
-    if (mili_segundos == 500)
-      Serial_Send_UNO(1, 1);
-    if (mili_segundos == 500)
-      Serial_Send_UNO(1, 2);
-    if (mili_segundos == 1500)
-      Serial_Send_UNO(1, 3);
-    if (mili_segundos == 2000)
-      Serial_Send_UNO(1, 4);
-    if (mili_segundos == 2500)
-      Serial_Send_UNO(1, 5);
+    if (mili_segundos == 100 && Vaux1==0)
+      {
+      Serial_Send_UNO(4, 0); 
+      Vaux1++;
+      }
+    if (mili_segundos == 500 && Vaux1==1)
+      {
+      Serial_Send_UNO(3, 0); 
+      Vaux1++;
+      }
+    if (mili_segundos == 500 && Vaux1==2)
+      {
+      Serial_Send_UNO(5, 0); 
+      Vaux1++;
+      }
+    if (mili_segundos == 1500 && Vaux1==3)
+      {
+      Serial_Send_UNO(6, 0); 
+      Vaux1++;
+      }
+    if (mili_segundos == 2000 && Vaux1==4)
+      {
+      Serial_Send_UNO(2, 1); 
+      Vaux1++;
+      }
+    if (mili_segundos == 2500 && Vaux1==5)
+      {
+      Serial_Send_UNO(2, 2); 
+      Vaux1++;
+      }
+    if (mili_segundos == 3000 && Vaux1==6)
+      {
+      Serial_Send_UNO(2, 3); 
+      Vaux1++;
+      }
+    if (mili_segundos == 3300 && Vaux1==7)
+      {
+      Serial_Send_UNO(1, 0); 
+      Vaux1++;
+      }
   }
 }
 
@@ -1781,11 +1810,10 @@ void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
     switch (WhatSend)
     {
     case 1:
-      if(Resistencia==true && Valvula==true)sprintf(OutputMessage, "U_%c%cII", nivel_actual, temperatura_actual);
-      if(Resistencia==false && Valvula==true)sprintf(OutputMessage, "U_%c%cOI", nivel_actual, temperatura_actual);
-      if(Resistencia==true && Valvula==false)sprintf(OutputMessage, "U_%c%cIO", nivel_actual, temperatura_actual);
-      if(Resistencia==false && Valvula==false)sprintf(OutputMessage, "U_%c%cOO", nivel_actual, temperatura_actual);
-      Serial.println(OutputMessage);
+      if(Resistencia==true && Valvula==true){sprintf(OutputMessage, "U_%c%cII", (char)nivel_actual, (char)nivel_actual);       Serial.println(OutputMessage);}
+      if(Resistencia==false && Valvula==true){sprintf(OutputMessage, "U_%c%cOI", (char)nivel_actual, (char)nivel_actual);      Serial.println(OutputMessage);}
+      if(Resistencia==true && Valvula==false){sprintf(OutputMessage, "U_%c%cIO", (char)nivel_actual, (char)nivel_actual);      Serial.println(OutputMessage);}
+      if(Resistencia==false && Valvula==false){sprintf(OutputMessage, "U_%c%cOO", (char)nivel_actual, (char)nivel_actual);     Serial.println(OutputMessage);}
       break;
     case 2:
       sprintf(OutputMessage, "K_%c%c%c%c", What_slot, eep.read((What_slot * 3) + 1), eep.read((What_slot * 3) + 2), eep.read((What_slot * 3) + 3), What_slot);
@@ -1796,7 +1824,7 @@ void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
       Serial.println(OutputMessage);
       break;
     case 4:
-      sprintf(OutputMessage, "N_%s",password_wifi_setear);
+      sprintf(OutputMessage, "P_%s",password_wifi_setear);
       Serial.println(OutputMessage);
       break;
     case 5:
