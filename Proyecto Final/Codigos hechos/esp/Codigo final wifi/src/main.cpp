@@ -208,7 +208,7 @@ void loop()
   }
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
-    Serial.println(WiFi.localIP());
+    Serial_Send_NODEMCU(6);
     EnviarIP = false;
   }
 }
@@ -373,7 +373,7 @@ void Serial_Read_NODEMCU()
   char Individualdata[4];
   char input;
   uint8_t seriallength;
-  uint8_t saveslot;
+  uint8_t Struct;
 
   seriallength = Serial.available();
   for (uint8_t i = 0; i < seriallength; i++)
