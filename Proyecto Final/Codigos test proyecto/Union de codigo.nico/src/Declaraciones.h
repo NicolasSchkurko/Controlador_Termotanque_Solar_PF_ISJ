@@ -2,14 +2,12 @@
 #define encoder0PinA 2
 #define encoder0PinB 3
 #define nivel_del_tanque A3
-#define onewire 9 // pin del onewire
 #define tiempo_para_temperatura 5000
 #define tiempo_para_nivel 3000
 #define maxY_menu1 7
 #define maxY_menu2 5
 #define tiempo_de_parpadeo 700
 #define onewire 9 // pin del onewire
-#define tiempo_para_temperatura 5000
 #define tiempo_para_nivel 3000
 #define sumador_temperatura 5
 #define maxi_cast 80
