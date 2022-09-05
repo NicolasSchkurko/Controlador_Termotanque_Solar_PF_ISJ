@@ -43,7 +43,7 @@ typedef enum
   funciones
 } estadoMEF;
 
-const char *Menuprincipal[maxY_menu1] = {
+const char *menuprincipal[maxY_menu1] = {
     "C manual",
     "H manual",
     "H & F in H",
@@ -51,8 +51,9 @@ const char *Menuprincipal[maxY_menu1] = {
     "H segun temp",
     "menu avanzado",
     "volver"};
+
 const char *menuavanzado[maxY_menu2] = {
-    "Setear hora_display",
+    "Setear hora display",
     "c° o F°",
     "Activar la bomba",
     "conexion wifi",
@@ -112,10 +113,8 @@ void setup()
   PORTD |= B11110000; // setea pull up o pull down
 
   pinMode(nivel_del_tanque, nivel_del_tanque); // pines  nivel
-  pinMode(encoder0PinA, INPUT_PULLUP);
-  pinMode(encoder0PinB, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder0PinA), doEncodeA, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(encoder0PinB), doEncodeB, CHANGE);
+  attachInterrupt(PressedButton(40), doEncodeA, CHANGE);
+  attachInterrupt(PressedButton(41), doEncodeB, CHANGE);
   // encoder pin on interrupt 0 (pin 2)
   Wire.begin();
   Serial.begin(9600); // inicializacion del serial arduino-esp
@@ -128,11 +127,8 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   Vaux1=0;
 
-  for (uint8_t i = 0; i < 20; i++)
-  {
-    password_wifi_setear[i] = eep.read(14 + i);
-    nombre_wifi_setear[i] = eep.read(34 + i);
-  }
+ eep.readChars(14,password_wifi_setear, 20);
+ eep.readChars(14,nombre_wifi_setear, 20);
 
   mili_segundos = 0;
   while (mili_segundos <= 3500)
@@ -178,11 +174,12 @@ void setup()
       Vaux1++;
       }
   }
+  Estadoequipo = estado_inicial;
 }
 
 void loop()
 {
-  Actualizar_entradas();
+ Actualizar_entradas();
   Controllvl();
   Controltemp();
   ControlPorHora();
@@ -199,7 +196,6 @@ void loop()
   case estado_inicial:
     lcd.backlight();
     standby(use_farenheit); // con backlight
-    lcd.backlight();
     break;
   case menu1:
     menu_basico();
@@ -273,9 +269,10 @@ void doEncodeB()
 
 //███████████████████████████████████████CONTROL DE ENTRADAS/SALIDAS██████████████████████████████████████████
 
+
 void Actualizar_entradas()
 { // Sexo y adaptarlo para no usar delay farenheit
-  if (mili_segundos >= tiempo_sensores + tiempo_para_temperatura)
+  if (mili_segundos >= tiempo_sensores + tiempo_para_temperatura && Estadoequipo!=menu1 && Estadoequipo!=menu2)
   {
     Sensor_temp.requestTemperatures();
     temperatura_actual = Sensor_temp.getTempCByIndex(0);
@@ -296,6 +293,7 @@ void Actualizar_entradas()
   hora = now.hour();
   minutos = now.minute();
 }
+
 
 void Controltemp()
 {
@@ -351,10 +349,7 @@ void standby(bool Display_farenheit)
     {
     case estado_standby:
       Estadoequipo = estado_inicial;
-<<<<<<< HEAD
-=======
       tiempo_de_standby = mili_segundos;
->>>>>>> 62b96466ad7ab288a66220ac04fa3bf0abe842dc
       break;
     case estado_inicial:
       Estadoequipo = menu1;
@@ -369,13 +364,8 @@ void standby(bool Display_farenheit)
   }
   if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu && Estadoequipo == estado_inicial)
   {
-<<<<<<< HEAD
-    lcd.noBacklight();
-    Estadoequipo = estado_standby;
-=======
     Estadoequipo = estado_standby;
     tiempo_de_standby = mili_segundos;
->>>>>>> 62b96466ad7ab288a66220ac04fa3bf0abe842dc
   }
 }
 
@@ -390,10 +380,10 @@ void menu_basico()
     Flag = 1;
     break;
   case 1:
-    sprintf(imprimir_lcd,">%s",  Menuprincipal[ReturnToCero(Vaux1, maxY_menu1)]);     PrintLCD(imprimir_lcd, 0, 0);
-    sprintf(imprimir_lcd,"%s",  Menuprincipal[ReturnToCero(Vaux1 + 1, maxY_menu1)]);  PrintLCD(imprimir_lcd, 1, 1);
-    sprintf(imprimir_lcd,"%s",  Menuprincipal[ReturnToCero(Vaux1 + 2, maxY_menu1)]);  PrintLCD(imprimir_lcd, 1, 2);
-    sprintf(imprimir_lcd,"%s", Menuprincipal[ReturnToCero(Vaux1 + 3, maxY_menu1)]);   PrintLCD(imprimir_lcd, 1, 3);
+    sprintf(imprimir_lcd,">%s",  menuprincipal[ReturnToCero(Vaux1, maxY_menu1)]);     PrintLCD(imprimir_lcd, 0, 0);
+    sprintf(imprimir_lcd,"%s",  menuprincipal[ReturnToCero(Vaux1 + 1, maxY_menu1)]);  PrintLCD(imprimir_lcd, 1, 1);
+    sprintf(imprimir_lcd,"%s",  menuprincipal[ReturnToCero(Vaux1 + 2, maxY_menu1)]);  PrintLCD(imprimir_lcd, 1, 2);
+    sprintf(imprimir_lcd,"%s", menuprincipal[ReturnToCero(Vaux1 + 3, maxY_menu1)]);   PrintLCD(imprimir_lcd, 1, 3);
 
     if (posicion_encoder / 2 != Vaux1)
     {
@@ -690,7 +680,7 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual, bool Uni
     sprintf(imprimir_lcd, "%d", Vaux2 + 1);                                           PrintLCD(imprimir_lcd, 13, 0);
     memcpy(imprimir_lcd, "1:", 20);                                                   PrintLCD(imprimir_lcd, 0, 1);
     //Save a int convierte el char de guardado en 1 la hora y en 2 el minuto guardado en la eeprom, por ende esto imprime la hora y los minutos
-    Printhora(imprimir_lcd, SaveToUINT(1, eep.read(1)), SaveToUINT(2, eep.read(1)));  PrintLCD(imprimir_lcd, 3, 1);
+    Printhora(imprimir_lcd, SaveToUINT(1, eep.read(1)), SaveToUINT(2, eep.read(2)));  PrintLCD(imprimir_lcd, 3, 1);
     memcpy(imprimir_lcd, "2:", 20);                                                   PrintLCD(imprimir_lcd, 0, 2);
     Printhora(imprimir_lcd, SaveToUINT(1, eep.read(4)), SaveToUINT(2, eep.read(4)));  PrintLCD(imprimir_lcd, 3, 2);
     memcpy(imprimir_lcd, "3:", 20);                                                   PrintLCD(imprimir_lcd, 0, 3);
@@ -885,7 +875,6 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual, bool Uni
     eep.write((Vaux2 * 3) + 2, Vaux1);
     eep.write((Vaux2 * 3) + 3, Vaux2);
 
-    Vaux2 = 0;
     guardado_para_menus(true);
     break;
   }
@@ -1383,7 +1372,7 @@ void menu_seteo_wifi()
     break;
   case 1:
 
-    for (Vaux2 = 0; Vaux1 <= 19; Vaux1++)
+    for (Vaux2 = 0; Vaux1 < 20; Vaux1++)
     {
       nombre_wifi_setear[Vaux1] = '\0';
       password_wifi_setear[Vaux1] = '\0';
@@ -1394,10 +1383,8 @@ void menu_seteo_wifi()
     posicion_encoder = 0;
     break;
   case 2:
-    memcpy(imprimir_lcd, "Nombre Wifi:", 13);
-    PrintLCD(imprimir_lcd, 0, 0);
-    sprintf(imprimir_lcd,"%s", nombre_wifi_setear); 
-    PrintLCD(imprimir_lcd, 0, 1);
+    memcpy(imprimir_lcd, "Nombre Wifi:", 13);PrintLCD(imprimir_lcd, 0, 0);
+    sprintf(imprimir_lcd,"%s", nombre_wifi_setear); PrintLCD(imprimir_lcd, 0, 1);
     memcpy(imprimir_lcd, "modificar?", 11);
     PrintLCD(imprimir_lcd, 0, 2);
     memcpy(imprimir_lcd, "3:Si", 5);
@@ -1439,7 +1426,7 @@ void menu_seteo_wifi()
   case 3:
     memcpy(imprimir_lcd, "Pass Wifi:", 11);
     PrintLCD(imprimir_lcd, 0, 0);
-    memcpy(imprimir_lcd, password_wifi_setear, 20); 
+    sprintf(imprimir_lcd,"%s", password_wifi_setear); 
     PrintLCD(imprimir_lcd, 0, 1);
     memcpy(imprimir_lcd, "modificar?", 11);
     PrintLCD(imprimir_lcd, 0, 2);
@@ -1479,8 +1466,8 @@ void menu_seteo_wifi()
   case 4:
     for (Vaux1 = 0; Vaux1 < 20; Vaux1++)
     {
-      eep.write(14 + Vaux1, password_wifi_setear[Vaux1]);
-      eep.write(34 + Vaux1, nombre_wifi_setear[Vaux1]);
+      eep.writeChars(14,password_wifi_setear,20);
+      eep.writeChars(34,nombre_wifi_setear,20);
     }
     Serial_Send_UNO(6, 0);
     guardado_para_menus(false);
@@ -1533,7 +1520,7 @@ uint8_t ReturnToCero(int8_t actualpos, uint8_t maxpos)
     retorno = maxpos + actualpos;
     return retorno;
   }
-  if (actualpos > 0 && actualpos < maxpos)
+  if (actualpos >= 0 && actualpos < maxpos)
     return actualpos;
   return (0);
 }
@@ -1683,8 +1670,7 @@ bool PressedButton(uint8_t Wich_Button)
     if ((PIND & (1 << PD6)) == 0)
     {
       while ((PIND & (1 << PD6)) == 0)
-      {
-      }
+      {}
       return true;
     }
     else
@@ -1694,9 +1680,7 @@ bool PressedButton(uint8_t Wich_Button)
   {
     if ((PIND & (1 << PD7)) == 0)
     {
-      while ((PIND & (1 << PD7)) == 0)
-      {
-      }
+      while ((PIND & (1 << PD7)) == 0){}
       return true;
     }
     else
@@ -1847,7 +1831,7 @@ void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
       if(Resistencia==false && Valvula==false){sprintf(OutputMessage, "U_%c%cOO", (char)nivel_actual, (char)nivel_actual);     Serial.println(OutputMessage);}
       break;
     case 2:
-      sprintf(OutputMessage, "K_%c%c%c%c", What_slot, eep.read((What_slot * 3) + 1), eep.read((What_slot * 3) + 2), eep.read((What_slot * 3) + 3), What_slot);
+      sprintf(OutputMessage, "K_%c%c%c%c", eep.read((What_slot * 3) + 1), eep.read((What_slot * 3) + 2), eep.read((What_slot * 3) + 3), What_slot);
       Serial.println(OutputMessage);
       break;
     case 3:
