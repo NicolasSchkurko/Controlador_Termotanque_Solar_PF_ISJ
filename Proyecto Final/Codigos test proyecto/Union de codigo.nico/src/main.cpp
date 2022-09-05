@@ -71,6 +71,7 @@ uint8_t IP[4];
 uint16_t tiempo_de_standby;
 uint16_t mili_segundos = 0;
 uint16_t Tiempo_encoder;
+uint16_t tiempo_sensores;
 
 uint8_t Actualchar = 0;
 uint8_t Vaux1, Vaux2;
@@ -127,7 +128,7 @@ void setup()
   temperatura_actual = Sensor_temp.getTempCByIndex(0);
   Vaux1=0;
 
-  for (uint8_t i = 0; i < 19; i++)
+  for (uint8_t i = 0; i < 20; i++)
   {
     password_wifi_setear[i] = eep.read(14 + i);
     nombre_wifi_setear[i] = eep.read(34 + i);
@@ -193,9 +194,11 @@ void loop()
   {
   case estado_standby:
     standby(use_farenheit); // sin backlight
+    lcd.noBacklight();
     break;
   case estado_inicial:
     standby(use_farenheit); // con backlight
+    lcd.backlight();
     break;
   case menu1:
     menu_basico();
@@ -204,15 +207,36 @@ void loop()
     menu_avanzado();
     break;
   case funciones:
-    if (funcionActual == llenado_manual)                      nivel_a_llenar = menu_de_llenado_manual();
-    if (funcionActual == calefaccion_manual)                  temperatura_a_calentar = menu_de_calefaccion_manual(use_farenheit);
-    if (funcionActual == funcion_menu_de_auto_por_hora)       menu_de_auto_por_hora(hora, minutos, use_farenheit);
-    if (funcionActual == llenado_auto)                        menu_de_llenado_auto(); // Menu principal
-    if (funcionActual == calefaccion_auto)                    menu_de_calefaccion_auto(use_farenheit); // Menu principal
-    if (funcionActual == funcion_de_menu_modificar_hora_rtc)  menu_modificar_hora_rtc(); // Menu avanzado
-    if (funcionActual == funcion_farenheit_celsius)           menu_farenheit_celsius(Activar_bomba); // Menu avanzado
-    if (funcionActual == funcion_activar_bomba)               menu_activar_bomba(use_farenheit); // Menu avanzado
-    if (funcionActual == funcion_de_menu_seteo_wifi)          menu_seteo_wifi(); // Menu avanzado
+    switch (funcionActual)
+    {
+    case llenado_manual:
+      nivel_a_llenar = menu_de_llenado_manual();
+      break;
+    case calefaccion_manual:
+      temperatura_a_calentar = menu_de_calefaccion_manual(use_farenheit);
+      break;
+    case funcion_menu_de_auto_por_hora:
+      menu_de_auto_por_hora(hora, minutos, use_farenheit);
+      break;
+    case llenado_auto:
+      menu_de_llenado_auto();
+      break;
+    case calefaccion_auto:
+      menu_de_calefaccion_auto(use_farenheit);
+      break;
+    case funcion_de_menu_modificar_hora_rtc:
+       menu_modificar_hora_rtc();
+      break;
+    case funcion_farenheit_celsius:
+      menu_farenheit_celsius(Activar_bomba); // Menu avanzado
+      break;
+    case funcion_activar_bomba:
+      menu_activar_bomba(use_farenheit); // Menu avanzado
+      break;
+    case funcion_de_menu_seteo_wifi:
+      menu_seteo_wifi(); // Menu avanzado
+      break;
+    }
     break;
   }
 }
@@ -250,7 +274,6 @@ void doEncodeB()
 
 void Actualizar_entradas()
 { // Sexo y adaptarlo para no usar delay farenheit
-  uint16_t tiempo_sensores;
   if (mili_segundos >= tiempo_sensores + tiempo_para_temperatura)
   {
     Sensor_temp.requestTemperatures();
@@ -311,17 +334,15 @@ void ControlPorHora()
 
 void standby(bool Display_farenheit)
 {
-  if (Display_farenheit == false)
-    sprintf(imprimir_lcd, "T:%d%cC", temperatura_actual, (char)223);
-  if (Display_farenheit == true)
-    sprintf(imprimir_lcd, "T:%d%cF", ((9 * temperatura_actual) / 5) + 32, (char)223);
+  if (Display_farenheit == false)sprintf(imprimir_lcd, "T:%d%cC", temperatura_actual, (char)223);
+  if (Display_farenheit == true)sprintf(imprimir_lcd, "T:%d%cF", ((9 * temperatura_actual) / 5) + 32, (char)223);
   PrintLCD(imprimir_lcd, 0, 0);
   sprintf(imprimir_lcd, "N:%d%c", nivel_actual, '%');
   PrintLCD(imprimir_lcd, 12, 0);
   Printhora(imprimir_lcd, hora, minutos);
   PrintLCD(imprimir_lcd, 7, 1);
 
-  if (PressedButton(1) || PressedButton(2) || PressedButton(3) || PressedButton(4))posicion_encoder+=1;
+  if (PressedButton(1) == true|| PressedButton(2) == true|| PressedButton(3) == true|| PressedButton(4)== true)posicion_encoder+=1;
   
   if (Vaux1 != posicion_encoder)
   {
@@ -329,12 +350,9 @@ void standby(bool Display_farenheit)
     {
     case estado_standby:
       Estadoequipo = estado_inicial;
-      tiempo_de_standby = mili_segundos;
-      lcd.backlight();
       break;
     case estado_inicial:
       Estadoequipo = menu1;
-      tiempo_de_standby = mili_segundos;
       lcd.clear();
       break;
     default:
@@ -342,11 +360,12 @@ void standby(bool Display_farenheit)
       break;
     }
     Vaux1 = posicion_encoder;
+    tiempo_de_standby = mili_segundos;
   }
-  if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu)
+  if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu && Estadoequipo == estado_inicial)
   {
     lcd.noBacklight();
-    tiempo_de_standby = mili_segundos;
+    Estadoequipo = estado_standby;
   }
 }
 
@@ -361,10 +380,10 @@ void menu_basico()
     Flag = 1;
     break;
   case 1:
-    sprintf(imprimir_lcd, ">%s", Menuprincipal[ReturnToCero(Vaux1, maxY_menu1)]);     PrintLCD(imprimir_lcd, 0, 0);
-    memcpy(imprimir_lcd, Menuprincipal[ReturnToCero(Vaux1 + 1, maxY_menu1)],20);  PrintLCD(imprimir_lcd, 1, 1);
-    memcpy(imprimir_lcd, Menuprincipal[ReturnToCero(Vaux1 + 2, maxY_menu1)],20);  PrintLCD(imprimir_lcd, 1, 2);
-    memcpy(imprimir_lcd, Menuprincipal[ReturnToCero(Vaux1 + 3, maxY_menu1)],20);  PrintLCD(imprimir_lcd, 1, 3);
+    sprintf(imprimir_lcd,">%s",  Menuprincipal[ReturnToCero(Vaux1, maxY_menu1)]);     PrintLCD(imprimir_lcd, 0, 0);
+    sprintf(imprimir_lcd,"%s",  Menuprincipal[ReturnToCero(Vaux1 + 1, maxY_menu1)]);  PrintLCD(imprimir_lcd, 1, 1);
+    sprintf(imprimir_lcd,"%s",  Menuprincipal[ReturnToCero(Vaux1 + 2, maxY_menu1)]);  PrintLCD(imprimir_lcd, 1, 2);
+    sprintf(imprimir_lcd,"%s", Menuprincipal[ReturnToCero(Vaux1 + 3, maxY_menu1)]);   PrintLCD(imprimir_lcd, 1, 3);
 
     if (posicion_encoder / 2 != Vaux1)
     {
@@ -440,9 +459,10 @@ void menu_avanzado()
     break;
   case 1:
     sprintf(imprimir_lcd, ">%s", menuavanzado[ReturnToCero(Vaux1, maxY_menu2)]);    PrintLCD(imprimir_lcd, 0, 0);
-    memcpy(imprimir_lcd, menuavanzado[ReturnToCero(Vaux1 + 1, maxY_menu2)],19); PrintLCD(imprimir_lcd, 1, 1);
-    memcpy(imprimir_lcd, menuavanzado[ReturnToCero(Vaux1 + 2, maxY_menu2)],19); PrintLCD(imprimir_lcd, 1, 2);
-    memcpy(imprimir_lcd, menuavanzado[ReturnToCero(Vaux1 + 3, maxY_menu2)],19); PrintLCD(imprimir_lcd, 1, 3);
+    sprintf(imprimir_lcd,"%s", menuavanzado[ReturnToCero(Vaux1 + 1, maxY_menu2)]);  PrintLCD(imprimir_lcd, 1, 1);
+    sprintf(imprimir_lcd,"%s", menuavanzado[ReturnToCero(Vaux1 + 2, maxY_menu2)]);  PrintLCD(imprimir_lcd, 1, 2);
+    sprintf(imprimir_lcd,"%s",menuavanzado[ReturnToCero(Vaux1 + 3, maxY_menu2)]);   PrintLCD(imprimir_lcd, 1, 3);
+
 
     if (posicion_encoder / 2 != Vaux1)
     {
@@ -1326,18 +1346,16 @@ void menu_farenheit_celsius(bool Unidad_medida)
 
 void menu_seteo_wifi()
 {
-
   switch (Flag)
   {
   case 0:
-    memcpy(imprimir_lcd, "SSID:", 6);               PrintLCD(imprimir_lcd, 0, 0);
-    memcpy(imprimir_lcd, "PASS:", 6);               PrintLCD(imprimir_lcd, 0, 1);
-    memcpy(imprimir_lcd, nombre_wifi_setear, 20);   PrintLCD(imprimir_lcd, 6, 0);
-    memcpy(imprimir_lcd, password_wifi_setear, 20); PrintLCD(imprimir_lcd, 6, 1);
-    memcpy(imprimir_lcd, "modificar?", 11);         PrintLCD(imprimir_lcd, 0, 2);
-    memcpy(imprimir_lcd, "3:Si", 5);                PrintLCD(imprimir_lcd, 3, 3);
-    memcpy(imprimir_lcd, "4:No", 5);                PrintLCD(imprimir_lcd, 11, 3);
-
+    sprintf(imprimir_lcd,"%s", nombre_wifi_setear);   PrintLCD(imprimir_lcd, 6, 0);
+    sprintf(imprimir_lcd,"%s", password_wifi_setear); PrintLCD(imprimir_lcd, 6, 1);
+    sprintf(imprimir_lcd,"%d:%d:%d:%d   ", IP[0],IP[1],IP[2],IP[3]); PrintLCD(imprimir_lcd, 3, 2);
+    memcpy(imprimir_lcd, "SSID:", 6);                 PrintLCD(imprimir_lcd, 0, 0);
+    memcpy(imprimir_lcd, "PASS:", 6);                 PrintLCD(imprimir_lcd, 0, 1);
+    memcpy(imprimir_lcd, "IP:", 11);                  PrintLCD(imprimir_lcd, 0, 2);
+    memcpy(imprimir_lcd, "modificar?", 11);           PrintLCD(imprimir_lcd, 5, 3);
     if (PressedButton(3))
     {
       lcd.clear();
@@ -1368,7 +1386,7 @@ void menu_seteo_wifi()
   case 2:
     memcpy(imprimir_lcd, "Nombre Wifi:", 13);
     PrintLCD(imprimir_lcd, 0, 0);
-    memcpy(imprimir_lcd, nombre_wifi_setear, 20); 
+    sprintf(imprimir_lcd,"%s", nombre_wifi_setear); 
     PrintLCD(imprimir_lcd, 0, 1);
     memcpy(imprimir_lcd, "modificar?", 11);
     PrintLCD(imprimir_lcd, 0, 2);
@@ -1449,7 +1467,7 @@ void menu_seteo_wifi()
     }
     break;
   case 4:
-    for (Vaux1 = 0; Vaux1 < 19; Vaux1++)
+    for (Vaux1 = 0; Vaux1 < 20; Vaux1++)
     {
       eep.write(14 + Vaux1, password_wifi_setear[Vaux1]);
       eep.write(34 + Vaux1, nombre_wifi_setear[Vaux1]);
@@ -1735,13 +1753,15 @@ void Serial_Read_UNO()
   uint8_t seriallength;
   uint8_t saveslot;
   seriallength = Serial.available();
-  for (uint8_t i = 0; i < seriallength; i++)
+  for (uint8_t i = 0; i <= seriallength; i++)
   {
     if (i == 0)Actualchar = Serial.read();
-    if (i >= 2){
-      ActualIndividualDataPos++;                                            // si no es nungun caracter especial:
+    if (i == 1)Serial.read();
+    if (i >= 2 && i<seriallength){                                         // si no es nungun caracter especial:
       Individualdata[ActualIndividualDataPos] = Serial.read(); // copia al individual
+      ActualIndividualDataPos++;   
     }
+    if(i==seriallength)Take_Comunication_Data = true;
   }
 
   if (Take_Comunication_Data == true)
@@ -1793,6 +1813,7 @@ void Serial_Read_UNO()
       IP[1]=Individualdata[1];
       IP[2]=Individualdata[2];
       IP[3]=Individualdata[3];
+      if(Estadoequipo==funciones && funcionActual==funcion_de_menu_seteo_wifi)lcd.clear();
       Take_Comunication_Data = false;
       break;
     
