@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x20,20,4);
+//LiquidCrystal_I2C lcd(0x20,20,4);
 
 void nivel_auto();
 void nivel_manual();
@@ -30,6 +30,7 @@ void loop() {
   nivel_auto();
   Serial.print("Nivel:");
   Serial.println(nivel_actual);
+  delay(500);
 }
 
 void nivel_auto (){

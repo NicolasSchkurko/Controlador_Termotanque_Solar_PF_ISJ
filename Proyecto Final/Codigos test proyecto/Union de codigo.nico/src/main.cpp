@@ -193,8 +193,10 @@ void loop()
   {
   case estado_standby:
     standby(use_farenheit); // sin backlight
+    lcd.noBacklight();
     break;
   case estado_inicial:
+    lcd.backlight();
     standby(use_farenheit); // con backlight
     break;
   case menu1:
@@ -330,7 +332,6 @@ void standby(bool Display_farenheit)
     case estado_standby:
       Estadoequipo = estado_inicial;
       tiempo_de_standby = mili_segundos;
-      lcd.backlight();
       break;
     case estado_inicial:
       Estadoequipo = menu1;
@@ -345,7 +346,7 @@ void standby(bool Display_farenheit)
   }
   if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu)
   {
-    lcd.noBacklight();
+    Estadoequipo = estado_standby;
     tiempo_de_standby = mili_segundos;
   }
 }
