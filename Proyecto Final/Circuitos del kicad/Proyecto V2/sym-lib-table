@@ -1,4 +1,4 @@
 (sym_lib_table
-  (lib (name "ESP8266")(type "Legacy")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266.lib")(options "")(descr ""))
-  (lib (name "ESP8266-2")(type "Legacy")(uri "C:/Users/alumno/Desktop/Proyecto/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266.lib")(options "")(descr "")(disabled))
+  (lib (name "ESP8266")(type "Legacy")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266.lib")(options "")(descr "")(disabled))
+  (lib (name "ESP8266-2")(type "Legacy")(uri "C:/Users/alumno/Desktop/Proyecto/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266.lib")(options "")(descr ""))
 )
