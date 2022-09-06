@@ -60,3 +60,66 @@ char pos 4,5 para temp max y min usandose los char de nivel y temp de la siguien
 85          011 85          011
 90          012 90          012
 
+
+
+
+byte Verifications= B00000000;
+bool Actual_state(uint8_t wich_bit,uint8_t command){
+switch (wich_bit)
+{
+case 1:
+      if(command==0)
+      {
+        if((Verifications&B10000000) == 0) return false;
+        if((Verifications&B10000000) > 0) return true;
+      }
+      if(command==127)Verifications&=B01111111;
+      if(command==254)Verifications|=B10000000;
+  break;
+case 2:
+      if(command==0)
+      {
+        if((Verifications&B01000000) == 0) return false;
+        if((Verifications&B01000000) > 0) return true;
+      }
+      if(command==127)Verifications&=B10111111;
+      if(command==254)Verifications|=B01000000;
+  break;
+case 3:
+      if(command==0)
+      {
+        if((Verifications&B00100000) == 0) return false;
+        if((Verifications&B00100000) > 0) return true;
+      }
+      if(command==127)Verifications&=B11011111;
+      if(command==254)Verifications|=B00100000;
+  break;
+case 4:
+      if(command==0)
+      {
+        if((Verifications&B00010000) == 0) return false;
+        if((Verifications&B00010000) > 0) return true;
+      }
+      if(command==127)Verifications&=B11101111;
+      if(command==254)Verifications|=B00010000;
+  break;
+case '5:
+      if(command==0)
+      {
+        if((Verifications&B00001000) == 0) return false;
+        if((Verifications&B00001000) > 0) return true;
+      }
+      if(command==127)Verifications&=B11110111;
+      if(command==254)Verifications|=B00001000;
+  break;
+case '6':
+      if(command==0)
+      {
+        if((Verifications&B00000100) == 0) return false;
+        if((Verifications&B00000100) > 0) return true;
+      }
+      if(command==127)Verifications&=B11111011;
+      if(command==254)Verifications|=B00000100;
+  break;
+}
+}

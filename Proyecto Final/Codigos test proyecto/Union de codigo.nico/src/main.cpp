@@ -294,7 +294,6 @@ void Actualizar_entradas()
   minutos = now.minute();
 }
 
-
 void Controltemp()
 {
   if (temperatura_actual <= eep.read(10) || temperatura_actual < temperatura_a_calentar)
