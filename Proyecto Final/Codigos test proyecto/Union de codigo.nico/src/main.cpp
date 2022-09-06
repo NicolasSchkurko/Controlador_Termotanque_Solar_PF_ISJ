@@ -43,6 +43,68 @@ typedef enum
   funciones
 } estadoMEF;
 
+byte customChar[8] = {
+  B01110,
+  B10101,
+  B10101,
+  B10101,
+  B10111,
+  B10001,
+  B10001,
+  B01110
+};
+byte okka[8] = {
+  B00000,
+  B00000,
+  B00001,
+  B00010,
+  B10100,
+  B01000,
+  B00000,
+  B00000
+};
+byte nono[8] = {
+  B00000,
+  B00000,
+  B10001,
+  B01010,
+  B00100,
+  B01010,
+  B10001,
+  B00000
+};
+byte bomba[8] = {
+  B00000,
+  B00000,
+  B01110,
+  B01110,
+  B11111,
+  B11111,
+  B11111,
+  B00000
+};
+byte wifi[8] = {
+  B00000,
+  B00000,
+  B11110,
+  B00001,
+  B11001,
+  B00101,
+  B10101,
+  B00000
+};
+byte no_wifi[8] = {
+  B00000,
+  B00101,
+  B00010,
+  B00101,
+  B11000,
+  B00100,
+  B10100,
+  B00000
+};
+
+
 const char *menuprincipal[maxY_menu1] = {
     "C manual",
     "H manual",
@@ -121,6 +183,12 @@ void setup()
   rtc.begin();        // inicializacion del rtc arduino-esp
   Serial.setTimeout(200);
   lcd.init(); // Iniciacion del LCD
+  lcd.createChar(0 , customChar); 
+  lcd.createChar(1 , okka); 
+  lcd.createChar(2 , nono); 
+  lcd.createChar(3 , bomba); 
+  lcd.createChar(4 , wifi); 
+  lcd.createChar(5 , no_wifi); 
   // Sensr de temperatura
   Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
@@ -339,7 +407,12 @@ void standby(bool Display_farenheit)
   PrintLCD(imprimir_lcd, 12, 0);
   Printhora(imprimir_lcd, hora, minutos);
   PrintLCD(imprimir_lcd, 7, 1);
-
+  lcd.print(char(0));lcd.setCursor(3 ,1);
+  lcd.print(char(1));lcd.setCursor(4 ,1);
+  lcd.print(char(2));lcd.setCursor(5 ,1);
+  lcd.print(char(3));lcd.setCursor(6 ,1);
+  lcd.print(char(4));lcd.setCursor(7 ,1);
+  lcd.print(char(5));lcd.setCursor(8 ,1);
   if (PressedButton(1) == true|| PressedButton(2) == true|| PressedButton(3) == true|| PressedButton(4)== true)posicion_encoder+=1;
   
   if (Vaux1 != posicion_encoder)
