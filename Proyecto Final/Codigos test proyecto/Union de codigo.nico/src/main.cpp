@@ -17,6 +17,7 @@
 
 AT24C32 eep;
 RTC_DS1307 rtc;
+DateTime now;
 OneWire sensor_t(onewire);
 DallasTemperature Sensor_temp(&sensor_t);
 LiquidCrystal_I2C lcd(0x27, 20, 4); // LiquidCrystal_I2C lcd(0x27,20,4);
@@ -105,32 +106,14 @@ byte no_wifi[8] = {
 };
 
 
-const char *menuprincipal[maxY_menu1] = {
-    "C manual",
-    "H manual",
-    "H & F in H",
-    "C segun lleno",
-    "H segun temp",
-    "menu avanzado",
-    "volver"};
-
-const char *menuavanzado[maxY_menu2] = {
-    "Setear hora display",
-    "c° o F°",
-    "Activar la bomba",
-    "conexion wifi",
-    "volver"};
-
 Seleccionar_Funciones funcionActual = posicion_inicial;
 estadoMEF Estadoequipo = estado_inicial;
 
 char nombre_wifi_setear[20];
 char password_wifi_setear[20];
 char imprimir_lcd[20];
-char OutputMessage[22];
-uint8_t Individualdata[4];
-uint8_t IP[4];
 
+uint8_t IP[4];
 uint16_t tiempo_de_standby;
 uint16_t mili_segundos = 0;
 uint16_t Tiempo_encoder;
@@ -144,19 +127,14 @@ uint8_t nivel_actual;
 uint8_t temperatura_a_calentar;
 uint8_t nivel_a_llenar;
 int8_t temperatura_actual; // temp actual
-uint8_t hora, minutos;
-
-uint8_t ActualIndividualDataPos = 0;
 uint8_t hora_to_modify, minuto_to_modify;
 
-bool Take_Comunication_Data = false;
 bool mayusculas = false;
-bool Resistencia;
-bool Valvula;
+bool llenar;
 bool calentar;
 bool Activar_bomba;
-bool llenar;
 bool use_farenheit;
+bool esp_working =false;
 
 //█████████████████████████████████████████████████████████████████████████████████
 
@@ -281,7 +259,7 @@ void loop()
       temperatura_a_calentar = menu_de_calefaccion_manual(use_farenheit);
       break;
     case funcion_menu_de_auto_por_hora:
-      menu_de_auto_por_hora(hora, minutos, use_farenheit);
+      menu_de_auto_por_hora(now.hour(),now.minute(), use_farenheit);
       break;
     case llenado_auto:
       menu_de_llenado_auto();
@@ -290,13 +268,13 @@ void loop()
       menu_de_calefaccion_auto(use_farenheit);
       break;
     case funcion_de_menu_modificar_hora_rtc:
-       menu_modificar_hora_rtc();
+       menu_modificar_hora_rtc(now.hour(),now.minute());
       break;
     case funcion_farenheit_celsius:
-      menu_farenheit_celsius(Activar_bomba); // Menu avanzado
+      menu_farenheit_celsius(use_farenheit); // Menu avanzado
       break;
     case funcion_activar_bomba:
-      menu_activar_bomba(use_farenheit); // Menu avanzado
+      menu_activar_bomba(Activar_bomba); // Menu avanzado
       break;
     case funcion_de_menu_seteo_wifi:
       menu_seteo_wifi(); // Menu avanzado
@@ -356,36 +334,34 @@ void Actualizar_entradas()
     if (analogRead(nivel_del_tanque) >= 768 && analogRead(nivel_del_tanque) <= 1024)
       nivel_actual = 100;
     tiempo_sensores = mili_segundos;
-  }
-  DateTime now = rtc.now(); // iguala la variable datetime al valor del rtc
-  hora = now.hour();
-  minutos = now.minute();
+  } // iguala la variable datetime al valor del rtc
+  now = rtc.now();
 }
 
 void Controltemp()
 {
   if (temperatura_actual <= eep.read(10) || temperatura_actual < temperatura_a_calentar)
-    Resistencia = true;
+    calentar = true;
   if (temperatura_actual > eep.read(11) || temperatura_actual >= temperatura_a_calentar)
-    Resistencia = false;
-  PrintOutput(10, Resistencia);
+    calentar = false;
+  PrintOutput(10, calentar);
 }
 
 void Controllvl()
 {
   if (nivel_actual <= eep.read(12) || nivel_actual < nivel_a_llenar)
-    Valvula = true;
+    llenar = true;
   if (nivel_actual > eep.read(13) || nivel_actual >= nivel_a_llenar)
-    Valvula = false;
-  PrintOutput(11, Valvula);
+    llenar = false;
+  PrintOutput(11, llenar);
   if (Activar_bomba)
-    PrintOutput(12, Valvula);
+    PrintOutput(12, llenar);
 }
 
 void ControlPorHora()
 {
   char Array_hora[6];
-  Printhora(Array_hora, hora, minutos);
+  Printhora(Array_hora,now.hour(),now.minute());
   for (uint8_t i; i < 3; i++)
   {
     if (ArrayToChar(Array_hora) == eep.read(i + 1))
@@ -400,19 +376,34 @@ void ControlPorHora()
 
 void standby(bool Display_farenheit)
 {
+  if(esp_working){
+    lcd.setCursor(5 ,3);
+    lcd.print(char(4));
+  }
+  if(!esp_working){
+    lcd.setCursor(5 ,3);
+    lcd.print(char(5));
+  }
+  if(Activar_bomba){
+    lcd.setCursor(6 ,3);
+    lcd.print(char(3));
+  }
+  if(!Activar_bomba){
+    lcd.setCursor(6 ,3);
+    lcd.print(char(2));
+  }
   if (Display_farenheit == false)sprintf(imprimir_lcd, "T:%d%cC", temperatura_actual, (char)223);
   if (Display_farenheit == true)sprintf(imprimir_lcd, "T:%d%cF", ((9 * temperatura_actual) / 5) + 32, (char)223);
   PrintLCD(imprimir_lcd, 0, 0);
   sprintf(imprimir_lcd, "N:%d%c", nivel_actual, '%');
   PrintLCD(imprimir_lcd, 12, 0);
-  Printhora(imprimir_lcd, hora, minutos);
+  lcd.setCursor(6,1);
+  lcd.print(char(0));
+  Printhora(imprimir_lcd,now.hour(),now.minute());
   PrintLCD(imprimir_lcd, 7, 1);
-  lcd.print(char(0));lcd.setCursor(3 ,1);
-  lcd.print(char(1));lcd.setCursor(4 ,1);
-  lcd.print(char(2));lcd.setCursor(5 ,1);
-  lcd.print(char(3));lcd.setCursor(6 ,1);
-  lcd.print(char(4));lcd.setCursor(7 ,1);
-  lcd.print(char(5));lcd.setCursor(8 ,1);
+
+
+
   if (PressedButton(1) == true|| PressedButton(2) == true|| PressedButton(3) == true|| PressedButton(4)== true)posicion_encoder+=1;
   
   if (Vaux1 != posicion_encoder)
@@ -443,6 +434,15 @@ void standby(bool Display_farenheit)
 
 void menu_basico()
 {
+  const char *menuprincipal[maxY_menu1] = {
+    "C manual",
+    "H manual",
+    "H & F in H",
+    "C segun lleno",
+    "H segun temp",
+    "menu avanzado",
+    "volver"
+  };
   switch (Flag)
   {
   case 0:
@@ -520,6 +520,13 @@ void menu_basico()
 
 void menu_avanzado()
 {
+  const char *menuavanzado[maxY_menu2] = {
+    "Setear hora display",
+    "Cambiar unidad",
+    "Activar la bomba",
+    "conexion wifi",
+    "volver"
+  };
   switch (Flag)
   {
   case 0:
@@ -1212,7 +1219,7 @@ void menu_de_calefaccion_auto(bool Unidad_medida)
   }
 }
 
-void menu_modificar_hora_rtc()
+void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
 {
   switch (Flag)
   {
@@ -1226,7 +1233,7 @@ void menu_modificar_hora_rtc()
   case 1:
     memcpy(imprimir_lcd, "Setear hora:", 15);
     PrintLCD(imprimir_lcd, 0, 0);
-    Printhora(imprimir_lcd, hora_to_modify, minutos);
+    Printhora(imprimir_lcd, hora_to_modify,minutos);
     PrintLCD(imprimir_lcd, 13, 0);
     memcpy(imprimir_lcd, "aumentar con 1", 15);
     PrintLCD(imprimir_lcd, 0, 1);
@@ -1350,13 +1357,10 @@ void menu_activar_bomba(bool Estado_bomba)
     memcpy(imprimir_lcd, "2:No", 5);
     PrintLCD(imprimir_lcd, 11, 3);
 
-    if (posicion_encoder > 8)
-      Estado_bomba = true;
-    if (posicion_encoder <= 8)
-      Estado_bomba = false;
-
-    if (PressedButton(1))posicion_encoder+=8;
-    if (PressedButton(2))posicion_encoder-=8;
+    if (PressedButton(1))posicion_encoder=10;
+    if (PressedButton(2))posicion_encoder=5;
+    if (posicion_encoder > 8)Activar_bomba = true;
+    if (posicion_encoder <= 8)Activar_bomba = false;
     if (PressedButton(3) || PressedButton(4))
     {
       Flag = 1;
@@ -1815,13 +1819,20 @@ void PrintLCD(char buffer[20], uint8_t Column, uint8_t Row)
 
 void Serial_Read_UNO()
 {
-
+  bool Take_Comunication_Data;
+  uint8_t Individualdata[4];
   uint8_t seriallength;
   uint8_t saveslot;
+  uint8_t ActualIndividualDataPos;
+
   seriallength = Serial.available();
   for (uint8_t i = 0; i <= seriallength; i++)
   {
-    if (i == 0)Actualchar = Serial.read();
+    if (i == 0)
+    {
+      Actualchar = Serial.read();
+      ActualIndividualDataPos=0;
+    }
     if (i == 1)Serial.read();
     if (i >= 2 && i<seriallength){                                         // si no es nungun caracter especial:
       Individualdata[ActualIndividualDataPos] = Serial.read(); // copia al individual
@@ -1879,6 +1890,7 @@ void Serial_Read_UNO()
       IP[1]=Individualdata[1];
       IP[2]=Individualdata[2];
       IP[3]=Individualdata[3];
+      esp_working=true;
       if(Estadoequipo==funciones && funcionActual==funcion_de_menu_seteo_wifi)lcd.clear();
       Take_Comunication_Data = false;
       break;
@@ -1894,13 +1906,14 @@ void Serial_Read_UNO()
 
 void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
 {
+  char OutputMessage[22];
     switch (WhatSend)
     {
     case 1:
-      if(Resistencia==true && Valvula==true){sprintf(OutputMessage, "U_%c%cII", (char)nivel_actual, (char)nivel_actual);       Serial.println(OutputMessage);}
-      if(Resistencia==false && Valvula==true){sprintf(OutputMessage, "U_%c%cOI", (char)nivel_actual, (char)nivel_actual);      Serial.println(OutputMessage);}
-      if(Resistencia==true && Valvula==false){sprintf(OutputMessage, "U_%c%cIO", (char)nivel_actual, (char)nivel_actual);      Serial.println(OutputMessage);}
-      if(Resistencia==false && Valvula==false){sprintf(OutputMessage, "U_%c%cOO", (char)nivel_actual, (char)nivel_actual);     Serial.println(OutputMessage);}
+      if(calentar==true && llenar==true){sprintf(OutputMessage, "U_%c%cII", (char)nivel_actual, (char)nivel_actual);       Serial.println(OutputMessage);}
+      if(calentar==false && llenar==true){sprintf(OutputMessage, "U_%c%cOI", (char)nivel_actual, (char)nivel_actual);      Serial.println(OutputMessage);}
+      if(calentar==true && llenar==false){sprintf(OutputMessage, "U_%c%cIO", (char)nivel_actual, (char)nivel_actual);      Serial.println(OutputMessage);}
+      if(calentar==false && llenar==false){sprintf(OutputMessage, "U_%c%cOO", (char)nivel_actual, (char)nivel_actual);     Serial.println(OutputMessage);}
       break;
     case 2:
       sprintf(OutputMessage, "K_%c%c%c%c", eep.read((What_slot * 3) + 1), eep.read((What_slot * 3) + 2), eep.read((What_slot * 3) + 3), What_slot);

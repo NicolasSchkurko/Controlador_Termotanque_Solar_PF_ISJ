@@ -39,7 +39,7 @@ uint8_t menu_de_calefaccion_manual( bool);
 void menu_de_auto_por_hora(uint8_t, uint8_t, bool);
 void menu_de_llenado_auto();
 void menu_de_calefaccion_auto(bool);
-void menu_modificar_hora_rtc();
+void menu_modificar_hora_rtc(uint8_t,uint8_t);
 void menu_activar_bomba(bool);
 void menu_farenheit_celsius(bool);
 void menu_seteo_wifi();
@@ -51,3 +51,4 @@ void Actualizar_entradas();
 void Sum_Encoder();
 void doEncodeA();
 void doEncodeB();
+
