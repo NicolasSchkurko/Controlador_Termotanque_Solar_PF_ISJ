@@ -19,7 +19,7 @@
 #define minuto_max 60
 #define tiempo_de_espera_menu 3000 
 
-void standby(bool);
+void standby();
 void menu_basico();
 void menu_avanzado();
 void guardado_para_menus(bool);
@@ -29,24 +29,23 @@ String String_de_hora(uint8_t, uint8_t);
 uint8_t SaveToUINT(uint8_t, uint8_t);
 int8_t ArrayToChar(char[20]);
 uint8_t ReturnToCero(int8_t, uint8_t);
+int16_t CelciusOrFarenheit(int8_t,uint8_t);
 char Character_Return(uint8_t, bool);
 bool PressedButton(uint8_t);
 void PrintLCD(char[20], uint8_t, uint8_t);
 void Printhora(char[20], uint8_t, uint8_t);
 void PrintOutput(uint8_t, bool);
 uint8_t menu_de_llenado_manual();
-uint8_t menu_de_calefaccion_manual( bool);
-void menu_de_auto_por_hora(uint8_t, uint8_t, bool);
+uint8_t menu_de_calefaccion_manual();
+void menu_de_auto_por_hora(uint8_t, uint8_t);
 void menu_de_llenado_auto();
-void menu_de_calefaccion_auto(bool);
+void menu_de_calefaccion_auto();
 void menu_modificar_hora_rtc(uint8_t,uint8_t);
-void menu_activar_bomba(bool);
-void menu_farenheit_celsius(bool);
+void menu_activar_bomba();
+void menu_farenheit_celsius();
 void menu_seteo_wifi();
 void guardado_para_menus(bool);
-void Controltemp();
-void Controllvl();
-void ControlPorHora();
+void ControlOutput();
 void Actualizar_entradas();
 void Sum_Encoder();
 void doEncodeA();

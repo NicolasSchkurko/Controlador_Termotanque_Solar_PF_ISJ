@@ -14,7 +14,6 @@
 // Defines
 // Control de temp
 // Entradas y salida
-
 AT24C32 eep;
 RTC_DS1307 rtc;
 DateTime now;
