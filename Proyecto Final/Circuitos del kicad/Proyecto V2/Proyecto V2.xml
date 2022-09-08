@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>C:\Users\alumno\Desktop\Proyecto\Proyecto Final\Circuitos del kicad\Proyecto V2\Proyecto V2.kicad_sch</source>
-    <date>5/9/2022 17:46:55</date>
-    <tool>Eeschema (6.0.1)</tool>
+    <source>D:\Users\Jeremias\Escritorio\Trabajos colegio\Proyecto final\Proyecto Final\Circuitos del kicad\Proyecto V2\Proyecto V2.kicad_sch</source>
+    <date>9/7/2022 10:59:21 AM</date>
+    <tool>Eeschema (6.0.6)</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title/>
@@ -99,14 +99,32 @@
       <sheetpath names="/" tstamps="/"/>
       <tstamps>7e88e931-38be-4d28-8399-c7fe4dffdcd8</tstamps>
     </comp>
-    <comp ref="ESP2866">
-      <value>Conn_01x04</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_01x04" description="Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+    <comp ref="Encoder/puls-arduino1">
+      <value>Conn_02x06_Odd_Even</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_02x06_Odd_Even" description="Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>a2a9d750-c7f5-4d0f-9388-0170612657e7</tstamps>
+      <tstamps>03e1a5fc-4eb8-41ad-9db0-ae2523692bef</tstamps>
+    </comp>
+    <comp ref="Encoder/puls1">
+      <value>Conn_02x06_Odd_Even</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_02x06_Odd_Even" description="Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>01155d88-2cc9-4455-9e4f-c015d86c08cf</tstamps>
+    </comp>
+    <comp ref="Encoder1">
+      <value>Conn_01x05</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x05" description="Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>654a9a26-5d79-4887-a699-02c573ee93bf</tstamps>
     </comp>
     <comp ref="ESP2866-2">
       <value>Conn_01x04</value>
@@ -116,6 +134,24 @@
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>c3da37a9-c387-4e9f-80dc-8d1e98e08ef9</tstamps>
+    </comp>
+    <comp ref="ESP2866-arduino1">
+      <value>Conn_01x04</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x04" description="Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a2a9d750-c7f5-4d0f-9388-0170612657e7</tstamps>
+    </comp>
+    <comp ref="ESP8266">
+      <value>NodeMCU1.0(ESP-12E)</value>
+      <footprint>ESP8266 LOLiN v3:ESP8266</footprint>
+      <libsource lib="ESP8266-2" part="NodeMCU1.0(ESP-12E)" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>75e04df4-72b5-4187-898a-688dc36dfc3b</tstamps>
     </comp>
     <comp ref="J1">
       <value>12v</value>
@@ -143,81 +179,6 @@
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>3fb4c44e-42b8-410d-9db7-52807509fbf4</tstamps>
-    </comp>
-    <comp ref="J4">
-      <value>Conn_02x06_Odd_Even</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_02x06_Odd_Even" description="Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>03e1a5fc-4eb8-41ad-9db0-ae2523692bef</tstamps>
-    </comp>
-    <comp ref="J5">
-      <value>Conn_01x02</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>1672224d-7982-4259-8536-1b27e643cf0c</tstamps>
-    </comp>
-    <comp ref="J6">
-      <value>Conn_01x02</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0e4578a7-20c6-4026-9829-3af9154dfc8a</tstamps>
-    </comp>
-    <comp ref="J7">
-      <value>Conn_01x02</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>2d58b5ac-6ee1-429c-aae4-017d7d7a7777</tstamps>
-    </comp>
-    <comp ref="J8">
-      <value>Conn_01x05</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_01x05" description="Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>d566fa05-bf5b-41b3-81d4-c90c7a5494df</tstamps>
-    </comp>
-    <comp ref="K1">
-      <value>RAYEX-L90</value>
-      <footprint>Relay_THT:Relay_SPDT_RAYEX-L90</footprint>
-      <datasheet>https://a3.sofastcdn.com/attachment/7jioKBjnRiiSrjrjknRiwS77gwbf3zmp/L90-SERIES.pdf</datasheet>
-      <libsource lib="Relay" part="RAYEX-L90" description="Power relay, SPDT, 30A"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0cd577a2-42ef-4733-8afe-9d3894fc9450</tstamps>
-    </comp>
-    <comp ref="K2">
-      <value>RAYEX-L90</value>
-      <footprint>Relay_THT:Relay_SPDT_RAYEX-L90</footprint>
-      <datasheet>https://a3.sofastcdn.com/attachment/7jioKBjnRiiSrjrjknRiwS77gwbf3zmp/L90-SERIES.pdf</datasheet>
-      <libsource lib="Relay" part="RAYEX-L90" description="Power relay, SPDT, 30A"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>57c8fb88-4405-4238-a09d-7dd7dfd8a423</tstamps>
-    </comp>
-    <comp ref="K3">
-      <value>RAYEX-L90</value>
-      <footprint>Relay_THT:Relay_SPDT_RAYEX-L90</footprint>
-      <datasheet>https://a3.sofastcdn.com/attachment/7jioKBjnRiiSrjrjknRiwS77gwbf3zmp/L90-SERIES.pdf</datasheet>
-      <libsource lib="Relay" part="RAYEX-L90" description="Power relay, SPDT, 30A"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>3e2acc42-a53a-4429-92d1-b59cd17c998e</tstamps>
     </comp>
     <comp ref="Lvl_sens1">
       <value>lvl_sens</value>
@@ -294,6 +255,36 @@
       <sheetpath names="/" tstamps="/"/>
       <tstamps>67eb0b79-23ed-43e5-b8ab-6b20e939ccbf</tstamps>
     </comp>
+    <comp ref="Relay-1">
+      <value>RAYEX-L90</value>
+      <footprint>Relay_THT:Relay_SPDT_RAYEX-L90</footprint>
+      <datasheet>https://a3.sofastcdn.com/attachment/7jioKBjnRiiSrjrjknRiwS77gwbf3zmp/L90-SERIES.pdf</datasheet>
+      <libsource lib="Relay" part="RAYEX-L90" description="Power relay, SPDT, 30A"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0cd577a2-42ef-4733-8afe-9d3894fc9450</tstamps>
+    </comp>
+    <comp ref="Relay-2">
+      <value>RAYEX-L90</value>
+      <footprint>Relay_THT:Relay_SPDT_RAYEX-L90</footprint>
+      <datasheet>https://a3.sofastcdn.com/attachment/7jioKBjnRiiSrjrjknRiwS77gwbf3zmp/L90-SERIES.pdf</datasheet>
+      <libsource lib="Relay" part="RAYEX-L90" description="Power relay, SPDT, 30A"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3e2acc42-a53a-4429-92d1-b59cd17c998e</tstamps>
+    </comp>
+    <comp ref="Relay-3">
+      <value>RAYEX-L90</value>
+      <footprint>Relay_THT:Relay_SPDT_RAYEX-L90</footprint>
+      <datasheet>https://a3.sofastcdn.com/attachment/7jioKBjnRiiSrjrjknRiwS77gwbf3zmp/L90-SERIES.pdf</datasheet>
+      <libsource lib="Relay" part="RAYEX-L90" description="Power relay, SPDT, 30A"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>57c8fb88-4405-4238-a09d-7dd7dfd8a423</tstamps>
+    </comp>
     <comp ref="RELAY1">
       <value>Conn_01x05</value>
       <footprint>Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical</footprint>
@@ -311,6 +302,33 @@
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>77612971-e352-4344-b869-ae64f1112621</tstamps>
+    </comp>
+    <comp ref="Salida-1">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1672224d-7982-4259-8536-1b27e643cf0c</tstamps>
+    </comp>
+    <comp ref="Salida-2">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2d58b5ac-6ee1-429c-aae4-017d7d7a7777</tstamps>
+    </comp>
+    <comp ref="Salida-3">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0e4578a7-20c6-4026-9829-3af9154dfc8a</tstamps>
     </comp>
     <comp ref="SW1">
       <value>SW_Push</value>
@@ -367,15 +385,6 @@
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>b6baee3f-9d6c-4256-afdd-f7ec59c8a6a2</tstamps>
-    </comp>
-    <comp ref="U4">
-      <value>NodeMCU1.0(ESP-12E)</value>
-      <footprint>ESP8266 LOLiN v3:ESP8266</footprint>
-      <libsource lib="ESP8266-2" part="NodeMCU1.0(ESP-12E)" description=""/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>75e04df4-72b5-4187-898a-688dc36dfc3b</tstamps>
     </comp>
     <comp ref="Y1">
       <value>16MHz</value>
@@ -763,7 +772,7 @@
       <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Diode.kicad_sym</uri>
     </library>
     <library logical="ESP8266-2">
-      <uri>C:/Users/alumno/Desktop/Proyecto/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266.lib</uri>
+      <uri/>
     </library>
     <library logical="MCU_Microchip_ATmega">
       <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/MCU_Microchip_ATmega.kicad_sym</uri>
@@ -786,18 +795,21 @@
       <node ref="C4" pin="2" pintype="passive"/>
       <node ref="DS18B20" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="DS18B20" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="ESP2866" pin="4" pinfunction="Pin_4" pintype="passive"/>
       <node ref="ESP2866-2" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="ESP2866-arduino1" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="ESP8266" pin="15" pinfunction="VIN" pintype="input"/>
+      <node ref="Encoder/puls-arduino1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="Encoder/puls-arduino1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="Encoder/puls1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="Encoder/puls1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="Encoder1" pin="4" pinfunction="Pin_4" pintype="passive"/>
       <node ref="J2" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="J3" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="J4" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="J4" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="Lvl_sens1" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="R1" pin="1" pintype="passive"/>
       <node ref="U1" pin="3" pinfunction="VO" pintype="power_out"/>
       <node ref="U3" pin="20" pinfunction="AVCC" pintype="power_in"/>
       <node ref="U3" pin="7" pinfunction="VCC" pintype="power_in"/>
-      <node ref="U4" pin="15" pinfunction="VIN" pintype="input"/>
     </net>
     <net code="2" name="+12V">
       <node ref="C3" pin="2" pintype="passive"/>
@@ -805,14 +817,14 @@
       <node ref="D2" pin="1" pinfunction="K" pintype="passive"/>
       <node ref="D3" pin="1" pinfunction="K" pintype="passive"/>
       <node ref="J1" pin="2" pinfunction="Pin_2" pintype="power_in"/>
-      <node ref="J5" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="J6" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="J7" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="K1" pin="A2" pintype="passive"/>
-      <node ref="K2" pin="A2" pintype="passive"/>
-      <node ref="K3" pin="A2" pintype="passive"/>
       <node ref="RELAY1" pin="5" pinfunction="Pin_5" pintype="passive"/>
       <node ref="RELAY2" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="Relay-1" pin="A2" pintype="passive"/>
+      <node ref="Relay-2" pin="A2" pintype="passive"/>
+      <node ref="Relay-3" pin="A2" pintype="passive"/>
+      <node ref="Salida-1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="Salida-2" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="Salida-3" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="U1" pin="1" pinfunction="VI" pintype="power_in"/>
     </net>
     <net code="3" name="GND">
@@ -821,14 +833,17 @@
       <node ref="C3" pin="1" pintype="passive"/>
       <node ref="C4" pin="1" pintype="passive"/>
       <node ref="DS18B20" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="ESP2866" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="ESP2866-2" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="ESP2866-arduino1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="ESP8266" pin="14" pinfunction="GND" pintype="input"/>
+      <node ref="Encoder/puls-arduino1" pin="11" pinfunction="Pin_11" pintype="passive"/>
+      <node ref="Encoder/puls-arduino1" pin="12" pinfunction="Pin_12" pintype="passive"/>
+      <node ref="Encoder/puls1" pin="11" pinfunction="Pin_11" pintype="passive"/>
+      <node ref="Encoder/puls1" pin="12" pinfunction="Pin_12" pintype="passive"/>
+      <node ref="Encoder1" pin="5" pinfunction="Pin_5" pintype="passive"/>
       <node ref="J1" pin="1" pinfunction="Pin_1" pintype="power_in"/>
       <node ref="J2" pin="4" pinfunction="Pin_4" pintype="passive"/>
       <node ref="J3" pin="4" pinfunction="Pin_4" pintype="passive"/>
-      <node ref="J4" pin="11" pinfunction="Pin_11" pintype="passive"/>
-      <node ref="J4" pin="12" pinfunction="Pin_12" pintype="passive"/>
-      <node ref="J8" pin="5" pinfunction="Pin_5" pintype="passive"/>
       <node ref="Lvl_sens1" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="Q1" pin="1" pinfunction="E" pintype="passive"/>
       <node ref="Q2" pin="1" pinfunction="E" pintype="passive"/>
@@ -842,7 +857,6 @@
       <node ref="U1" pin="2" pinfunction="GND" pintype="power_in"/>
       <node ref="U3" pin="22" pinfunction="GND" pintype="passive"/>
       <node ref="U3" pin="8" pinfunction="GND" pintype="power_in"/>
-      <node ref="U4" pin="14" pinfunction="GND" pintype="input"/>
     </net>
     <net code="4" name="Net-(C1-Pad1)">
       <node ref="C1" pin="1" pintype="passive"/>
@@ -856,264 +870,279 @@
     </net>
     <net code="6" name="Net-(D1-Pad2)">
       <node ref="D1" pin="2" pinfunction="A" pintype="passive"/>
-      <node ref="K1" pin="A1" pintype="passive"/>
       <node ref="Q3" pin="3" pinfunction="C" pintype="passive"/>
+      <node ref="Relay-1" pin="A1" pintype="passive"/>
     </net>
     <net code="7" name="Net-(D2-Pad2)">
       <node ref="D2" pin="2" pinfunction="A" pintype="passive"/>
-      <node ref="K3" pin="A1" pintype="passive"/>
       <node ref="Q2" pin="3" pinfunction="C" pintype="passive"/>
+      <node ref="Relay-2" pin="A1" pintype="passive"/>
     </net>
     <net code="8" name="Net-(D3-Pad2)">
       <node ref="D3" pin="2" pinfunction="A" pintype="passive"/>
-      <node ref="K2" pin="A1" pintype="passive"/>
       <node ref="Q1" pin="3" pinfunction="C" pintype="passive"/>
+      <node ref="Relay-3" pin="A1" pintype="passive"/>
     </net>
     <net code="9" name="Net-(ESP2866-2-Pad2)">
       <node ref="ESP2866-2" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="U4" pin="18" pinfunction="TX(GPIO1)" pintype="input"/>
+      <node ref="ESP8266" pin="18" pinfunction="TX(GPIO1)" pintype="input"/>
     </net>
     <net code="10" name="Net-(ESP2866-2-Pad3)">
       <node ref="ESP2866-2" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="U4" pin="19" pinfunction="RX(DPIO3)" pintype="input"/>
+      <node ref="ESP8266" pin="19" pinfunction="RX(DPIO3)" pintype="input"/>
     </net>
-    <net code="11" name="Net-(ESP2866-Pad2)">
-      <node ref="ESP2866" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    <net code="11" name="Net-(ESP2866-arduino1-Pad2)">
+      <node ref="ESP2866-arduino1" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="U3" pin="2" pinfunction="PD0" pintype="bidirectional"/>
     </net>
-    <net code="12" name="Net-(ESP2866-Pad3)">
-      <node ref="ESP2866" pin="3" pinfunction="Pin_3" pintype="passive"/>
+    <net code="12" name="Net-(ESP2866-arduino1-Pad3)">
+      <node ref="ESP2866-arduino1" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="U3" pin="3" pinfunction="PD1" pintype="bidirectional"/>
     </net>
-    <net code="13" name="Net-(J2-Pad1)">
+    <net code="13" name="Net-(Encoder/puls-arduino1-Pad3)">
+      <node ref="Encoder/puls-arduino1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="U3" pin="4" pinfunction="PD2" pintype="bidirectional"/>
+    </net>
+    <net code="14" name="Net-(Encoder/puls-arduino1-Pad4)">
+      <node ref="Encoder/puls-arduino1" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="U3" pin="23" pinfunction="PC0" pintype="bidirectional"/>
+    </net>
+    <net code="15" name="Net-(Encoder/puls-arduino1-Pad5)">
+      <node ref="Encoder/puls-arduino1" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="U3" pin="5" pinfunction="PD3" pintype="bidirectional"/>
+    </net>
+    <net code="16" name="Net-(Encoder/puls-arduino1-Pad6)">
+      <node ref="Encoder/puls-arduino1" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="U3" pin="24" pinfunction="PC1" pintype="bidirectional"/>
+    </net>
+    <net code="17" name="Net-(Encoder/puls-arduino1-Pad8)">
+      <node ref="Encoder/puls-arduino1" pin="8" pinfunction="Pin_8" pintype="passive"/>
+      <node ref="U3" pin="25" pinfunction="PC2" pintype="bidirectional"/>
+    </net>
+    <net code="18" name="Net-(Encoder/puls-arduino1-Pad9)">
+      <node ref="Encoder/puls-arduino1" pin="9" pinfunction="Pin_9" pintype="passive"/>
+      <node ref="U3" pin="11" pinfunction="PD5" pintype="bidirectional"/>
+    </net>
+    <net code="19" name="Net-(Encoder/puls1-Pad3)">
+      <node ref="Encoder/puls1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="SW4" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="20" name="Net-(Encoder/puls1-Pad4)">
+      <node ref="Encoder/puls1" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="Encoder1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="21" name="Net-(Encoder/puls1-Pad5)">
+      <node ref="Encoder/puls1" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="SW3" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="22" name="Net-(Encoder/puls1-Pad6)">
+      <node ref="Encoder/puls1" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="Encoder1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    </net>
+    <net code="23" name="Net-(Encoder/puls1-Pad7)">
+      <node ref="Encoder/puls1" pin="7" pinfunction="Pin_7" pintype="passive"/>
+      <node ref="SW2" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="24" name="Net-(Encoder/puls1-Pad8)">
+      <node ref="Encoder/puls1" pin="8" pinfunction="Pin_8" pintype="passive"/>
+      <node ref="Encoder1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+    </net>
+    <net code="25" name="Net-(J2-Pad1)">
       <node ref="J2" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="J3" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="U3" pin="28" pinfunction="PC5" pintype="bidirectional"/>
     </net>
-    <net code="14" name="Net-(J2-Pad2)">
+    <net code="26" name="Net-(J2-Pad2)">
       <node ref="J2" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="J3" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="U3" pin="27" pinfunction="PC4" pintype="bidirectional"/>
     </net>
-    <net code="15" name="Net-(J4-Pad4)">
-      <node ref="J4" pin="4" pinfunction="Pin_4" pintype="passive"/>
-      <node ref="U3" pin="25" pinfunction="PC2" pintype="bidirectional"/>
-    </net>
-    <net code="16" name="Net-(J4-Pad6)">
-      <node ref="J4" pin="6" pinfunction="Pin_6" pintype="passive"/>
-      <node ref="U3" pin="24" pinfunction="PC1" pintype="bidirectional"/>
-    </net>
-    <net code="17" name="Net-(J4-Pad8)">
-      <node ref="J4" pin="8" pinfunction="Pin_8" pintype="passive"/>
-      <node ref="U3" pin="23" pinfunction="PC0" pintype="bidirectional"/>
-    </net>
-    <net code="18" name="Net-(J5-Pad2)">
-      <node ref="J5" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="K1" pin="14" pintype="passive"/>
-    </net>
-    <net code="19" name="Net-(J6-Pad2)">
-      <node ref="J6" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="K2" pin="14" pintype="passive"/>
-    </net>
-    <net code="20" name="Net-(J7-Pad2)">
-      <node ref="J7" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="K3" pin="14" pintype="passive"/>
-    </net>
-    <net code="21" name="Net-(J8-Pad1)">
-      <node ref="J8" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="SW4" pin="2" pinfunction="2" pintype="passive"/>
-    </net>
-    <net code="22" name="Net-(J8-Pad2)">
-      <node ref="J8" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="SW3" pin="2" pinfunction="2" pintype="passive"/>
-    </net>
-    <net code="23" name="Net-(J8-Pad3)">
-      <node ref="J8" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="SW2" pin="2" pinfunction="2" pintype="passive"/>
-    </net>
-    <net code="24" name="Net-(J8-Pad4)">
-      <node ref="J8" pin="4" pinfunction="Pin_4" pintype="passive"/>
-      <node ref="SW1" pin="2" pinfunction="2" pintype="passive"/>
-    </net>
-    <net code="25" name="Net-(K1-Pad11A)">
-      <node ref="K1" pin="11A" pintype="passive"/>
-      <node ref="K1" pin="11B" pintype="passive"/>
-    </net>
-    <net code="26" name="Net-(K2-Pad11A)">
-      <node ref="K2" pin="11A" pintype="passive"/>
-      <node ref="K2" pin="11B" pintype="passive"/>
-    </net>
-    <net code="27" name="Net-(K3-Pad11A)">
-      <node ref="K3" pin="11A" pintype="passive"/>
-      <node ref="K3" pin="11B" pintype="passive"/>
-    </net>
-    <net code="28" name="Net-(Lvl_sens1-Pad2)">
+    <net code="27" name="Net-(Lvl_sens1-Pad2)">
       <node ref="Lvl_sens1" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="U3" pin="26" pinfunction="PC3" pintype="bidirectional"/>
     </net>
-    <net code="29" name="Net-(Q1-Pad2)">
+    <net code="28" name="Net-(Q1-Pad2)">
       <node ref="Q1" pin="2" pinfunction="B" pintype="input"/>
       <node ref="R3" pin="1" pintype="passive"/>
     </net>
-    <net code="30" name="Net-(Q2-Pad2)">
+    <net code="29" name="Net-(Q2-Pad2)">
       <node ref="Q2" pin="2" pinfunction="B" pintype="input"/>
       <node ref="R4" pin="1" pintype="passive"/>
     </net>
-    <net code="31" name="Net-(Q3-Pad2)">
+    <net code="30" name="Net-(Q3-Pad2)">
       <node ref="Q3" pin="2" pinfunction="B" pintype="input"/>
       <node ref="R2" pin="1" pintype="passive"/>
     </net>
-    <net code="32" name="Net-(R1-Pad2)">
+    <net code="31" name="Net-(R1-Pad2)">
       <node ref="R1" pin="2" pintype="passive"/>
       <node ref="U3" pin="15" pinfunction="PB1" pintype="bidirectional"/>
     </net>
-    <net code="33" name="Net-(R2-Pad2)">
+    <net code="32" name="Net-(R2-Pad2)">
       <node ref="R2" pin="2" pintype="passive"/>
       <node ref="RELAY2" pin="4" pinfunction="Pin_4" pintype="passive"/>
     </net>
-    <net code="34" name="Net-(R3-Pad2)">
+    <net code="33" name="Net-(R3-Pad2)">
       <node ref="R3" pin="2" pintype="passive"/>
       <node ref="RELAY2" pin="2" pinfunction="Pin_2" pintype="passive"/>
     </net>
-    <net code="35" name="Net-(R4-Pad2)">
+    <net code="34" name="Net-(R4-Pad2)">
       <node ref="R4" pin="2" pintype="passive"/>
       <node ref="RELAY2" pin="3" pinfunction="Pin_3" pintype="passive"/>
     </net>
-    <net code="36" name="Net-(RELAY1-Pad2)">
+    <net code="35" name="Net-(RELAY1-Pad2)">
       <node ref="RELAY1" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="U3" pin="19" pinfunction="PB5" pintype="bidirectional"/>
     </net>
-    <net code="37" name="Net-(RELAY1-Pad3)">
+    <net code="36" name="Net-(RELAY1-Pad3)">
       <node ref="RELAY1" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="U3" pin="18" pinfunction="PB4" pintype="bidirectional"/>
     </net>
-    <net code="38" name="Net-(RELAY1-Pad4)">
+    <net code="37" name="Net-(RELAY1-Pad4)">
       <node ref="RELAY1" pin="4" pinfunction="Pin_4" pintype="passive"/>
       <node ref="U3" pin="17" pinfunction="PB3" pintype="bidirectional"/>
     </net>
-    <net code="39" name="Net-(U3-Pad4)">
-      <node ref="J4" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="U3" pin="4" pinfunction="PD2" pintype="bidirectional"/>
+    <net code="38" name="Net-(Relay-1-Pad11A)">
+      <node ref="Relay-1" pin="11A" pintype="passive"/>
+      <node ref="Relay-1" pin="11B" pintype="passive"/>
     </net>
-    <net code="40" name="Net-(U3-Pad5)">
-      <node ref="J4" pin="5" pinfunction="Pin_5" pintype="passive"/>
-      <node ref="U3" pin="5" pinfunction="PD3" pintype="bidirectional"/>
+    <net code="39" name="Net-(Relay-2-Pad11A)">
+      <node ref="Relay-2" pin="11A" pintype="passive"/>
+      <node ref="Relay-2" pin="11B" pintype="passive"/>
     </net>
-    <net code="41" name="Net-(U3-Pad6)">
-      <node ref="J4" pin="7" pinfunction="Pin_7" pintype="passive"/>
+    <net code="40" name="Net-(Relay-3-Pad11A)">
+      <node ref="Relay-3" pin="11A" pintype="passive"/>
+      <node ref="Relay-3" pin="11B" pintype="passive"/>
+    </net>
+    <net code="41" name="Net-(SW1-Pad2)">
+      <node ref="Encoder/puls1" pin="9" pinfunction="Pin_9" pintype="passive"/>
+      <node ref="SW1" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="42" name="Net-(Salida-1-Pad2)">
+      <node ref="Relay-1" pin="14" pintype="passive"/>
+      <node ref="Salida-1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    </net>
+    <net code="43" name="Net-(Salida-2-Pad2)">
+      <node ref="Relay-2" pin="14" pintype="passive"/>
+      <node ref="Salida-2" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    </net>
+    <net code="44" name="Net-(Salida-3-Pad2)">
+      <node ref="Relay-3" pin="14" pintype="passive"/>
+      <node ref="Salida-3" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    </net>
+    <net code="45" name="Net-(U3-Pad6)">
+      <node ref="Encoder/puls-arduino1" pin="7" pinfunction="Pin_7" pintype="passive"/>
       <node ref="U3" pin="6" pinfunction="PD4" pintype="bidirectional"/>
     </net>
-    <net code="42" name="Net-(U3-Pad11)">
-      <node ref="J4" pin="9" pinfunction="Pin_9" pintype="passive"/>
-      <node ref="U3" pin="11" pinfunction="PD5" pintype="bidirectional"/>
+    <net code="46" name="unconnected-(ESP8266-Pad1)">
+      <node ref="ESP8266" pin="1" pinfunction="A0(ADC0)" pintype="input+no_connect"/>
     </net>
-    <net code="43" name="unconnected-(J4-Pad10)">
-      <node ref="J4" pin="10" pinfunction="Pin_10" pintype="passive+no_connect"/>
+    <net code="47" name="unconnected-(ESP8266-Pad2)">
+      <node ref="ESP8266" pin="2" pinfunction="RSV" pintype="input+no_connect"/>
     </net>
-    <net code="44" name="unconnected-(K1-Pad12)">
-      <node ref="K1" pin="12" pintype="passive"/>
+    <net code="48" name="unconnected-(ESP8266-Pad3)">
+      <node ref="ESP8266" pin="3" pinfunction="RSV" pintype="input+no_connect"/>
     </net>
-    <net code="45" name="unconnected-(K2-Pad12)">
-      <node ref="K2" pin="12" pintype="passive"/>
+    <net code="49" name="unconnected-(ESP8266-Pad4)">
+      <node ref="ESP8266" pin="4" pinfunction="SD3(GPIO10)" pintype="input+no_connect"/>
     </net>
-    <net code="46" name="unconnected-(K3-Pad12)">
-      <node ref="K3" pin="12" pintype="passive"/>
+    <net code="50" name="unconnected-(ESP8266-Pad5)">
+      <node ref="ESP8266" pin="5" pinfunction="SD2(GPIO9)" pintype="input+no_connect"/>
     </net>
-    <net code="47" name="unconnected-(U3-Pad1)">
+    <net code="51" name="unconnected-(ESP8266-Pad6)">
+      <node ref="ESP8266" pin="6" pinfunction="SD1(MOSI)" pintype="input+no_connect"/>
+    </net>
+    <net code="52" name="unconnected-(ESP8266-Pad7)">
+      <node ref="ESP8266" pin="7" pinfunction="CMD(CS)" pintype="input+no_connect"/>
+    </net>
+    <net code="53" name="unconnected-(ESP8266-Pad8)">
+      <node ref="ESP8266" pin="8" pinfunction="SDO(MISO)" pintype="input+no_connect"/>
+    </net>
+    <net code="54" name="unconnected-(ESP8266-Pad9)">
+      <node ref="ESP8266" pin="9" pinfunction="CLK(SCLK)" pintype="input+no_connect"/>
+    </net>
+    <net code="55" name="unconnected-(ESP8266-Pad10)">
+      <node ref="ESP8266" pin="10" pinfunction="GND" pintype="input+no_connect"/>
+    </net>
+    <net code="56" name="unconnected-(ESP8266-Pad11)">
+      <node ref="ESP8266" pin="11" pinfunction="3.3V" pintype="input+no_connect"/>
+    </net>
+    <net code="57" name="unconnected-(ESP8266-Pad12)">
+      <node ref="ESP8266" pin="12" pinfunction="EN" pintype="input+no_connect"/>
+    </net>
+    <net code="58" name="unconnected-(ESP8266-Pad13)">
+      <node ref="ESP8266" pin="13" pinfunction="RST" pintype="input+no_connect"/>
+    </net>
+    <net code="59" name="unconnected-(ESP8266-Pad16)">
+      <node ref="ESP8266" pin="16" pinfunction="3.3V" pintype="input+no_connect"/>
+    </net>
+    <net code="60" name="unconnected-(ESP8266-Pad17)">
+      <node ref="ESP8266" pin="17" pinfunction="GND" pintype="input+no_connect"/>
+    </net>
+    <net code="61" name="unconnected-(ESP8266-Pad20)">
+      <node ref="ESP8266" pin="20" pinfunction="D8(GPIO15)" pintype="input+no_connect"/>
+    </net>
+    <net code="62" name="unconnected-(ESP8266-Pad21)">
+      <node ref="ESP8266" pin="21" pinfunction="D7(GPIO13)" pintype="input+no_connect"/>
+    </net>
+    <net code="63" name="unconnected-(ESP8266-Pad22)">
+      <node ref="ESP8266" pin="22" pinfunction="D6(GPIO12)" pintype="input+no_connect"/>
+    </net>
+    <net code="64" name="unconnected-(ESP8266-Pad23)">
+      <node ref="ESP8266" pin="23" pinfunction="D5(GPIO14)" pintype="input+no_connect"/>
+    </net>
+    <net code="65" name="unconnected-(ESP8266-Pad24)">
+      <node ref="ESP8266" pin="24" pinfunction="GND" pintype="input+no_connect"/>
+    </net>
+    <net code="66" name="unconnected-(ESP8266-Pad25)">
+      <node ref="ESP8266" pin="25" pinfunction="3.3V" pintype="input+no_connect"/>
+    </net>
+    <net code="67" name="unconnected-(ESP8266-Pad26)">
+      <node ref="ESP8266" pin="26" pinfunction="D4(GPIO2)" pintype="input+no_connect"/>
+    </net>
+    <net code="68" name="unconnected-(ESP8266-Pad27)">
+      <node ref="ESP8266" pin="27" pinfunction="D3(GPIO0)" pintype="input+no_connect"/>
+    </net>
+    <net code="69" name="unconnected-(ESP8266-Pad28)">
+      <node ref="ESP8266" pin="28" pinfunction="D2(GPIO4)" pintype="input+no_connect"/>
+    </net>
+    <net code="70" name="unconnected-(ESP8266-Pad29)">
+      <node ref="ESP8266" pin="29" pinfunction="D1(GPIO5)" pintype="input+no_connect"/>
+    </net>
+    <net code="71" name="unconnected-(ESP8266-Pad30)">
+      <node ref="ESP8266" pin="30" pinfunction="D0(GPIO16)" pintype="input+no_connect"/>
+    </net>
+    <net code="72" name="unconnected-(Encoder/puls-arduino1-Pad10)">
+      <node ref="Encoder/puls-arduino1" pin="10" pinfunction="Pin_10" pintype="passive+no_connect"/>
+    </net>
+    <net code="73" name="unconnected-(Encoder/puls1-Pad10)">
+      <node ref="Encoder/puls1" pin="10" pinfunction="Pin_10" pintype="passive+no_connect"/>
+    </net>
+    <net code="74" name="unconnected-(Relay-1-Pad12)">
+      <node ref="Relay-1" pin="12" pintype="passive"/>
+    </net>
+    <net code="75" name="unconnected-(Relay-2-Pad12)">
+      <node ref="Relay-2" pin="12" pintype="passive"/>
+    </net>
+    <net code="76" name="unconnected-(Relay-3-Pad12)">
+      <node ref="Relay-3" pin="12" pintype="passive"/>
+    </net>
+    <net code="77" name="unconnected-(U3-Pad1)">
       <node ref="U3" pin="1" pinfunction="~{RESET}/PC6" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="48" name="unconnected-(U3-Pad12)">
+    <net code="78" name="unconnected-(U3-Pad12)">
       <node ref="U3" pin="12" pinfunction="PD6" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="49" name="unconnected-(U3-Pad13)">
+    <net code="79" name="unconnected-(U3-Pad13)">
       <node ref="U3" pin="13" pinfunction="PD7" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="50" name="unconnected-(U3-Pad14)">
+    <net code="80" name="unconnected-(U3-Pad14)">
       <node ref="U3" pin="14" pinfunction="PB0" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="51" name="unconnected-(U3-Pad16)">
+    <net code="81" name="unconnected-(U3-Pad16)">
       <node ref="U3" pin="16" pinfunction="PB2" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="52" name="unconnected-(U3-Pad21)">
+    <net code="82" name="unconnected-(U3-Pad21)">
       <node ref="U3" pin="21" pinfunction="AREF" pintype="passive+no_connect"/>
-    </net>
-    <net code="53" name="unconnected-(U4-Pad1)">
-      <node ref="U4" pin="1" pinfunction="A0(ADC0)" pintype="input+no_connect"/>
-    </net>
-    <net code="54" name="unconnected-(U4-Pad2)">
-      <node ref="U4" pin="2" pinfunction="RSV" pintype="input+no_connect"/>
-    </net>
-    <net code="55" name="unconnected-(U4-Pad3)">
-      <node ref="U4" pin="3" pinfunction="RSV" pintype="input+no_connect"/>
-    </net>
-    <net code="56" name="unconnected-(U4-Pad4)">
-      <node ref="U4" pin="4" pinfunction="SD3(GPIO10)" pintype="input+no_connect"/>
-    </net>
-    <net code="57" name="unconnected-(U4-Pad5)">
-      <node ref="U4" pin="5" pinfunction="SD2(GPIO9)" pintype="input+no_connect"/>
-    </net>
-    <net code="58" name="unconnected-(U4-Pad6)">
-      <node ref="U4" pin="6" pinfunction="SD1(MOSI)" pintype="input+no_connect"/>
-    </net>
-    <net code="59" name="unconnected-(U4-Pad7)">
-      <node ref="U4" pin="7" pinfunction="CMD(CS)" pintype="input+no_connect"/>
-    </net>
-    <net code="60" name="unconnected-(U4-Pad8)">
-      <node ref="U4" pin="8" pinfunction="SDO(MISO)" pintype="input+no_connect"/>
-    </net>
-    <net code="61" name="unconnected-(U4-Pad9)">
-      <node ref="U4" pin="9" pinfunction="CLK(SCLK)" pintype="input+no_connect"/>
-    </net>
-    <net code="62" name="unconnected-(U4-Pad10)">
-      <node ref="U4" pin="10" pinfunction="GND" pintype="input+no_connect"/>
-    </net>
-    <net code="63" name="unconnected-(U4-Pad11)">
-      <node ref="U4" pin="11" pinfunction="3.3V" pintype="input+no_connect"/>
-    </net>
-    <net code="64" name="unconnected-(U4-Pad12)">
-      <node ref="U4" pin="12" pinfunction="EN" pintype="input+no_connect"/>
-    </net>
-    <net code="65" name="unconnected-(U4-Pad13)">
-      <node ref="U4" pin="13" pinfunction="RST" pintype="input+no_connect"/>
-    </net>
-    <net code="66" name="unconnected-(U4-Pad16)">
-      <node ref="U4" pin="16" pinfunction="3.3V" pintype="input+no_connect"/>
-    </net>
-    <net code="67" name="unconnected-(U4-Pad17)">
-      <node ref="U4" pin="17" pinfunction="GND" pintype="input+no_connect"/>
-    </net>
-    <net code="68" name="unconnected-(U4-Pad20)">
-      <node ref="U4" pin="20" pinfunction="D8(GPIO15)" pintype="input+no_connect"/>
-    </net>
-    <net code="69" name="unconnected-(U4-Pad21)">
-      <node ref="U4" pin="21" pinfunction="D7(GPIO13)" pintype="input+no_connect"/>
-    </net>
-    <net code="70" name="unconnected-(U4-Pad22)">
-      <node ref="U4" pin="22" pinfunction="D6(GPIO12)" pintype="input+no_connect"/>
-    </net>
-    <net code="71" name="unconnected-(U4-Pad23)">
-      <node ref="U4" pin="23" pinfunction="D5(GPIO14)" pintype="input+no_connect"/>
-    </net>
-    <net code="72" name="unconnected-(U4-Pad24)">
-      <node ref="U4" pin="24" pinfunction="GND" pintype="input+no_connect"/>
-    </net>
-    <net code="73" name="unconnected-(U4-Pad25)">
-      <node ref="U4" pin="25" pinfunction="3.3V" pintype="input+no_connect"/>
-    </net>
-    <net code="74" name="unconnected-(U4-Pad26)">
-      <node ref="U4" pin="26" pinfunction="D4(GPIO2)" pintype="input+no_connect"/>
-    </net>
-    <net code="75" name="unconnected-(U4-Pad27)">
-      <node ref="U4" pin="27" pinfunction="D3(GPIO0)" pintype="input+no_connect"/>
-    </net>
-    <net code="76" name="unconnected-(U4-Pad28)">
-      <node ref="U4" pin="28" pinfunction="D2(GPIO4)" pintype="input+no_connect"/>
-    </net>
-    <net code="77" name="unconnected-(U4-Pad29)">
-      <node ref="U4" pin="29" pinfunction="D1(GPIO5)" pintype="input+no_connect"/>
-    </net>
-    <net code="78" name="unconnected-(U4-Pad30)">
-      <node ref="U4" pin="30" pinfunction="D0(GPIO16)" pintype="input+no_connect"/>
     </net>
   </nets>
 </export>
