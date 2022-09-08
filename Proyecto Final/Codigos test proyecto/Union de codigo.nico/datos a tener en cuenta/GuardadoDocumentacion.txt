@@ -19,10 +19,12 @@ Guardado[4].temp. minima            (10;1)
 Guardado[4].Temp. maxima            (11;1) 
 Guardado[5].Nivel minimo            (12;1) 
 Guardado[5].Nivel maximo            (13;1) 
-String ssid                         (14;33)//el largo 32b lo saque del protocolo wap2 y se le suma uno por que se guarda anteriormente el largo del string (ver pagina mas abajo)
-String ssid contraseña              (48;65)//el largo 64b lo saque del protocolo wap2 y se le suma uno por que se guarda anteriormente el largo del string
-
-Siguiente posicion libre            (113)
+String ssid                         (14;34)//el largo 32b lo saque del protocolo wap2 y se le suma uno por que se guarda anteriormente el largo del string (ver pagina mas abajo)
+String ssid contraseña              (35;55)//el largo 64b lo saque del protocolo wap2 y se le suma uno por que se guarda anteriormente el largo del string
+Cual unidad usar                    (56;1) 
+Activacion de la bomba              (57;1)
+IP                                  (58,4) 
+Siguiente posicion libre            (61)
 
 https://roboticsbackend.com/arduino-write-string-in-eeprom/  //pag de donde sace el write/read string to eeprom (copie y pege la funcion pq es una boludez como funca)
 
