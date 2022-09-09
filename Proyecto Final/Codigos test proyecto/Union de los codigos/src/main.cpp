@@ -52,16 +52,7 @@ byte hora[8] = {
   B01110,
   B00000
 };
-byte nono[8] = {
-  B00000,
-  B00000,
-  B10001,
-  B01010,
-  B00100,
-  B01010,
-  B10001,
-  B00000
-};
+
 byte bomba[8] = {
   B00000,
   B00000,
@@ -82,18 +73,46 @@ byte wifi[8] = {
   B10101,
   B00000
 };
-byte no_wifi[8] = {
+byte barra_derecha[8] = {
+  B00001,
+  B00001,
+  B00001,
+  B00001,
+  B00001,
+  B00001,
+  B00001,
+  B00001
+};
+byte barra_izquierda[8] = {
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000
+};
+byte barra_arriba[8] = {
+  B11111,
   B00000,
-  B00101,
-  B00010,
-  B00101,
-  B11000,
-  B00100,
-  B10100,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
   B00000
 };
-byte customchar[8];
-
+byte barra_abajo[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111
+};
 Seleccionar_Funciones funcionActual = posicion_inicial;
 estadoMEF Estadoequipo = estado_inicial;
 
@@ -152,46 +171,12 @@ void setup()
 
   lcd.init(); // Iniciacion del LCD
   lcd.createChar(0 , hora); 
-  lcd.createChar(1 , nono); 
   lcd.createChar(2 , bomba); 
   lcd.createChar(3 , wifi); 
-  lcd.createChar(4 , no_wifi); 
-  eep.write(61,customchar,8);
-  lcd.createChar(5 , customchar);
-  eep.write(69,customchar,8);
-  lcd.createChar(6 , customchar);
-  eep.write(77,customchar,8);
-  lcd.createChar(7 , customchar);
-  eep.write(85,customchar,8);
-  lcd.createChar(8 , customchar);
-  eep.write(93,customchar,8);
-  lcd.createChar(9 , customchar);
-  eep.write(101,customchar,8);
-  lcd.createChar(10 , customchar);
-  eep.write(109,customchar,8);
-  lcd.createChar(11, customchar);
-  eep.write(117,customchar,8);
-  lcd.createChar(12 , customchar);
-  eep.write(125,customchar,8);
-  lcd.createChar(13 , customchar);
-  eep.write(133,customchar,8);
-  lcd.createChar(14 , customchar);
-  eep.write(141,customchar,8);
-  lcd.createChar(15 , customchar);
-  eep.write(149,customchar,8);
-  lcd.createChar(16 , customchar);
-  eep.write(157,customchar,8);
-  lcd.createChar(17 , customchar);
-  eep.write(165,customchar,8);
-  lcd.createChar(18 , customchar);
-  eep.write(173,customchar,8);
-  lcd.createChar(19 , customchar);
-  eep.write(181,customchar,8);
-  lcd.createChar(20 , customchar);
-  eep.write(189,customchar,8);
-  lcd.createChar(21 , customchar);
-  eep.write(197,customchar,8);
-  lcd.createChar(22 , customchar);
+  lcd.createChar(4 , barra_abajo);
+  lcd.createChar(5 , barra_derecha);
+  lcd.createChar(6 , barra_izquierda);
+  lcd.createChar(7 , barra_arriba);
   // Sensr de temperatura
   eep.readChars(14,password_wifi_setear, 20);
   eep.readChars(34,nombre_wifi_setear, 20);
@@ -375,26 +360,46 @@ void ControlOutput()
 
 
 //███████████████████████████████████████████MENUES PRINCIPALES██████████████████████████████████████████
-
 void standby()
 {
   lcd.setCursor(5 ,3);
-  if(esp_working)lcd.print(char(3));
-  if(!esp_working)lcd.print(char(4));
-  lcd.setCursor(6 ,3);
-  if(eep.read(57)==254) lcd.print(char(2));
-  if(eep.read(57)==1)lcd.print(char(1));
-  
+  if(calentar) lcd.write(char(94));
+  else lcd.write(char(61));
 
-  sprintf(imprimir_lcd, "%d%c%c ", CelciusOrFarenheit(temperatura_actual,1), (char)223,CelciusOrFarenheit(temperatura_actual,2));
+  lcd.setCursor(7 ,3);
+  lcd.print(char(CelciusOrFarenheit(temperatura_actual,2)));
+
+  lcd.setCursor(14 ,3);
+  if(eep.read(57)==254) lcd.print(char(244));
+  else{
+    if(now.second()%2==1)lcd.write(char(244));
+    else lcd.write('x');
+  }
+
+  lcd.setCursor(12 ,3);
+  if(llenar) lcd.write(char(94));
+  else lcd.write(char(61));
+
+  lcd.setCursor(9 ,3);
+  lcd.print(char(3));
+
+  lcd.setCursor(10 ,3);
+  if(esp_working)lcd.print(char(175));
+  else lcd.write('x');
+
+
+
+
+  sprintf(imprimir_lcd, "%d%c ", CelciusOrFarenheit(temperatura_actual,1),char(223));
   PrintLCD(imprimir_lcd, 0, 0);
   sprintf(imprimir_lcd, "%d%c", nivel_actual, '%');
   for (Vaux2=0;imprimir_lcd[Vaux2]!='\0';Vaux2++){}
   PrintLCD(imprimir_lcd, 20-Vaux2, 0);
-  
+
   lcd.setCursor(7,1);lcd.print(char(0));
   Printhora(imprimir_lcd,now.hour(),now.minute());PrintLCD(imprimir_lcd, 8, 1);
-
+  PrintHorizontalBar(1, 1,temperatura_actual);
+  PrintHorizontalBar(16, 1,nivel_actual);
 
   if (PressedButton(1) == true|| PressedButton(2) == true|| PressedButton(3) == true)Posicion_actual+=1;
   if (Vaux1 != Posicion_actual)
@@ -418,7 +423,7 @@ void standby()
   }
   if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu && Estadoequipo == estado_inicial)
   {
-    Estadoequipo = estado_standby;
+    //Estadoequipo = estado_standby;
     tiempo_de_standby = mili_segundos;
   }
 }
@@ -514,9 +519,9 @@ void menu_basico()
 void menu_avanzado()
 {
   const char *menuavanzado[maxY_menu2] = {
-    "Setear hora display",
+    "Setear hora",
     "Cambiar unidad",
-    "Activar la bomba",
+    "Habilitar la bomba",
     "conexion wifi",
     "volver"
   };
@@ -529,10 +534,10 @@ void menu_avanzado()
     Flag = 1;
     break;
   case 1:
-    sprintf(imprimir_lcd, ">%s", menuavanzado[ReturnToCero(Vaux1, maxY_menu2)]);    PrintLCD(imprimir_lcd, 0, 0);
-    sprintf(imprimir_lcd,"%s", menuavanzado[ReturnToCero(Vaux1 + 1, maxY_menu2)]);  PrintLCD(imprimir_lcd, 1, 1);
-    sprintf(imprimir_lcd,"%s", menuavanzado[ReturnToCero(Vaux1 + 2, maxY_menu2)]);  PrintLCD(imprimir_lcd, 1, 2);
-    sprintf(imprimir_lcd,"%s",menuavanzado[ReturnToCero(Vaux1 + 3, maxY_menu2)]);   PrintLCD(imprimir_lcd, 1, 3);
+    sprintf(imprimir_lcd,">%s",menuavanzado[ReturnToCero(Vaux1, maxY_menu2)]);    PrintLCD(imprimir_lcd, 0, 0);
+    sprintf(imprimir_lcd," %s",menuavanzado[ReturnToCero(Vaux1 + 1, maxY_menu2)]);PrintLCD(imprimir_lcd, 0, 1);
+    sprintf(imprimir_lcd," %s",menuavanzado[ReturnToCero(Vaux1 + 2, maxY_menu2)]);PrintLCD(imprimir_lcd, 0, 2);
+    sprintf(imprimir_lcd," %s",menuavanzado[ReturnToCero(Vaux1 + 3, maxY_menu2)]);PrintLCD(imprimir_lcd, 0, 3);
 
 
     if (Posicion_actual / 2 != Vaux1)
@@ -543,7 +548,7 @@ void menu_avanzado()
     }
 
     if (PressedButton(1)) Posicion_actual+=2; // suma 1 a Vaux1
-    if (PressedButton(2)) Posicion_actual+=2; // resta 1 a Vaux1
+    if (PressedButton(2)) Posicion_actual-=2; // resta 1 a Vaux1
 
     Posicion_actual=ReturnToCero(Posicion_actual,maxY_menu2 * 2);
 
@@ -1542,29 +1547,67 @@ void guardado_para_menus(bool Menu)
 }
 
 //██████████████████████████████████████████FUNCIONES DE SOPORTE██████████████████████████████████████████
-
-void PrintHorizontalBar(uint8_t column, uint8_t row, int16_t value)
-{
+void PrintHorizontalBar(uint8_t column, uint8_t row, int16_t value){
 uint8_t Where_is;
+
 if(value<=12)Where_is=0;
 if(value>=13 && value<=39)Where_is=1;
 if(value>=40 && value<=79)Where_is=2;
 if(value>=80)Where_is=3;
 switch (Where_is)
-{
-case 0:
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  lcd.setCursor(0+column,0+column);lcd.print(char(0));
-  break;
+  {
+  case 0:
+    lcd.setCursor(0+column,row);lcd.write(char(6));
+    lcd.setCursor(1+column,row);lcd.write(char(7));
+    lcd.setCursor(2+column,row);lcd.write(char(5));
 
-default:
-  break;
+    lcd.setCursor(0+column,1+row);lcd.write(char(6));
+    lcd.setCursor(1+column,1+row);lcd.write(' ');
+    lcd.setCursor(2+column,1+row);lcd.write(char(5));
+
+    lcd.setCursor(0+column,2+row);lcd.write(char(6));
+    lcd.setCursor(1+column,2+row);lcd.write(char(4));
+    lcd.setCursor(2+column,2+row);lcd.write(char(5));
+    break;
+  case 1:
+    lcd.setCursor(0+column,row);lcd.write(char(6));
+    lcd.setCursor(1+column,row);lcd.write(char(7));
+    lcd.setCursor(2+column,row);lcd.write(char(5));
+
+    lcd.setCursor(0+column,1+row);lcd.write(char(6));
+    lcd.setCursor(1+column,1+row);lcd.write(' ');
+    lcd.setCursor(2+column,1+row);lcd.write(char(5));
+
+    lcd.setCursor(0+column,2+row);lcd.write(char(255));
+    lcd.setCursor(1+column,2+row);lcd.write(char(255));
+    lcd.setCursor(2+column,2+row);lcd.write(char(255));
+    break;
+  case 2:
+    lcd.setCursor(0+column,row);lcd.write(char(6));
+    lcd.setCursor(1+column,row);lcd.write(char(7));
+    lcd.setCursor(2+column,row);lcd.write(char(5));
+
+    lcd.setCursor(0+column,1+row);lcd.write(char(255));
+    lcd.setCursor(1+column,1+row);lcd.write(char(255));
+    lcd.setCursor(2+column,1+row);lcd.write(char(255));
+
+    lcd.setCursor(0+column,2+row);lcd.write(char(255));
+    lcd.setCursor(1+column,2+row);lcd.write(char(255));
+    lcd.setCursor(2+column,2+row);lcd.write(char(255));
+    break;
+  case 3:
+    lcd.setCursor(0+column,row);lcd.write(char(255));
+    lcd.setCursor(1+column,row);lcd.write(char(255));
+    lcd.setCursor(2+column,row);lcd.write(char(255));
+
+    lcd.setCursor(0+column,1+row);lcd.write(char(255));
+    lcd.setCursor(1+column,1+row);lcd.write(char(255));
+    lcd.setCursor(2+column,1+row);lcd.write(char(255));
+
+    lcd.setCursor(0+column,2+row);lcd.write(char(255));
+    lcd.setCursor(1+column,2+row);lcd.write(char(255));
+    lcd.setCursor(2+column,2+row);lcd.write(char(255));
+    break;
 }
 }
 

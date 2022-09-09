@@ -17,7 +17,7 @@
 #define max_nivel 100
 #define hora_max 24
 #define minuto_max 60
-#define tiempo_de_espera_menu 3000 
+#define tiempo_de_espera_menu 8000 
 
 void standby();
 void menu_basico();
@@ -50,4 +50,4 @@ void Actualizar_entradas();
 void Sum_Encoder();
 void doEncodeA();
 void doEncodeB();
-
+void PrintHorizontalBar(uint8_t, uint8_t, int16_t);

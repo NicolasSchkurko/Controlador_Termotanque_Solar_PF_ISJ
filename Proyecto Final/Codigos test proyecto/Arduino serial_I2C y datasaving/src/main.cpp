@@ -152,7 +152,7 @@ byte lleno_abajo_izquierda[8] = {
   B11111
 };
 
-byte vacio_medio_izquierda[] = {
+byte vacio_medio_izquierda[8] = {
   B10000,
   B10000,
   B10000,
@@ -162,7 +162,7 @@ byte vacio_medio_izquierda[] = {
   B10000,
   B10000
 };
-byte lleno_medio_izquierda[] = {
+byte lleno_medio_izquierda[8] = {
   B10111,
   B10111,
   B10111,
@@ -173,7 +173,7 @@ byte lleno_medio_izquierda[] = {
   B10111
 };
 
-byte vacio_arriba_izquierda[] = {
+byte vacio_arriba_izquierda[8] = {
   B11111,
   B10000,
   B10000,
@@ -183,7 +183,7 @@ byte vacio_arriba_izquierda[] = {
   B10000,
   B10000
 };
-byte lleno_arriba_izquierda[] = {
+byte lleno_arriba_izquierda[8] = {
   B11111,
   B10000,
   B10111,
