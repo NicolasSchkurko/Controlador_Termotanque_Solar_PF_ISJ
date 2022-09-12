@@ -369,14 +369,14 @@ void standby()
   lcd.setCursor(7 ,3);
   lcd.print(char(CelciusOrFarenheit(temperatura_actual,2)));
 
-  lcd.setCursor(14 ,3);
+  lcd.setCursor(12 ,3);
   if(eep.read(57)==254) lcd.print(char(244));
   else{
     if(now.second()%2==1)lcd.write(char(244));
     else lcd.write('x');
   }
 
-  lcd.setCursor(12 ,3);
+  lcd.setCursor(14 ,3);
   if(llenar) lcd.write(char(94));
   else lcd.write(char(61));
 
@@ -423,7 +423,7 @@ void standby()
   }
   if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu && Estadoequipo == estado_inicial)
   {
-    //Estadoequipo = estado_standby;
+    Estadoequipo = estado_standby;
     tiempo_de_standby = mili_segundos;
   }
 }
@@ -966,7 +966,7 @@ void menu_de_llenado_auto()
 
     if ((Posicion_actual + 1) * sumador_nivel != eep.read(12))
     {
-      eep.write(12, (Posicion_actual + 1) * sumador_nivel);
+      eep.write(12, (Posicion_actual) * sumador_nivel);
     }
 
     if (PressedButton(1) == true)Posicion_actual +=1;
@@ -990,7 +990,7 @@ void menu_de_llenado_auto()
       Posicion_actual = 0;
     }
 
-    Posicion_actual=ReturnToCero(Posicion_actual,3); 
+    Posicion_actual=ReturnToCero(Posicion_actual,4); 
     break;
 
   case 2:
@@ -1413,15 +1413,15 @@ void menu_seteo_wifi()
     break;
   case 1:
 
-    for (Vaux2 = 0; Vaux1 < 20; Vaux1++)
+    for (Vaux1 = 0; Vaux1 < 19; Vaux1++)
     {
       nombre_wifi_setear[Vaux1] = '\0';
       password_wifi_setear[Vaux1] = '\0';
     }
-    Vaux2 = 0;
     Actualchar = 0;
-    Flag = 2;
     Posicion_actual = 0;
+    Vaux2 = 0;
+    Flag = 2;
     break;
   case 2:
     memcpy(imprimir_lcd, "Nombre Wifi:", 13);PrintLCD(imprimir_lcd, 0, 0);
@@ -1938,7 +1938,7 @@ void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
     switch (WhatSend)
     {
     case 1:
-      sprintf(OutputMessage, "U_%c%c%c%c", nivel_actual, nivel_actual,calentando,llenando);       
+      sprintf(OutputMessage, "U_%c%c%c%c", 128+temperatura_actual, 1+nivel_actual,calentando,llenando);       
       break;
     case 2:
       sprintf(OutputMessage, "K_%c%c%c%c", eep.read((What_slot * 3) + 1), eep.read((What_slot * 3) + 2), eep.read((What_slot * 3) + 3), What_slot);

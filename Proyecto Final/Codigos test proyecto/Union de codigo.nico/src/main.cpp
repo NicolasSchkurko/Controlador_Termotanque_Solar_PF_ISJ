@@ -357,7 +357,6 @@ void standby()
     {
     case estado_standby:
       Estadoequipo = estado_inicial;
-      tiempo_de_standby = mili_segundos;
       break;
     case estado_inicial:
       Estadoequipo = menu1;
@@ -370,10 +369,11 @@ void standby()
     Vaux1 = Posicion_actual;
     tiempo_de_standby = mili_segundos;
   }
-  if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu && Estadoequipo == estado_inicial)
+   if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu)
   {
-    Estadoequipo = estado_standby;
-    tiempo_de_standby = mili_segundos;
+      tiempo_de_standby = mili_segundos;
+      Vaux1 = Posicion_actual;
+      Estadoequipo = estado_standby;
   }
 }
 
