@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#define encoder0PinA 2
-#define encoder0PinB 3
 #define nivel_del_tanque A3
 #define tiempo_para_temperatura 5000
 #define tiempo_para_nivel 3000
