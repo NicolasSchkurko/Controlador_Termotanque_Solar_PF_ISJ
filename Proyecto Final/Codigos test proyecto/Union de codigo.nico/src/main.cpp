@@ -1676,11 +1676,11 @@ bool PressedButton(uint8_t Wich_Button)
     }
     else return false;
     break;
-  case 40:
+  case 40://A0
     if ((PIND & (1 << PD2)) == 0)return true;
     else return false;
     break;
-  case 41:
+  case 41://A1
     if ((PIND & (1 << PD3)) == 0)return true;
     else return false;
     break;
@@ -1748,7 +1748,7 @@ void Serial_Read_UNO()
     }
     if(i==seriallength)Take_Comunication_Data = true;
   }
-
+|
   if (Take_Comunication_Data == true)
   {
     switch (Actualchar)
