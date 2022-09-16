@@ -357,7 +357,6 @@ void standby()
     {
     case estado_standby:
       Estadoequipo = estado_inicial;
-      tiempo_de_standby = mili_segundos;
       break;
     case estado_inicial:
       Estadoequipo = menu1;
@@ -370,10 +369,11 @@ void standby()
     Vaux1 = Posicion_actual;
     tiempo_de_standby = mili_segundos;
   }
-  if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu && Estadoequipo == estado_inicial)
+   if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu)
   {
-    Estadoequipo = estado_standby;
-    tiempo_de_standby = mili_segundos;
+      tiempo_de_standby = mili_segundos;
+      Vaux1 = Posicion_actual;
+      Estadoequipo = estado_standby;
   }
 }
 
@@ -1676,11 +1676,11 @@ bool PressedButton(uint8_t Wich_Button)
     }
     else return false;
     break;
-  case 40:
+  case 40://A0
     if ((PIND & (1 << PD2)) == 0)return true;
     else return false;
     break;
-  case 41:
+  case 41://A1
     if ((PIND & (1 << PD3)) == 0)return true;
     else return false;
     break;
@@ -1748,7 +1748,7 @@ void Serial_Read_UNO()
     }
     if(i==seriallength)Take_Comunication_Data = true;
   }
-
+|
   if (Take_Comunication_Data == true)
   {
     switch (Actualchar)
