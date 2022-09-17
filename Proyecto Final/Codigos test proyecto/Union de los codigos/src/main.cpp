@@ -136,7 +136,7 @@ void setup()
   TIMSK2 = TIMSK2 | 0b00000001;
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
-  // pulsadores pra manejar los menus//
+  // pulsadores pra manejar los menusggg
   DDRD &= B00001111; 
   DDRB &= B11111110;
 
