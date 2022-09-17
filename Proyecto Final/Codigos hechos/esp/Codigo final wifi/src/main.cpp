@@ -211,6 +211,11 @@ void loop()
     Serial_Send_NODEMCU(6);
     EnviarIP = false;
   }
+  if (WiFi.status() != WL_CONNECTED && millis()%1500==1)
+  {
+    Serial.println(ssid);
+    Serial.println(password);
+  }
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -371,19 +376,30 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
 void Serial_Read_NODEMCU()
 {
   char Individualdata[4];
+  char InputString[22];
   char input;
   uint8_t seriallength;
   uint8_t Struct;
 
   seriallength = Serial.available();
-  for (uint8_t i = 0; i < seriallength; i++)
+  for (uint8_t i = 0; i <= seriallength; i++)
   {
     if (i == 0)
       input = Serial.read();
+    if (i == 1)
+    {
+      Serial.read();
+      if (input == 'N' || input == 'P'){
+        for (uint8_t C = 0; C < 22; C++)
+        {
+          InputString[C]=0;
+        }
+      }
+    }
     if (i >= 2)
     {
-      ActualIndividualDataPos++;                               // si no es nungun caracter especial:
-      Individualdata[ActualIndividualDataPos] = Serial.read(); // copia al individual
+      if (input == 'N' || input == 'P')InputString[i-2]= char(Serial.read());               // si no es nungun caracter especial:
+      else Individualdata[i-2] = Serial.read(); // copia al individual
     }
   }
 
@@ -409,21 +425,23 @@ void Serial_Read_NODEMCU()
   case 'U':
     TVal = Individualdata[0];
     LVal = Individualdata[1];
-    if (Individualdata[2] = 'I')
+    if (Individualdata[2] == 'I')
       HEATING_STATE = true;
     else
       HEATING_STATE = false;
-    if (Individualdata[3] = 'I')
+    if (Individualdata[3] == 'I')
       CHARGING_STATE = true;
     else
       CHARGING_STATE = false;
     break;
 
   case 'P':
-    password = Individualdata[0];
+    password = String(InputString);
+    WiFi.begin(ssid, password);
+    EnviarIP = true;
     break;
   case 'N':
-    ssid = Individualdata[0];
+    ssid = String(InputString);
     break;
   }
 }
