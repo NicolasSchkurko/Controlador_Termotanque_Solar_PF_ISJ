@@ -43,7 +43,7 @@ void menu_activar_bomba();
 void menu_farenheit_celsius();
 void menu_seteo_wifi();
 void guardado_para_menus(bool);
-void ControlOutput();
+void Actualizar_salidas();
 void Actualizar_entradas();
 void Sum_Encoder();
 void doEncodeA();

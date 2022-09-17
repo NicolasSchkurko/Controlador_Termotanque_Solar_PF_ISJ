@@ -25,6 +25,7 @@ struct save_data
   uint8_t temp;
 };
 save_data save[3];
+
 String TVal = "60";
 String LVal = "70";
 String HVal = "12:30";
@@ -78,14 +79,14 @@ void setup()
   WiFi.begin(ssid, password);
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) 
             { request->send(LittleFS, "/index.html", String(), false, processor); });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/desing.css", "text/css"); });
   // Toma datos del slider y los guarda en una variable
 
-  server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) 
             {  
   if (request->hasParam("hour")) 
     {
@@ -376,30 +377,21 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
 void Serial_Read_NODEMCU()
 {
   char Individualdata[4];
-  char InputString[22];
+  char InputString[20];
   char input;
   uint8_t seriallength;
   uint8_t Struct;
+  for (uint8_t C = 0; C < 20; C++){
+      InputString[C]=0;
+    }
 
   seriallength = Serial.available();
   for (uint8_t i = 0; i <= seriallength; i++)
   {
-    if (i == 0)
-      input = Serial.read();
-    if (i == 1)
-    {
-      Serial.read();
-      if (input == 'N' || input == 'P'){
-        for (uint8_t C = 0; C < 22; C++)
-        {
-          InputString[C]=0;
-        }
-      }
-    }
-    if (i >= 2)
-    {
-      if (input == 'N' || input == 'P')InputString[i-2]= char(Serial.read());               // si no es nungun caracter especial:
-      else Individualdata[i-2] = Serial.read(); // copia al individual
+    if (i == 0)input = Serial.read();
+    if (i == 1)Serial.read();
+    if (i >= 2 &&  i <seriallength){
+      InputString[i-1]= Serial.read();               // si no es nungun caracter especial:
     }
   }
 
@@ -436,12 +428,14 @@ void Serial_Read_NODEMCU()
     break;
 
   case 'P':
+    Serial.println(InputString);
     password = String(InputString);
     WiFi.begin(ssid, password);
     EnviarIP = true;
     break;
   case 'N':
     ssid = String(InputString);
+    Serial.println(InputString);
     break;
   }
 }
