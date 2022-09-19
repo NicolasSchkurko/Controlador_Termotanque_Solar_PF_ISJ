@@ -35,3 +35,5 @@ Placa del uno 45mm x 70mm
 Placa del esp 33mm x 68mm
 placa pulsadores 126mm x 41mm
 placa relays 88mm x 84mm
+
+precio?😎
