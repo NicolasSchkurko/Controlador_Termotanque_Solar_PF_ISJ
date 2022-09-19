@@ -526,6 +526,7 @@ void menu_basico()
 
     if (PressedButton(6))
     {
+      tiempo_de_standby=mili_segundos;
       Flag = Vaux1 + 2;
       lcd.clear();
     }
@@ -534,6 +535,7 @@ void menu_basico()
     {
       tiempo_de_standby = mili_segundos;
       lcd.clear();
+      Vaux1 = Posicion_actual;
       Estadoequipo = estado_inicial;
     }
     break;
@@ -634,12 +636,14 @@ void menu_avanzado()
     if (PressedButton(6))
     {
       Flag = Vaux1 + 2;
+      tiempo_de_standby=mili_segundos;
       lcd.clear();
     }
 
     if (mili_segundos >= tiempo_de_standby + tiempo_de_espera_menu)
     {
       tiempo_de_standby = mili_segundos;
+      Vaux1 = Posicion_actual;
       lcd.clear();
       Estadoequipo = estado_inicial;
     }
@@ -850,6 +854,7 @@ uint8_t menu_de_calefaccion_manual()
     break;
 
   case 3:
+    tiempo_de_standby=mili_segundos;
     guardado_para_menus(true);
     return Vaux2;
     break;
@@ -921,8 +926,8 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     if (PressedButton(7)||mili_segundos >= tiempo_de_standby + tiempo_de_espera_submenues)
     {
       Flag = 0;
-      lcd.clear();
       Estadoequipo = menu1;
+      lcd.clear();
     }
     Posicion_actual = ReturnToCero(Posicion_actual, 12);
     break;
@@ -1537,9 +1542,8 @@ void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
     if (PressedButton(7))
     {
       Flag = 1;
-      lcd.clear();
-      tiempo_de_standby = mili_segundos;
       Posicion_actual = 0;
+      lcd.clear();
     }
 
     Posicion_actual = ReturnToCero(Posicion_actual, minuto_max);
@@ -1683,6 +1687,7 @@ void menu_farenheit_celsius()
     break;
 
   case 1:
+    Posicion_actual=0;
     guardado_para_menus(false);
     break;
   }
@@ -1831,6 +1836,7 @@ void menu_seteo_wifi()
     Serial_Send_UNO(3, 0);
     Serial_Send_UNO(4, 0);
     tiempo_de_standby = mili_segundos;
+    Posicion_actual=0;
     guardado_para_menus(false);
     break;
   }
@@ -1864,16 +1870,12 @@ void guardado_para_menus(bool Menu)
   {
 
     if (Menu == true)
-    {
       Estadoequipo = menu1;
-      Flag = 0;
-    }
 
     if (Menu == false)
-    {
       Estadoequipo = menu2;
-      Flag = 0;
-    }
+      
+    Flag = 0;
     lcd.noAutoscroll();
     lcd.clear();
     tiempo_de_standby = mili_segundos;
