@@ -1,0 +1,24 @@
+Capacitor 20pF x2
+Capacitor 330nF
+Capacitor 100nF
+Diodo 1N4007 x3
+Regleta de pines 3x1 para sensor temperatura
+Conector IDC 6x2 macho x2 (placa pulsadores)
+Regleta de pines 5x1 (encoder)
+Conector IDC 4X1 hembra x2 (esp)
+Bornera 2 pines
+Conector IDC 4X2 HEMBRA (I2C + RTC)
+IDC 3X1 HEMBRA (LVL SENS)
+Transistor 2n2222 x 3 (para relays)
+Resistencias:
+4k7
+1k (x3)
+10k (x4)
+Conector IDC 5x1 hembra (relays)
+X3 borneras 2 pines (salida riley reid)
+4 pulsadores 12mm
+Regulador LM7805
+Atmeganashe328p
+Cristalpezonelectrico 16MHz
+res: 220-680-2500-5600
+tbj pnp:BC557 (x4)

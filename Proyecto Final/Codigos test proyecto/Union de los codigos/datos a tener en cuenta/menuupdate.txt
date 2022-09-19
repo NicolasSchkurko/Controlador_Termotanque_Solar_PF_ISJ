@@ -1,0 +1,48 @@
+Nico:
+Che, vi el menu y es medio rancio asi que m fije en yutun y encontre esto: 
+tenes un boton que sube, otro que baja y otro que selecciona (3 principales)
+Despues el menu funciona de esta manera
+
+Standby 0 (vendria solicitando una funcion)
+al apretar un boton activas el menu inicial con las opciones del informe del proyecto las cuales estan declaradas dentro de un vector de string
+entonces
+String menuinicial [7 (son 7 opciones)]{
+    llenado de agua manual,
+    calentado de temp manual,
+    Carga y calentad de agua segun hora,
+    calentado segun minimo temp, 
+    llenado segun minimo carga,
+    Menu avanzado 
+    volver
+}
+y el menu avanzado 
+
+String menuavanzado[5]{
+    Setear la hora,
+    Cambio de unidad de temp,
+    Activar la bomba para llenado,
+    Seteo de conexion wifi,
+    atras,
+}
+
+y funciona de la siguiente forma
+al apretar un boton inicia una funcion la cual tiene dos botones que suman y restan uno (arriba y abajo) y un boton de confirmacion 
+entonces cuando apretamos uno de los de direccion una variable byte se suma o resta y mediante la siguiente funcion
+lcd.setcursor(0,0);
+lcd.print(menuinicial[byte de pos]) supongamos 0
+lcd.setcursor(0,1);
+lcd.print(menuinicial[byte de pos+1]) supongamos 0
+lcd.setcursor(0,1);
+lcd.print(menuinicial[byte de pos+2]) supongamos 0
+lcd.setcursor(0,1);
+lcd.print(menuinicial[byte de pos+3]) supongamos 0
+
+Mostraria el texto:
+_________________________________________
+[llenado de agua manual                 ]
+[calentado temp manual                  ]
+[carga y calentado segun hora           ]
+[calentado segun minimo temp            ]
+_________________________________________
+y al apretar el boton confirmar solo tenes que remplazar una flag que llama una funcion
+hace mas facil de leer e interpretar el codigo

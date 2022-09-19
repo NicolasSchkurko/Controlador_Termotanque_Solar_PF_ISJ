@@ -2760,7 +2760,7 @@
   (gr_rect (start 153.28 15.152161) (end 278.518479 56.30358) (layer "Edge.Cuts") (width 0.2) (fill none) (tstamp 13266229-af75-4e28-b2e8-3e02f98de9b9))
   (gr_rect (start 114.58 14.32) (end 147.24 81.93) (layer "Edge.Cuts") (width 0.2) (fill none) (tstamp 1a7406b2-1275-4070-a334-44fb0de43ec4))
   (gr_rect (start 77.125 23.33) (end 32.775 93.14) (layer "Edge.Cuts") (width 0.2) (fill none) (tstamp 550fb75c-6b74-43b9-89a9-681ccc262fff))
-  (gr_rect (start 54.14 104.91) (end 137.85 188.74) (layer "Edge.Cuts") (width 0.2) (fill none) (tstamp be2a382c-fb89-4da9-adbb-9c22d28aa5ca))
+  (gr_rect (start 54.14 104.91) (end 140.85 188.74) (layer "Edge.Cuts") (width 0.2) (fill none) (tstamp be2a382c-fb89-4da9-adbb-9c22d28aa5ca))
   (dimension (type aligned) (layer "B.Cu") (tstamp 88c70ea6-aba1-4734-93d9-ba27c7dbcb21)
     (pts (xy 77.225 23.36) (xy 77.225 93.16))
     (height -4.835)

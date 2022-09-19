@@ -1,0 +1,31 @@
+Condiciones dentro de digitalWrite
+https://www.youtube.com/watch?v=Un3dDMO_wC8
+https://forum.arduino.cc/t/conditional-in-digitalwrite/310660
+
+Como funcionan los registros 
+https://www.instructables.com/Arduino-and-Port-Manipulation/
+https://hekilledmywire.wordpress.com/2011/02/23/direct-port-manipulation-using-the-digital-ports-tutorial-part-3/
+https://www.electrodaddy.com/operaciones-de-bits-en-arduino/
+https://www.electrogeekshop.com/arduino-uno-pinout-una-sencilla-introduccion-a-su-esquema-5-5-2/
+https://www.youtube.com/watch?v=T_4BiqqTUMg
+https://www.youtube.com/watch?v=6q1yEb_ukw8
+
+DDRD &= B11000011; - Setea que van a ser los pines, input 1 output 0 (se pone and para no cancelar lo ya seteado)
+PORTD = B00111100; - setea si van a ser pull up 1 o pull down 0 (se pone or para no cancelar lo ya seteado)
+
+
+Como funcionan los pulsadores
+Para detectar input PIND & (1<<PD3)== 0 
+lo primero que hace es 1<<PD3 que es basicamente que en la posicion pd3 o (bit 3) haya un 1 y esto nos da 
+ej pind = 11110010
+11110100 operacion and 00000100 = 000000100 //sin presionar
+     | cambia el pin 3
+11110000 operacion and 00000100 = 000000000 // presionado
+
+entonces sigamos con que esta presionado quedaria algo asi Como
+00000000 (en decimal 0) = 0 verifica el if
+00000100 ! 0 no verifica el if
+
+
+AHORRAR RAM 
+https://www.electrosoftcloud.com/arduino-ahorrar-espacio-sram/
