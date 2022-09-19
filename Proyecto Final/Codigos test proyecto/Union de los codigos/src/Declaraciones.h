@@ -4,9 +4,7 @@
 #define tiempo_para_nivel 3000
 #define maxY_menu1 7
 #define maxY_menu2 5
-#define tiempo_de_parpadeo 700
 #define onewire 9 // pin del onewire
-#define tiempo_para_nivel 3000
 #define sumador_temperatura 5
 #define maxi_cast 80
 #define min_temp 40
@@ -16,6 +14,8 @@
 #define hora_max 24
 #define minuto_max 60
 #define tiempo_de_espera_menu 8000 
+#define tiempo_de_espera_submenues 15000
+#define tiempo_de_espera_guardado 3000
 
 void standby();
 void menu_basico();
@@ -24,8 +24,8 @@ void guardado_para_menus(bool);
 void Serial_Read_UNO();
 void Serial_Send_UNO(uint8_t, uint8_t);
 String String_de_hora(uint8_t, uint8_t);
-uint8_t SaveToUINT(uint8_t, uint8_t);
-int8_t ArrayToChar(char[20]);
+uint8_t Guardado_a_hora(uint8_t, uint8_t);
+int8_t Hora_a_guardado(char[20]);
 uint8_t ReturnToCero(int8_t, uint8_t);
 int16_t CelciusOrFarenheit(int8_t,uint8_t);
 char Character_Return(uint8_t, bool);
