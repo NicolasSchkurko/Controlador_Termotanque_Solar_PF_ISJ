@@ -2377,6 +2377,7 @@ void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
 
   switch (WhatSend)
   {
+
   case 1:
     sprintf(OutputMessage, "U_%c%c%c%c", char(128 + temperatura_actual), char(1 + nivel_actual), calentando, llenando);
     break;
@@ -2390,10 +2391,10 @@ void Serial_Send_UNO(uint8_t WhatSend, uint8_t What_slot)
     sprintf(OutputMessage, "P_%s", password_wifi_setear);
     break;
   case 5:
-    sprintf(OutputMessage, "C_%c%c", char(eep.read(10)), char(eep.read(11)));
+    sprintf(OutputMessage, "C_%c%c", char(eep.read(12)), char(eep.read(13)));
     break;
   case 6:
-    sprintf(OutputMessage, "H_%c%c", char(eep.read(12)), char(eep.read(13)));
+    sprintf(OutputMessage, "H_%c%c", char(eep.read(10)), char(eep.read(11)));
   default:
     break;
   }

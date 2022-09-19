@@ -397,22 +397,22 @@ void Serial_Read_NODEMCU()
 
   switch (input) // dependiendo del char de comando
   {
-  case 'S':
-    Struct = Individualdata[0];
+  case 'K':
+    Struct = Individualdata[3]-48;
     if (Struct <= 2 && Struct >= 0)
     {
-      save[Struct].hour = Individualdata[1];
-      save[Struct].level = Individualdata[2];
-      save[Struct].temp = Individualdata[3];
+      save[Struct].hour = Individualdata[0];
+      save[Struct].level = Individualdata[1];
+      save[Struct].temp = Individualdata[2];
     }
     break;
   case 'H':
-    Temp_Max = Individualdata[0];
-    Temp_Min = Individualdata[1];
+    Temp_Max = Individualdata[1];
+    Temp_Min = Individualdata[0];
     break;
   case 'C':
-    Level_Max = Individualdata[0];
-    Level_Min = Individualdata[1];
+    Level_Max = Individualdata[1];
+    Level_Min = Individualdata[0];
     break;
   case 'U':
     TVal = Individualdata[0];
