@@ -4,16 +4,16 @@
 			"path": "."
 		},
 		{
-			"name": "Codigo final wifi",
-			"path": "Proyecto Final\\Codigos hechos\\esp\\Codigo final wifi"
-		},
-		{
 			"name": "Arduino serial_I2C y datasaving",
 			"path": "Proyecto Final\\Codigos test proyecto\\Arduino serial_I2C y datasaving"
 		},
 		{
-			"name": "Union de los codigos",
-			"path": "Proyecto Final\\Codigos test proyecto\\Union de los codigos"
+			"name": "Codig final UNO",
+			"path": "Proyecto Final\\Codigos hechos\\Codig final UNO"
+		},
+		{
+			"name": "Codigo final esp",
+			"path": "Proyecto Final\\Codigos hechos\\Codigo final esp"
 		}
 	],
 	"settings": {
