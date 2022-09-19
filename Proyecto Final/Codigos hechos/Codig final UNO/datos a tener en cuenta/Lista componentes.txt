@@ -8,7 +8,7 @@ Resistencia 5.6k
 Capacitor 20pF x2
 Capacitor 330nF
 Capacitor 100nF
-Diodo 1N4007 x3
+Diodo 1N4007 x3 cambiarlo a 1N4001 
 Transistor 2n2222 x 3
 Transistor pnp BC557 (x4)
 4 pulsadores 12mm
