@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>C:\Users\alumno\Desktop\Proyecto\Proyecto Final\Circuitos del kicad\Proyecto V2\Proyecto V2.kicad_sch</source>
-    <date>15/09/2022 15:14:56</date>
-    <tool>Eeschema (6.0.1)</tool>
+    <source>D:\Users\Jeremias\Escritorio\Trabajos colegio\Proyecto final\Proyecto Final\Circuitos del kicad\Proyecto V2\Proyecto V2.kicad_sch</source>
+    <date>9/18/2022 9:38:14 PM</date>
+    <tool>Eeschema (6.0.6)</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title/>
@@ -120,7 +120,7 @@
     <comp ref="Encoder1">
       <value>Conn_01x05</value>
       <footprint>Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical</footprint>
-      <libsource lib="Connector_Generic" part="Conn_01x05" description="Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <libsource lib="" part="Conn_01x05_1" description="Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -341,7 +341,7 @@
     </comp>
     <comp ref="Salida-1">
       <value>Conn_01x02</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <footprint>TerminalBlock:TerminalBlock_bornier-2_P5.08mm</footprint>
       <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
@@ -350,7 +350,7 @@
     </comp>
     <comp ref="Salida-2">
       <value>Conn_01x02</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <footprint>TerminalBlock:TerminalBlock_bornier-2_P5.08mm</footprint>
       <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
@@ -359,7 +359,7 @@
     </comp>
     <comp ref="Salida-3">
       <value>Conn_01x02</value>
-      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <footprint>TerminalBlock:TerminalBlock_bornier-2_P5.08mm</footprint>
       <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="Proyecto V2.kicad_sch"/>
@@ -466,6 +466,26 @@
         <pin num="2" name="Pin_2" type="passive"/>
         <pin num="3" name="Pin_3" type="passive"/>
         <pin num="4" name="Pin_4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="Conn_01x05_1">
+      <description>Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Encoder1</field>
+        <field name="Value">Conn_01x05</field>
+        <field name="Footprint">Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="+" name="Pin_4" type="passive"/>
+        <pin num="CLK" name="Pin_1" type="passive"/>
+        <pin num="DT" name="Pin_2" type="passive"/>
+        <pin num="GND" name="Pin_5" type="passive"/>
+        <pin num="SW" name="Pin_3" type="passive"/>
       </pins>
     </libpart>
     <libpart lib="Connector_Generic" part="Conn_01x02">
@@ -838,7 +858,7 @@
       <node ref="Encoder/puls-arduino1" pin="2" pinfunction="Pin_2" pintype="passive"/>
       <node ref="Encoder/puls1" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="Encoder/puls1" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="Encoder1" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="Encoder1" pin="+" pinfunction="Pin_4" pintype="passive"/>
       <node ref="J2" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="J3" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="Lvl_sens1" pin="1" pinfunction="Pin_1" pintype="passive"/>
@@ -880,7 +900,7 @@
       <node ref="Encoder/puls-arduino1" pin="12" pinfunction="Pin_12" pintype="passive"/>
       <node ref="Encoder/puls1" pin="11" pinfunction="Pin_11" pintype="passive"/>
       <node ref="Encoder/puls1" pin="12" pinfunction="Pin_12" pintype="passive"/>
-      <node ref="Encoder1" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="Encoder1" pin="GND" pinfunction="Pin_5" pintype="passive"/>
       <node ref="J1" pin="1" pinfunction="Pin_1" pintype="power_in"/>
       <node ref="J2" pin="4" pinfunction="Pin_4" pintype="passive"/>
       <node ref="J3" pin="4" pinfunction="Pin_4" pintype="passive"/>
@@ -941,23 +961,23 @@
     </net>
     <net code="13" name="Net-(Encoder/puls-arduino1-Pad3)">
       <node ref="Encoder/puls-arduino1" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="U3" pin="4" pinfunction="PD2" pintype="bidirectional"/>
+      <node ref="U3" pin="6" pinfunction="PD4" pintype="bidirectional"/>
     </net>
     <net code="14" name="Net-(Encoder/puls-arduino1-Pad4)">
       <node ref="Encoder/puls-arduino1" pin="4" pinfunction="Pin_4" pintype="passive"/>
-      <node ref="U3" pin="25" pinfunction="PC2" pintype="bidirectional"/>
+      <node ref="U3" pin="4" pinfunction="PD2" pintype="bidirectional"/>
     </net>
     <net code="15" name="Net-(Encoder/puls-arduino1-Pad5)">
       <node ref="Encoder/puls-arduino1" pin="5" pinfunction="Pin_5" pintype="passive"/>
-      <node ref="U3" pin="5" pinfunction="PD3" pintype="bidirectional"/>
+      <node ref="U3" pin="11" pinfunction="PD5" pintype="bidirectional"/>
     </net>
     <net code="16" name="Net-(Encoder/puls-arduino1-Pad6)">
       <node ref="Encoder/puls-arduino1" pin="6" pinfunction="Pin_6" pintype="passive"/>
-      <node ref="U3" pin="24" pinfunction="PC1" pintype="bidirectional"/>
+      <node ref="U3" pin="5" pinfunction="PD3" pintype="bidirectional"/>
     </net>
     <net code="17" name="Net-(Encoder/puls-arduino1-Pad7)">
       <node ref="Encoder/puls-arduino1" pin="7" pinfunction="Pin_7" pintype="passive"/>
-      <node ref="U3" pin="6" pinfunction="PD4" pintype="bidirectional"/>
+      <node ref="U3" pin="12" pinfunction="PD6" pintype="bidirectional"/>
     </net>
     <net code="18" name="Net-(Encoder/puls-arduino1-Pad8)">
       <node ref="Encoder/puls-arduino1" pin="8" pinfunction="Pin_8" pintype="passive"/>
@@ -965,7 +985,7 @@
     </net>
     <net code="19" name="Net-(Encoder/puls-arduino1-Pad9)">
       <node ref="Encoder/puls-arduino1" pin="9" pinfunction="Pin_9" pintype="passive"/>
-      <node ref="U3" pin="11" pinfunction="PD5" pintype="bidirectional"/>
+      <node ref="U3" pin="13" pinfunction="PD7" pintype="bidirectional"/>
     </net>
     <net code="20" name="Net-(Encoder/puls1-Pad3)">
       <node ref="Encoder/puls1" pin="3" pinfunction="Pin_3" pintype="passive"/>
@@ -974,7 +994,7 @@
     </net>
     <net code="21" name="Net-(Encoder/puls1-Pad4)">
       <node ref="Encoder/puls1" pin="4" pinfunction="Pin_4" pintype="passive"/>
-      <node ref="Encoder1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="Encoder1" pin="SW" pinfunction="Pin_3" pintype="passive"/>
     </net>
     <net code="22" name="Net-(Encoder/puls1-Pad5)">
       <node ref="Encoder/puls1" pin="5" pinfunction="Pin_5" pintype="passive"/>
@@ -983,7 +1003,7 @@
     </net>
     <net code="23" name="Net-(Encoder/puls1-Pad6)">
       <node ref="Encoder/puls1" pin="6" pinfunction="Pin_6" pintype="passive"/>
-      <node ref="Encoder1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="Encoder1" pin="DT" pinfunction="Pin_2" pintype="passive"/>
     </net>
     <net code="24" name="Net-(Encoder/puls1-Pad7)">
       <node ref="Encoder/puls1" pin="7" pinfunction="Pin_7" pintype="passive"/>
@@ -992,7 +1012,7 @@
     </net>
     <net code="25" name="Net-(Encoder/puls1-Pad8)">
       <node ref="Encoder/puls1" pin="8" pinfunction="Pin_8" pintype="passive"/>
-      <node ref="Encoder1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="Encoder1" pin="CLK" pinfunction="Pin_1" pintype="passive"/>
     </net>
     <net code="26" name="Net-(Encoder/puls1-Pad9)">
       <node ref="Encoder/puls1" pin="9" pinfunction="Pin_9" pintype="passive"/>
@@ -1173,20 +1193,20 @@
     <net code="77" name="unconnected-(U3-Pad1)">
       <node ref="U3" pin="1" pinfunction="~{RESET}/PC6" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="78" name="unconnected-(U3-Pad12)">
-      <node ref="U3" pin="12" pinfunction="PD6" pintype="bidirectional+no_connect"/>
-    </net>
-    <net code="79" name="unconnected-(U3-Pad13)">
-      <node ref="U3" pin="13" pinfunction="PD7" pintype="bidirectional+no_connect"/>
-    </net>
-    <net code="80" name="unconnected-(U3-Pad14)">
+    <net code="78" name="unconnected-(U3-Pad14)">
       <node ref="U3" pin="14" pinfunction="PB0" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="81" name="unconnected-(U3-Pad16)">
+    <net code="79" name="unconnected-(U3-Pad16)">
       <node ref="U3" pin="16" pinfunction="PB2" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="82" name="unconnected-(U3-Pad21)">
+    <net code="80" name="unconnected-(U3-Pad21)">
       <node ref="U3" pin="21" pinfunction="AREF" pintype="passive+no_connect"/>
+    </net>
+    <net code="81" name="unconnected-(U3-Pad24)">
+      <node ref="U3" pin="24" pinfunction="PC1" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="82" name="unconnected-(U3-Pad25)">
+      <node ref="U3" pin="25" pinfunction="PC2" pintype="bidirectional+no_connect"/>
     </net>
   </nets>
 </export>
