@@ -212,11 +212,6 @@ void loop()
     Serial_Send_NODEMCU(6);
     EnviarIP = false;
   }
-  if (WiFi.status() != WL_CONNECTED && millis()%1500==1)
-  {
-    Serial.println(ssid);
-    Serial.println(password);
-  }
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -376,23 +371,19 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
 
 void Serial_Read_NODEMCU()
 {
-  char Individualdata[4];
-  char InputString[20];
+  char Individualdata[22];
+  String InputString;
   char input;
   uint8_t seriallength;
   uint8_t Struct;
-  for (uint8_t C = 0; C < 20; C++){
-      InputString[C]=0;
-    }
-
-  seriallength = Serial.available();
+  InputString= Serial.readString();
+  seriallength = InputString.length();
   for (uint8_t i = 0; i <= seriallength; i++)
   {
-    if (i == 0)input = Serial.read();
-    if (i == 1)Serial.read();
-    if (i >= 2 &&  i <seriallength){
-      InputString[i-1]= Serial.read();               // si no es nungun caracter especial:
-    }
+    if (i == 0)
+      input =InputString.charAt(0);
+    if (i >= 2 &&  i <seriallength)
+      InputString[i-2]= InputString.charAt(i);         // si no es nungun caracter especial:
   }
 
   switch (input) // dependiendo del char de comando
@@ -428,14 +419,17 @@ void Serial_Read_NODEMCU()
     break;
 
   case 'P':
-    Serial.println(InputString);
-    password = String(InputString);
+    password = String(Individualdata);
+    Serial.println(ssid);
+    Serial.println(password);
     WiFi.begin(ssid, password);
     EnviarIP = true;
     break;
   case 'N':
-    ssid = String(InputString);
+    ssid = String(Individualdata);
     Serial.println(InputString);
+    Serial.println(ssid);
+    Serial.println(password);
     break;
   }
 }
