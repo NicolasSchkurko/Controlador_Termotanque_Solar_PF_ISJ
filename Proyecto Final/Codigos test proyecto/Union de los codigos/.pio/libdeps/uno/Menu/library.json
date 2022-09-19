@@ -1,0 +1,26 @@
+{
+    "authors": {
+        "name": "Zoltan Hudak",
+        "url": "https://os.mbed.com/users/hudakz/"
+    },
+    "build": {
+        "builder": "MbedLibBuilder"
+    },
+    "description": "Menu and push buttons.",
+    "examples": [
+        "https://os.mbed.com/users/hudakz/code/Menu_Hello/"
+    ],
+    "frameworks": "mbed",
+    "keywords": [
+        "display",
+        "menu",
+        "push buttons"
+    ],
+    "name": "Menu",
+    "platforms": "*",
+    "repository": {
+        "type": "hg",
+        "url": "https://os.mbed.com/users/hudakz/code/Menu/"
+    },
+    "version": "0.0.0+sha.3d32db89c8db"
+}

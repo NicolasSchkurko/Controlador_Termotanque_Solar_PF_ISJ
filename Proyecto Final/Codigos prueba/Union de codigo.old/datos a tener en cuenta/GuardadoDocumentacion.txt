@@ -1,0 +1,127 @@
+Sos jere deja la miel
+
+El AT24C32 tiene 32Kbits o 4096 bytes de memoria eeprom (Electrically Erasable Programmable Read-Only Memory) // boee tirando magia (nico)
+
+por ende tenemos bocha de espacio para lo que vamos a usar (dos o 3 boludeces)
+
+Para la lista se utiliza el siguiente formato ( variable (posicion;espacio que ocupa en bytes) )
+Esta es la lista de las posiciones de memoria de los elementos que vamos a usar
+Guardado[1].Hora                    (1;1)  
+Guardado[1].Nivel                   (2;1) 
+Guardado[1].Temp                    (3;1) 
+Guardado[2].Hora                    (4;1) 
+Guardado[2].Nivel                   (5;1) 
+Guardado[2].Temp                    (6;1) 
+Guardado[3].Hora                    (7;1) 
+Guardado[3].Nivel                   (8;1) 
+Guardado[3].Temp                    (9;1) 
+Guardado[4].temp. minima            (10;1) 
+Guardado[4].Temp. maxima            (11;1) 
+Guardado[5].Nivel minimo            (12;1) 
+Guardado[5].Nivel maximo            (13;1) 
+String ssid                         (14;20)
+String ssid contraseña              (35;20)
+Cual unidad usar                    (56;1) 
+Activacion de la bomba              (57;1)
+IP                                  (58,4) 
+SIGUIENTE SLOT libre                (62)
+
+https://roboticsbackend.com/arduino-write-string-in-eeprom/  //pag de donde sace el write/read string to eeprom (copie y pege la funcion pq es una boludez como funca)
+
+Char hora / nivel / temp y pos   
+
+      hora                   nivel               temp
+000         0:00hs      40          000     30          000
+001         0:15hs      45          001     35          001
+002         0:30hs      50          002     40          002
+003         0:45hs      55          003     45          003
+004         1:00hs      60          004     50          004
+005         1:15hs      65          005     55          005
+006         1:30hs      70          006     60          006
+007         1:45hs      75          007     65          007
+008         2:00hs      80          008     70          008
+009         2:15hs      85          009     75          009
+010         2:30hs      90          010     80          010
+***         *:**hs      95          011     85          011
+095         23:45hs     100         012     90          012
+
+Char pos 1,2,3  
+char pos 4,5 para temp max y min usandose los char de nivel y temp de la siguiente manera
+     max              min
+30          000 30          000
+35          001 35          001
+40          002 40          002
+45          003 45          003
+50          004 50          004
+55          005 55          005
+60          006 60          006
+65          007 65          007
+70          008 70          008
+75          009 75          009
+80          010 80          010
+85          011 85          011
+90          012 90          012
+
+
+
+
+byte Verifications= B00000000;
+bool Actual_state(uint8_t wich_bit,uint8_t command){
+switch (wich_bit)
+{
+case 1:
+      if(command==0)
+      {
+        if((Verifications&B10000000) == 0) return false;
+        if((Verifications&B10000000) > 0) return true;
+      }
+      if(command==127)Verifications&=B01111111;
+      if(command==254)Verifications|=B10000000;
+  break;
+case 2:
+      if(command==0)
+      {
+        if((Verifications&B01000000) == 0) return false;
+        if((Verifications&B01000000) > 0) return true;
+      }
+      if(command==127)Verifications&=B10111111;
+      if(command==254)Verifications|=B01000000;
+  break;
+case 3:
+      if(command==0)
+      {
+        if((Verifications&B00100000) == 0) return false;
+        if((Verifications&B00100000) > 0) return true;
+      }
+      if(command==127)Verifications&=B11011111;
+      if(command==254)Verifications|=B00100000;
+  break;
+case 4:
+      if(command==0)
+      {
+        if((Verifications&B00010000) == 0) return false;
+        if((Verifications&B00010000) > 0) return true;
+      }
+      if(command==127)Verifications&=B11101111;
+      if(command==254)Verifications|=B00010000;
+  break;
+case '5:
+      if(command==0)
+      {
+        if((Verifications&B00001000) == 0) return false;
+        if((Verifications&B00001000) > 0) return true;
+      }
+      if(command==127)Verifications&=B11110111;
+      if(command==254)Verifications|=B00001000;
+  break;
+case '6':
+      if(command==0)
+      {
+        if((Verifications&B00000100) == 0) return false;
+        if((Verifications&B00000100) > 0) return true;
+      }
+      if(command==127)Verifications&=B11111011;
+      if(command==254)Verifications|=B00000100;
+  break;
+}
+}

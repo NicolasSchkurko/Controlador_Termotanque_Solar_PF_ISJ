@@ -1,0 +1,37 @@
+Resistencia 4k7
+Resistencia 1k (x3)
+Resistencia 10k (x4)
+Resistencia 220
+Resistencia 680
+Resistencia 2.5k
+Resistencia 5.6k
+Capacitor 20pF x2
+Capacitor 330nF
+Capacitor 100nF
+Diodo 1N4007 x3 cambiarlo a 1N4001 
+Transistor 2n2222 x 3
+Transistor pnp BC557 (x4)
+4 pulsadores 12mm
+borneras 2 pines x3 no consulte
+Regulador LM7805
+Atmeganashe328p noo consulte
+Cristalpezonelectrico 16MHz no consulte
+placa cobre simplefaz 20x20
+Trafo 12v 1a
+
+A CAMBIAR
+Regleta de pines 3x1
+Regleta de pines 5x1 
+
+VERIFICAR
+Conector IDC 6x2 macho x2 (placa pulsadores)
+Conector IDC 4X1 hembra x2 (esp)
+Conector IDC 4X2 HEMBRA (I2C + RTC)
+Conector IDC 5x1 hembra (relays)
+IDC 3X1 HEMBRA (LVL SENS)
+
+OTRO
+Placa del uno 45mm x 70mm
+Placa del esp 33mm x 68mm
+placa pulsadores 126mm x 41mm
+placa relays 88mm x 84mm
