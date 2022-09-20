@@ -2,49 +2,52 @@
 <html>
 
 <head>
-    <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>Set timer</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='desing.css'>
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <title>Set timer</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' media='screen' href='desing.css'>
 </head>
 
 <body>
-    <h1>Set by hour at:</h1>
-    <h4 class="titl"><span id="HSV">%HVAL%</span>hs</h4>
-    <h4 class="titl"><span id="TSV">%TVAL%</span>°C<span id="LSV">%LVAL%</span>℅</h4>
+  <h1>Set by hour at:</h1>
+  <h4 class="titl"><span id="HSV">%HVAL%</span>hs</h4>
+  <h4 class="titl"><span id="TSV">%TVAL%</span>°C<span id="LSV">%LVAL%</span>℅</h4>
 
   <div class="elbicho">
     <div class="bloqueset">
-    <input type="range" id="temp"  min="40"  class="slider" max="90" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+      <input type="range" id="temp" min="40" class="slider" max="90" step="5" onchange="updateSliderTEMP(this)"
+        value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
     </div>
     <script>
-    function updateSliderTEMP(element) {
+      function updateSliderTEMP(element) {
         var TVal = document.getElementById("temp").value;
         console.log(TVal);
         document.getElementById("TSV").innerHTML = TVal;
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?temp="+TVal, true);
+        xhr.open("GET", "/slider?temp=" + TVal, true);
         xhr.send();
       }
     </script>
     <div class="bloqueset">
-    <input type="range" id="lvl" min="40" max="100" step="5" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
+      <input type="range" id="lvl" min="40" max="100" step="5" onchange="updateSliderLVL(this)" class="slider"
+        value="%LVAL%" oninput="this.nextElementSibling.value = this.value">
     </div>
     <script>
-    function updateSliderLVL(element) {
+      function updateSliderLVL(element) {
         var LVal = document.getElementById("lvl").value;
         console.log(LVal);
         document.getElementById("LSV").innerHTML = LVal;
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/slider?nivel="+LVal, true);
+        xhr.open("GET", "/slider?nivel=" + LVal, true);
         xhr.send();
       }
     </script>
-    </div>
-    <div class="Column">
-      <div class="bloqueset">
+  </div>
+  <div class="Column">
+    <div class="bloqueset">
       <form action="/get">
-      <input type="time" id="time" value="%HVAL%" step="900" onchange="updateHour(this)">
+        <input type="time" id="time" value="%HVAL%" step="900" onchange="updateHour(this)">
       </form>
       <script>
         function updateHour(element) {
@@ -52,16 +55,27 @@
           console.log(HVal);
           document.getElementById("HSV").innerHTML = HVal;
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", "/get?hour="+HVal, true);
+          xhr.open("GET", "/get?hour=" + HVal, true);
           xhr.send();
-      }
+        }
       </script>
-      </div>
-      <div class="bloqueset"><h5>%ERRORSAVE%</h5> </div>
-      <div class="bloqueset"><p><button class="button" onclick=location.href="/S1" >Save in slot 1</button></p> </div>
-      <div class="bloqueset"><p><button class="button" onclick=location.href="/S2" >Save in slot 2</button></p> </div>
-      <div class="bloqueset"><p><button class="button" onclick=location.href="/S3" >Save in slot 3</button></p> </div>
-      <div class="bloqueset"><p><button class="Pagechange" onclick=location.href="/RETURN" >RETURN TO MAIN PAGE</button></p> </div>
     </div>
+    <div class="bloqueset">
+      <h5>%ERRORSAVE%</h5>
+    </div>
+    <div class="bloqueset">
+      <p><button class="button" onclick=location.href="/S1">Save in slot 1</button></p>
+    </div>
+    <div class="bloqueset">
+      <p><button class="button" onclick=location.href="/S2">Save in slot 2</button></p>
+    </div>
+    <div class="bloqueset">
+      <p><button class="button" onclick=location.href="/S3">Save in slot 3</button></p>
+    </div>
+    <div class="bloqueset">
+      <p><button class="Pagechange" onclick=location.href="/RETURN">RETURN TO MAIN PAGE</button></p>
+    </div>
+  </div>
 </body>
+
 </html>

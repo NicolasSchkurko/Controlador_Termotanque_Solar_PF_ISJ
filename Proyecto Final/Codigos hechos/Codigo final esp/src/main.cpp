@@ -81,14 +81,14 @@ void setup()
   WiFi.begin(ssid, password);
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) 
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/index.html", String(), false, processor); });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/desing.css", "text/css"); });
   // Toma datos del slider y los guarda en una variable
 
-  server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) 
+  server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
             {  
   if (request->hasParam("hour")) 
     {
@@ -130,23 +130,39 @@ void setup()
     CHARGING_STATE= !CHARGING_STATE;
     Serial_Send_NODEMCU(2); 
     request->send(LittleFS, "/index.html", String(), false, processor); });
+
   // Setea el calentamiento de manera automatica
   server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request)
             {
     AUTOTEMP_STATE++; 
-    if (AUTOTEMP_STATE==1)Temp_Min=TEMP_VAL;
-    if (AUTOTEMP_STATE==2)Temp_Max=TEMP_VAL;
-    if (AUTOTEMP_STATE==3)Serial_Send_NODEMCU(4);
-    if(AUTOTEMP_STATE>3)AUTOTEMP_STATE=0; 
+    if (AUTOTEMP_STATE==1 && TEMP_VAL<90)Temp_Min=TEMP_VAL;
+    if (AUTOTEMP_STATE==1 &&TEMP_VAL>=90) errorTEMP="La temperatura minima debe ser menor a 90";
+
+    if (AUTOTEMP_STATE==2 && TEMP_VAL>Temp_Min)Temp_Max=TEMP_VAL;
+    if (AUTOTEMP_STATE==2 && TEMP_VAL<Temp_Min)errorTEMP="La temperatura maxima debe ser mayor a la minima";
+
+    if(AUTOTEMP_STATE>2){
+      AUTOTEMP_STATE=0; 
+      Serial_Send_NODEMCU(4);
+    }
+
     request->send(LittleFS, "/index.html", String(), false, processor); });
+
   // Setea el llenado de manera automatica
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
     AUTOLVL_STATE++; 
-    if (AUTOLVL_STATE==1)Level_Min=LVL_VAL;
-    if (AUTOLVL_STATE==2)Level_Max=LVL_VAL;
-    if (AUTOLVL_STATE==3)Serial_Send_NODEMCU(5);
-    if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; 
+    if (AUTOLVL_STATE==1 && TEMP_VAL<100)Level_Min=LVL_VAL;
+    if (AUTOLVL_STATE==1 && TEMP_VAL>=100)errorLVL="El nivel minimo debe ser menor a 100";
+
+    if (AUTOLVL_STATE==2 && LVL_VAL>Level_Min)Level_Max=LVL_VAL;
+    if (AUTOLVL_STATE==2 && LVL_VAL<=Level_Min)errorLVL="El nivel maximo debe ser mayor al minimo";
+
+    if(AUTOLVL_STATE>2){
+      AUTOLVL_STATE=0; 
+      Serial_Send_NODEMCU(5);
+    }
+
     request->send(LittleFS, "/index.html", String(), false, processor); });
   // Redirige a pagina de automatico por tiempo
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -320,7 +336,7 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
       message = 'O';
     if (HEATING_STATE == true)
       message = 'I';
-    sprintf(Output_message, "W_%c%c", TEMP_VAL+33, message);
+    sprintf(Output_message, "W_%c%c", TEMP_VAL + 33, message);
     Serial.println(Output_message);
     break;
   case 2:
@@ -328,19 +344,19 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
       message = 'O';
     if (CHARGING_STATE == true)
       message = 'I';
-    sprintf(Output_message, "F_%c%c", LVL_VAL+33, message);
+    sprintf(Output_message, "F_%c%c", LVL_VAL + 33, message);
     Serial.println(Output_message);
     break;
   case 3:
-    sprintf(Output_message, "S_%c%c%c%c", save[Struct].hour+33, save[Struct].temp+33, save[Struct].level+33, Struct+48);
+    sprintf(Output_message, "S_%c%c%c%c", save[Struct].hour + 33, save[Struct].temp + 33, save[Struct].level + 33, Struct + 48);
     Serial.println(Output_message);
     break;
   case 4:
-    sprintf(Output_message, "H_%c%c", Temp_Min+33, Temp_Max+33);
+    sprintf(Output_message, "H_%c%c", Temp_Min + 33, Temp_Max + 33);
     Serial.println(Output_message);
     break;
   case 5:
-    sprintf(Output_message, "C_%c%c", Level_Min+33, Level_Max+33);
+    sprintf(Output_message, "C_%c%c", Level_Min + 33, Level_Max + 33);
     Serial.println(Output_message);
     break;
   case 6:
@@ -362,7 +378,7 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
     }
     Serial.println(IP);
     for (i = 0; i < 4; i++)
-      Iparray[i] = Individualdata[i]+33;
+      Iparray[i] = Individualdata[i] + 33;
     sprintf(Output_message, "I_%c%c%c%c", Iparray[0], Iparray[1], Iparray[2], Iparray[3]);
     Serial.println(Output_message);
     break;
@@ -373,39 +389,39 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
 
 void Serial_Read_NODEMCU()
 {
-  InputString= Serial.readString();
+  InputString = Serial.readString();
   seriallength = InputString.length();
 
   for (i = 0; i <= seriallength; i++)
   {
     if (i == 0)
       input = InputString.charAt(0);
-    if (i >= 2 &&  i <seriallength)
-      Individualdata[i-2]= InputString.charAt(i);        
+    if (i >= 2 && i < seriallength)
+      Individualdata[i - 2] = InputString.charAt(i);
   }
 
   switch (input) // dependiendo del char de comando
   {
   case 'K':
-    Struct = Individualdata[3]-48;
+    Struct = Individualdata[3] - 48;
     if (Struct <= 2 && Struct >= 0)
     {
-      save[Struct].hour = Individualdata[0];
-      save[Struct].level = Individualdata[1];
-      save[Struct].temp = Individualdata[2];
+      save[Struct].hour = Individualdata[0] - 33;
+      save[Struct].level = Individualdata[1] - 33;
+      save[Struct].temp = Individualdata[2] - 33;
     }
     break;
   case 'H':
-    Temp_Max = Individualdata[1];
-    Temp_Min = Individualdata[0];
+    Temp_Max = Individualdata[1] - 33;
+    Temp_Min = Individualdata[0] - 33;
     break;
   case 'C':
-    Level_Max = Individualdata[1];
-    Level_Min = Individualdata[0];
+    Level_Max = Individualdata[1] - 33;
+    Level_Min = Individualdata[0] - 33;
     break;
   case 'U':
-    TEMP_VAL = Individualdata[0]-128;
-    LVL_VAL = Individualdata[1];
+    TEMP_VAL = Individualdata[0] - 128;
+    LVL_VAL = Individualdata[1] - 33;
     if (Individualdata[2] == 'I')
       HEATING_STATE = true;
     else
@@ -417,9 +433,9 @@ void Serial_Read_NODEMCU()
     break;
 
   case 'P':
-    password="";
-    for(i=0;i<=seriallength-3;i++)
-        password += Individualdata[i];
+    password = "";
+    for (i = 0; i <= seriallength - 3; i++)
+      password += Individualdata[i];
 
     Serial.println(ssid);
     Serial.println(password);
@@ -429,7 +445,7 @@ void Serial_Read_NODEMCU()
   case 'N':
     ssid = "";
 
-    for(i=0;i<=seriallength-3;i++)
+    for (i = 0; i <= seriallength - 3; i++)
       ssid += Individualdata[i];
 
     Serial.println(ssid);
