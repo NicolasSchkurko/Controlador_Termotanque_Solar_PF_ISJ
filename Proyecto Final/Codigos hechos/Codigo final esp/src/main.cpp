@@ -13,8 +13,8 @@ void Serial_Send_NODEMCU(uint8_t);
 
 //█████████████████████████████████████████████████████████████████████████████████
 
-String ssid = "Jere";
-String password = "chucotest";
+String ssid = "WifiChuco";
+String password = "AloAmbAr!";
 
 //█████████████████████████████████████████████████████████████████████████████████
 bool EnviarIP;
@@ -34,15 +34,17 @@ String errorLVL = "    ";
 String errorTEMP = "    ";
 
 String IP;
-String Individualdata[4];
-uint8_t stringlenth;
+String InputString;
+char Individualdata[22];
 uint8_t Iparray[4];
+char input;
+uint8_t seriallength;
 uint8_t i;
 uint8_t ActualIndividualDataPos = 0;
 
 char Output_message[60];
 
-uint8_t TEMP_VAL = 0;
+int8_t TEMP_VAL = 0;
 uint8_t LVL_VAL = 0;
 uint8_t HOUR_VAL = 0;
 uint8_t MINUTE_VAL = 0;
@@ -54,10 +56,10 @@ uint8_t Level_Min = 0;
 uint8_t Actual_temp = 0;
 uint8_t Actual_level = 0;
 
-bool CHARGING_STATE = 0;
-bool HEATING_STATE = 0;
-uint8_t AUTOTEMP_STATE = 0;
-uint8_t AUTOLVL_STATE = 0;
+bool CHARGING_STATE = false;
+bool HEATING_STATE = false;
+uint8_t AUTOTEMP_STATE = false;
+uint8_t AUTOLVL_STATE = false;
 
 bool ConvertString = true;
 bool ComunicationError = false;
@@ -141,8 +143,8 @@ void setup()
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
     AUTOLVL_STATE++; 
-    if (AUTOLVL_STATE==1)Level_Min=TEMP_VAL;
-    if (AUTOLVL_STATE==2)Level_Max=TEMP_VAL;
+    if (AUTOLVL_STATE==1)Level_Min=LVL_VAL;
+    if (AUTOLVL_STATE==2)Level_Max=LVL_VAL;
     if (AUTOLVL_STATE==3)Serial_Send_NODEMCU(5);
     if(AUTOLVL_STATE>3)AUTOLVL_STATE=0; 
     request->send(LittleFS, "/index.html", String(), false, processor); });
@@ -204,9 +206,8 @@ void setup()
 void loop()
 {
   if (Serial.available() > 0)
-  {
     Serial_Read_NODEMCU();
-  }
+
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
     Serial_Send_NODEMCU(6);
@@ -265,7 +266,7 @@ String processor(const String &var)
   // Devuelve un texto (Activar calentamiento)
   if (var == "BTNT")
   {
-    if (HEATING_STATE == 1)
+    if (HEATING_STATE)
       return "Calentamiento encendido";
     else
       return "Calentamiento apagado";
@@ -274,7 +275,7 @@ String processor(const String &var)
   // Devuelve un texto (Activar llenado)
   if (var == "BTNL")
   {
-    if (CHARGING_STATE == 1)
+    if (CHARGING_STATE)
       return "llenado encendido";
     else
       return "llenado apagado";
@@ -315,53 +316,54 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
   switch (WhatSend)
   {
   case 1:
-    if (HEATING_STATE == true)
-      message = 'O';
     if (HEATING_STATE == false)
+      message = 'O';
+    if (HEATING_STATE == true)
       message = 'I';
-    sprintf(Output_message, "W_%c%c", TEMP_VAL, message);
+    sprintf(Output_message, "W_%c%c", TEMP_VAL+33, message);
     Serial.println(Output_message);
     break;
   case 2:
-    if (CHARGING_STATE == true)
-      message = 'O';
     if (CHARGING_STATE == false)
+      message = 'O';
+    if (CHARGING_STATE == true)
       message = 'I';
-    sprintf(Output_message, "F_%c:%c", LVL_VAL, message);
+    sprintf(Output_message, "F_%c%c", LVL_VAL+33, message);
     Serial.println(Output_message);
     break;
   case 3:
-    sprintf(Output_message, "S_%c%c%c%c", save[Struct].hour, save[Struct].temp, save[Struct].level, Struct);
+    sprintf(Output_message, "S_%c%c%c%c", save[Struct].hour+33, save[Struct].temp+33, save[Struct].level+33, Struct+48);
     Serial.println(Output_message);
     break;
   case 4:
-    sprintf(Output_message, "H_%c%c", Temp_Min, Temp_Max);
+    sprintf(Output_message, "H_%c%c", Temp_Min+33, Temp_Max+33);
     Serial.println(Output_message);
     break;
   case 5:
-    sprintf(Output_message, "C_%c%c", Level_Min, Level_Max);
+    sprintf(Output_message, "C_%c%c", Level_Min+33, Level_Max+33);
     Serial.println(Output_message);
     break;
   case 6:
-    IP = WiFi.localIP().toString().c_str();
-    stringlenth = IP.length();
-    for (i = 0; i < stringlenth; i++)
+    IP = WiFi.localIP().toString();
+    seriallength = IP.length();
+    for (i = 0; i < seriallength; i++)
     {
-      if (IP.charAt(i) == ':')
+      if (IP.charAt(i) == '.')
       {
         ActualIndividualDataPos++;
       } // si hay : divide los datos
-      if (IP.charAt(i) != ':')
+      if (IP.charAt(i) != '.')
       { // si no es nungun caracter especial:
-        if (IP.charAt(i - 1) == ':')
+        if (IP.charAt(i - 1) == '.')
           Individualdata[ActualIndividualDataPos] = IP.charAt(i); // copia al individual
         else
           Individualdata[ActualIndividualDataPos] += IP.charAt(i);
       }
     }
+    Serial.println(IP);
     for (i = 0; i < 4; i++)
-      Iparray[i] = Individualdata[i].toInt();
-    sprintf(Output_message, "I_%c%c%c%c", Iparray[1], Iparray[2], Iparray[3], Iparray[4]);
+      Iparray[i] = Individualdata[i]+33;
+    sprintf(Output_message, "I_%c%c%c%c", Iparray[0], Iparray[1], Iparray[2], Iparray[3]);
     Serial.println(Output_message);
     break;
   case 7:
@@ -371,19 +373,15 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
 
 void Serial_Read_NODEMCU()
 {
-  char Individualdata[22];
-  String InputString;
-  char input;
-  uint8_t seriallength;
-  uint8_t Struct;
   InputString= Serial.readString();
   seriallength = InputString.length();
-  for (uint8_t i = 0; i <= seriallength; i++)
+
+  for (i = 0; i <= seriallength; i++)
   {
     if (i == 0)
-      input =InputString.charAt(0);
+      input = InputString.charAt(0);
     if (i >= 2 &&  i <seriallength)
-      InputString[i-2]= InputString.charAt(i);         // si no es nungun caracter especial:
+      Individualdata[i-2]= InputString.charAt(i);        
   }
 
   switch (input) // dependiendo del char de comando
@@ -406,8 +404,8 @@ void Serial_Read_NODEMCU()
     Level_Min = Individualdata[0];
     break;
   case 'U':
-    TVal = Individualdata[0];
-    LVal = Individualdata[1];
+    TEMP_VAL = Individualdata[0]-128;
+    LVL_VAL = Individualdata[1];
     if (Individualdata[2] == 'I')
       HEATING_STATE = true;
     else
@@ -419,15 +417,21 @@ void Serial_Read_NODEMCU()
     break;
 
   case 'P':
-    password = String(Individualdata);
+    password="";
+    for(i=0;i<=seriallength-3;i++)
+        password += Individualdata[i];
+
     Serial.println(ssid);
     Serial.println(password);
     WiFi.begin(ssid, password);
     EnviarIP = true;
     break;
   case 'N':
-    ssid = String(Individualdata);
-    Serial.println(InputString);
+    ssid = "";
+
+    for(i=0;i<=seriallength-3;i++)
+      ssid += Individualdata[i];
+
     Serial.println(ssid);
     Serial.println(password);
     break;
