@@ -292,7 +292,7 @@ void doEncodeB()
 //███████████████████████████████████████CONTROL DE ENTRADAS/SALIDAS██████████████████████████████████████████
 
 void Actualizar_entradas()
-{ // Sexo y adaptarlo para no usar delay farenheit
+{ // Adaptarlo para no usar delay farenheit
   if (mili_segundos >= tiempo_sensores + tiempo_para_temperatura)
   {
     if (Estadoequipo == estado_standby || Estadoequipo == estado_inicial)
