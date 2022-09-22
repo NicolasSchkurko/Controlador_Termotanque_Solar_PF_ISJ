@@ -324,8 +324,8 @@ void Actualizar_salidas()
   if (temperatura_actual < temperatura_a_calentar)
     calentar = true;
 
-  else if (temperatura_actual <= eep.read(10))
-    temperatura_a_calentar = eep.read(11);
+  else if (temperatura_actual <= eep.read(10))            //Temp minima
+    temperatura_a_calentar = eep.read(11);               //Temp maxima
 
   else if (temperatura_actual >= temperatura_a_calentar)
   {
@@ -336,8 +336,8 @@ void Actualizar_salidas()
   if (nivel_actual < nivel_a_llenar)
     llenar = true;
 
-  else if (nivel_actual <= eep.read(12))
-    nivel_a_llenar = eep.read(13);
+  else if (nivel_actual <= eep.read(12))      //Nivel minimo
+    nivel_a_llenar = eep.read(13);            //Nivel maximo
 
   else if (nivel_actual >= nivel_a_llenar)
   {
@@ -345,17 +345,17 @@ void Actualizar_salidas()
     nivel_a_llenar = 0;
   }
 
-  if (eep.read(57) == 254)
+  if (eep.read(57) == 254)    //eep57 es la activacion de la bomba, si esta en 254 (valor maximo) equivale a un booleano en true
     PrintOutput(12, llenar); // bomba
 
   PrintOutput(11, llenar);   // electrovalvula
   PrintOutput(10, calentar); // resistencia
 
-  Printhora(Array_hora, now.hour(), now.minute());
+  Printhora(Array_hora, now.hour(), now.minute()); 
 
   for (uint8_t i = 0; i < 3; i++)
   {
-    if (Hora_a_guardado(Array_hora) == eep.read(i * 3 + 1)) // compara hora con las guardadas y activa segun hora
+    if (Hora_a_guardado(Array_hora) == eep.read(i * 3 + 1)) // compara hora con las guardadas y activa segun hora, multiplica por 3 para agrupar entre los tres "perfiles".
     {
       nivel_a_llenar = eep.read(i * 3 + 2);
       temperatura_a_calentar = eep.read(i * 3 + 3);
