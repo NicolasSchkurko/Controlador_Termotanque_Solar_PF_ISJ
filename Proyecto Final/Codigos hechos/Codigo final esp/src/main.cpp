@@ -36,11 +36,11 @@ String errorTEMP = "    ";
 String IP;
 String InputString;
 char Individualdata[22];
-uint8_t Iparray[4];
 char input;
+char message;
+char IParray[18];
 uint8_t seriallength;
 uint8_t i;
-uint8_t ActualIndividualDataPos = 0;
 
 char Output_message[60];
 
@@ -75,10 +75,8 @@ void setup()
 
   Serial.begin(9600);
   LittleFS.begin();
-
   // Connect to Wi-Fi
   // Print ESP32 Local IP Address
-  WiFi.begin(ssid, password);
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -328,7 +326,7 @@ String processor(const String &var)
 
 void Serial_Send_NODEMCU(uint8_t WhatSend)
 {
-  char message;
+
   switch (WhatSend)
   {
   case 1:
@@ -362,24 +360,8 @@ void Serial_Send_NODEMCU(uint8_t WhatSend)
   case 6:
     IP = WiFi.localIP().toString();
     seriallength = IP.length();
-    for (i = 0; i < seriallength; i++)
-    {
-      if (IP.charAt(i) == '.')
-      {
-        ActualIndividualDataPos++;
-      } // si hay : divide los datos
-      if (IP.charAt(i) != '.')
-      { // si no es nungun caracter especial:
-        if (IP.charAt(i - 1) == '.')
-          Individualdata[ActualIndividualDataPos] = IP.charAt(i); // copia al individual
-        else
-          Individualdata[ActualIndividualDataPos] += IP.charAt(i);
-      }
-    }
-    Serial.println(IP);
-    for (i = 0; i < 4; i++)
-      Iparray[i] = Individualdata[i] + 33;
-    sprintf(Output_message, "I_%c%c%c%c", Iparray[0], Iparray[1], Iparray[2], Iparray[3]);
+    IP.toCharArray(IParray,18);
+    sprintf(Output_message, "I_%s", IParray);
     Serial.println(Output_message);
     break;
   case 7:
@@ -436,20 +418,13 @@ void Serial_Read_NODEMCU()
     password = "";
     for (i = 0; i <= seriallength - 3; i++)
       password += Individualdata[i];
-
-    Serial.println(ssid);
-    Serial.println(password);
-    WiFi.begin(ssid, password);
     EnviarIP = true;
+    WiFi.begin(ssid, password);
     break;
   case 'N':
     ssid = "";
-
     for (i = 0; i <= seriallength - 3; i++)
       ssid += Individualdata[i];
-
-    Serial.println(ssid);
-    Serial.println(password);
     break;
   }
 }

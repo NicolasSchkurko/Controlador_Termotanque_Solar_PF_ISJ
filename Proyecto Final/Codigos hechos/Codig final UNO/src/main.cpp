@@ -148,7 +148,6 @@ void setup()
   rtc.begin(); // inicializacion del rtc
   // inicializacion del serial arduino-esp
   Serial.begin(9600);
-  Serial.setTimeout(200);
 
   lcd.init(); // Iniciacion del LCD
   lcd.createChar(0, hora);
@@ -160,47 +159,47 @@ void setup()
   // Sensr de temperatura
   eep.readChars(14, password_wifi_setear, 20);
   eep.readChars(34, nombre_wifi_setear, 20);
-
+  mili_segundos=0;
   while (Vaux1 <= 7)
   {
-    if (Vaux1 == 0)
-    {
-      Serial_Send_UNO(4, 0);
-      Vaux1++;
-    }
-    if (Vaux1 == 1)
+    if (Vaux1 == 0 && mili_segundos>250)
     {
       Serial_Send_UNO(3, 0);
       Vaux1++;
     }
-    if (Vaux1 == 2)
+    if (Vaux1 == 1 && mili_segundos>500)
+    {
+      Serial_Send_UNO(1, 0);
+      Vaux1++;
+    }
+    if (Vaux1 == 2 && mili_segundos>750)
     {
       Serial_Send_UNO(5, 0);
       Vaux1++;
     }
-    if (Vaux1 == 3)
+    if (Vaux1 == 3 && mili_segundos>1000)
     {
       Serial_Send_UNO(6, 0);
       Vaux1++;
     }
-    if (Vaux1 == 4)
+    if (Vaux1 == 4 && mili_segundos>1250)
     {
       Serial_Send_UNO(2, 1);
       Vaux1++;
     }
-    if (Vaux1 == 5)
+    if (Vaux1 == 5 && mili_segundos>1500)
     {
       Serial_Send_UNO(2, 2);
       Vaux1++;
     }
-    if (Vaux1 == 6)
+    if (Vaux1 == 6 && mili_segundos>1750)
     {
       Serial_Send_UNO(2, 3);
       Vaux1++;
     }
-    if (Vaux1 == 7)
+    if (Vaux1 == 7 && mili_segundos>2000)
     {
-      Serial_Send_UNO(1, 0);
+      Serial_Send_UNO(4, 0);
       Vaux1++;
     }
   }
@@ -300,7 +299,8 @@ void Actualizar_entradas()
       Sensor_temp.requestTemperatures();
       temperatura_actual = Sensor_temp.getTempCByIndex(0);
       tiempo_sensores = mili_segundos;
-      Serial_Send_UNO(1, 0);
+      if(esp_working)
+        Serial_Send_UNO(1, 0);
     }
   }
   if (analogRead(nivel_del_tanque) < 100)
@@ -1703,7 +1703,7 @@ void menu_seteo_wifi()
     PrintLCD(imprimir_lcd, 6, 0);
     sprintf(imprimir_lcd, "%s", password_wifi_setear);
     PrintLCD(imprimir_lcd, 6, 1);
-    eep.readChars(58, imprimir_lcd, 18);
+    eep.readChars(59, imprimir_lcd, 18);
     PrintLCD(imprimir_lcd, 4, 2);
     memcpy(imprimir_lcd, "SSID:", 6);
     PrintLCD(imprimir_lcd, 0, 0);
@@ -2265,23 +2265,22 @@ void PrintLCD(char buffer[20], uint8_t Column, uint8_t Row)
 
 void Serial_Read_UNO()
 {
-  String InputString;
   bool Take_Comunication_Data;
   char data[18];
   uint8_t seriallength;
   uint8_t slot_eep;
   uint8_t i;
 
-
-  InputString = Serial.readString();
-  seriallength = InputString.length();
+  seriallength = Serial.available();
 
   for (i = 0; i <= seriallength; i++)
   {
     if (i == 0)
-      Actualchar = InputString.charAt(0);
+      Actualchar = Serial.read();
+    if (i == 1)
+      Serial.read();
     if (i >= 2 && i < seriallength)
-      data[i - 2] = InputString.charAt(i);
+      data[i - 2] = Serial.read();
     if (i == seriallength)
       Take_Comunication_Data = true;
   }
@@ -2336,7 +2335,7 @@ void Serial_Read_UNO()
       Take_Comunication_Data = false;
       break;
     case 'I': // Ip
-      eep.writeChars(58, data, 18);
+      eep.writeChars(59, data, 18);
       esp_working = true;
       if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
         lcd.clear();
@@ -2344,7 +2343,6 @@ void Serial_Read_UNO()
       break;
 
     case 'E':
-      Serial_Send_UNO(6, 0);
       Take_Comunication_Data = false;
       break;
     }
