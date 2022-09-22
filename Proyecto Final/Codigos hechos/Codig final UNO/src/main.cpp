@@ -1703,7 +1703,7 @@ void menu_seteo_wifi()
     PrintLCD(imprimir_lcd, 6, 0);
     sprintf(imprimir_lcd, "%s", password_wifi_setear);
     PrintLCD(imprimir_lcd, 6, 1);
-    sprintf(imprimir_lcd, "%d:%d:%d:%d   ", eep.read(58), eep.read(59), eep.read(60), eep.read(61));
+    eep.readChars(58, imprimir_lcd, 18);
     PrintLCD(imprimir_lcd, 4, 2);
     memcpy(imprimir_lcd, "SSID:", 6);
     PrintLCD(imprimir_lcd, 0, 0);
@@ -1769,7 +1769,7 @@ void menu_seteo_wifi()
       Vaux2++;
       Actualchar = 0;
     }
-    if (PressedButton(6) && Vaux2 >= 6)
+    if (PressedButton(6) && Vaux2 >= 3)
     {
       nombre_wifi_setear[Vaux2] = '\0';
       lcd.clear();
@@ -1814,7 +1814,7 @@ void menu_seteo_wifi()
       Vaux2++;
       Actualchar = 0;
     }
-    if (PressedButton(6) && Vaux2 >= 6)
+    if (PressedButton(6) && Vaux2 >= 8)
     {
       password_wifi_setear[Vaux2] = '\0';
       lcd.clear();
@@ -2265,31 +2265,23 @@ void PrintLCD(char buffer[20], uint8_t Column, uint8_t Row)
 
 void Serial_Read_UNO()
 {
+  String InputString;
   bool Take_Comunication_Data;
-  uint8_t Individualdata[4];
+  char data[18];
   uint8_t seriallength;
-  uint8_t saveslot;
-  uint8_t ActualIndividualDataPos;
+  uint8_t slot_eep;
+  uint8_t i;
 
-  seriallength = Serial.available();
 
-  for (uint8_t i = 0; i <= seriallength; i++)
+  InputString = Serial.readString();
+  seriallength = InputString.length();
+
+  for (i = 0; i <= seriallength; i++)
   {
     if (i == 0)
-    {
-      Actualchar = Serial.read();
-      ActualIndividualDataPos = 0;
-    }
-
-    if (i == 1)
-      Serial.read();
-
+      Actualchar = InputString.charAt(0);
     if (i >= 2 && i < seriallength)
-    {                                                          // si no es nungun caracter especial:
-      Individualdata[ActualIndividualDataPos] = Serial.read(); // copia al individual
-      ActualIndividualDataPos++;
-    }
-
+      data[i - 2] = InputString.charAt(i);
     if (i == seriallength)
       Take_Comunication_Data = true;
   }
@@ -2299,55 +2291,52 @@ void Serial_Read_UNO()
     switch (Actualchar)
     {         // dependiendo del char de comando
     case 'W': // calentamiento manual
-      temperatura_a_calentar = Individualdata[0] - 33;
+      temperatura_a_calentar = data[0] - 33;
 
-      if (Individualdata[1] == 'O')
+      if (data[1] == 'O')
         calentar = false;
 
-      if (Individualdata[1] == 'I')
+      if (data[1] == 'I')
         calentar = true;
 
       Take_Comunication_Data = false;
       break;
 
     case 'F': // llenmado manual
-      nivel_a_llenar = Individualdata[0] - 33;
+      nivel_a_llenar = data[0] - 33;
 
-      if (Individualdata[1] == 'O') // prendido
+      if (data[1] == 'O') // prendido
         llenar = false;
 
-      if (Individualdata[1] == 'I') // apagado
+      if (data[1] == 'I') // apagado
         llenar = true;
 
       Take_Comunication_Data = false;
       break;
 
     case 'S': // H por hora
-      saveslot = Individualdata[0] - 48;
-      if (saveslot <= 2 && saveslot >= 0)
+      slot_eep = data[0] - 48;
+      if (slot_eep <= 2 && slot_eep >= 0)
       {
-        eep.write((saveslot * 3) + 1, Individualdata[1] - 33); // hora
-        eep.write((saveslot * 3) + 2, Individualdata[2] - 33); // nivel
-        eep.write((saveslot * 3) + 3, Individualdata[3] - 33); // temp
+        eep.write((slot_eep * 3) + 1, data[1] - 33); // hora
+        eep.write((slot_eep * 3) + 2, data[2] - 33); // nivel
+        eep.write((slot_eep * 3) + 3, data[3] - 33); // temp
         Take_Comunication_Data = false;
       }
       break;
 
     case 'H': // temp auto
-      eep.write(10, Individualdata[0] - 33);
-      eep.write(11, Individualdata[1] - 33);
+      eep.write(10, data[0] - 33);
+      eep.write(11, data[1] - 33);
       Take_Comunication_Data = false;
       break;
     case 'C': // llenado auto
-      eep.write(12, Individualdata[0] - 33);
-      eep.write(13, Individualdata[1] - 33);
+      eep.write(12, data[0] - 33);
+      eep.write(13, data[1] - 33);
       Take_Comunication_Data = false;
       break;
     case 'I': // Ip
-      eep.write(58, Individualdata[0] - 33);
-      eep.write(59, Individualdata[1] - 33);
-      eep.write(60, Individualdata[2] - 33);
-      eep.write(61, Individualdata[3] - 33);
+      eep.writeChars(58, data, 18);
       esp_working = true;
       if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
         lcd.clear();
@@ -2359,7 +2348,6 @@ void Serial_Read_UNO()
       Take_Comunication_Data = false;
       break;
     }
-    ActualIndividualDataPos = 0;
   }
 }
 
