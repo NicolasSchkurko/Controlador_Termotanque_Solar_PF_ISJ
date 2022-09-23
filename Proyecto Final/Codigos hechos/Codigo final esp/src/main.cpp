@@ -33,10 +33,10 @@ String LetraString;
 char Datos[22];
 char Letra;
 char Estado;
-char IParray[18];
+
 uint8_t LargoDatos;
 uint8_t i;
-char DatosEnviarSerial[60];
+char DatosEnviarSerial[22];
 int8_t TempActual = 0;
 uint8_t NivelActual = 0;
 uint8_t HoraActual = 0;
@@ -346,10 +346,7 @@ void Enviar_Serial(uint8_t WhatSend)
     Serial.println(DatosEnviarSerial);
     break;
   case 6:
-    IP = WiFi.localIP().toString();
-    LargoDatos = IP.length();
-    IP.toCharArray(IParray,18);
-    sprintf(DatosEnviarSerial, "I_%s", IParray);
+    sprintf(DatosEnviarSerial, "I_%d.%d.%d.%d", WiFi.localIP()[0],WiFi.localIP()[1],WiFi.localIP()[2],WiFi.localIP()[3]);
     Serial.println(DatosEnviarSerial);
     break;
   case 7:
@@ -404,13 +401,17 @@ void Leer_Serial()
 
   case 'P':
     Password = "";
+
     for (i = 0; i <= LargoDatos - 3; i++)
       Password += Datos[i];
-    EnviarIP = true;
+    
     WiFi.begin(SSID, Password);
+    EnviarIP = true;
     break;
+
   case 'N':
     SSID = "";
+
     for (i = 0; i <= LargoDatos - 3; i++)
       SSID += Datos[i];
     break;

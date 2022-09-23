@@ -1,7 +1,4 @@
-Nico:
-Che, vi el menu y es medio rancio asi que m fije en yutun y encontre esto: 
-tenes un boton que sube, otro que baja y otro que selecciona (3 principales)
-Despues el menu funciona de esta manera
+
 
 Standby 0 (vendria solicitando una funcion)
 al apretar un boton activas el menu inicial con las opciones del informe del proyecto las cuales estan declaradas dentro de un vector de string
