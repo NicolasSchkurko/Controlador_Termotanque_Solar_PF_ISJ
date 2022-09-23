@@ -1,51 +1,54 @@
 #include <Arduino.h>
-#define nivel_del_tanque A3
-#define tiempo_para_temperatura 5000
-#define tiempo_para_nivel 3000
-#define maxY_menu1 7
-#define maxY_menu2 5
-#define onewire 9 // pin del onewire
-#define sumador_temperatura 5
-#define maxi_cast 80
-#define min_temp 40
-#define sumador_nivel 25
-#define min_nivel 25
-#define max_nivel 100
-#define hora_max 24
-#define minuto_max 60
-#define tiempo_de_espera_menu 8000 
-#define tiempo_de_espera_submenues 15000
-#define tiempo_de_espera_guardado 3000
+#define SENSOR_NIVEL A3
+#define TIEMPO_LECTURA_TEMP 5000
+#define TIEMPO_LECTURA_NIVEL 3000
+#define COLUMNAS_MAXIMAS_M1 7
+#define COLUMNAS_MAXIMAS_M2 5
+#define SENSOR_TEMP 9 // pin del SENSOR_TEMP
+#define SUMADOR_TEMP 5
+#define TEMP_MINIMO 40
+#define SUMADOR_NIVEL 25
+#define NIVEL_MINIMO 25
+#define HORA_MAX 24
+#define MINUTO_MAX 60
+#define TIEMPO_ESPERA_MENUES 8000 
+#define TIEMPO_ESPERA_FUNCIONES 15000
+#define TIEMPO_ESPERA_GUARDADO 3000
 
-void standby();
-void menu_basico();
-void menu_avanzado();
-void guardado_para_menus(bool);
-void Serial_Read_UNO();
-void Serial_Send_UNO(uint8_t, uint8_t);
-String String_de_hora(uint8_t, uint8_t);
+void    Menu_Avanzado();
+void    Menu_Basico();
+void    Standby();
+
+void    Enviar_Serial(uint8_t, uint8_t);
+void    Leer_Serial();
+
+void    Barra_de_carga(uint8_t, uint8_t, int16_t);
+int16_t Celcius_O_Farenheit(int8_t,uint8_t);
+void    Imprimir_Hora(char[20], uint8_t, uint8_t);
 uint8_t Guardado_a_hora(uint8_t, uint8_t);
-int8_t Hora_a_guardado(char[20]);
-uint8_t ReturnToCero(int8_t, uint8_t);
-int16_t CelciusOrFarenheit(int8_t,uint8_t);
-char Character_Return(uint8_t, bool);
-bool PressedButton(uint8_t);
-void PrintLCD(char[20], uint8_t, uint8_t);
-void Printhora(char[20], uint8_t, uint8_t);
-void PrintOutput(uint8_t, bool);
-uint8_t menu_de_llenado_manual();
+void    Imprimir_LCD(char[20], uint8_t, uint8_t);
+uint8_t Volver_a_Cero(int8_t, uint8_t);
+char    Retorno_Caracter(uint8_t, bool);
+int8_t  Hora_a_guardado(char[20]);
+void    Pin_Salida(uint8_t, bool);
+bool    Pin_Entrada(uint8_t);
+
+void    Actualizar_entradas();
+void    Actualizar_salidas();
+void    EncoderPinA();
+void    EncoderPinB();
+
+void    menu_modificar_hora_rtc(uint8_t,uint8_t);
+void    menu_de_auto_por_hora(uint8_t, uint8_t);
 uint8_t menu_de_calefaccion_manual();
-void menu_de_auto_por_hora(uint8_t, uint8_t);
-void menu_de_llenado_auto();
-void menu_de_calefaccion_auto();
-void menu_modificar_hora_rtc(uint8_t,uint8_t);
-void menu_activar_bomba();
-void menu_farenheit_celsius();
-void menu_seteo_wifi();
-void guardado_para_menus(bool);
-void Actualizar_salidas();
-void Actualizar_entradas();
-void Sum_Encoder();
-void doEncodeA();
-void doEncodeB();
-void PrintHorizontalBar(uint8_t, uint8_t, int16_t);
+uint8_t menu_de_llenado_manual();
+void    menu_de_calefaccion_auto();
+void    guardado_para_menus(bool);
+void    menu_farenheit_celsius();
+void    menu_de_llenado_auto();
+void    menu_activar_bomba();
+void    menu_seteo_wifi();
+
+
+
+
