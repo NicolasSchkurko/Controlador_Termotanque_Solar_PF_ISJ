@@ -37,3 +37,5 @@ AHORRAR RAM
 https://www.electrosoftcloud.com/arduino-ahorrar-espacio-sram/
 
 el ristal tiene que estar lo mas cerca del integrad (328p) posible
+
+01146499900
