@@ -400,20 +400,13 @@ void Leer_Serial()
     break;
 
   case 'P':
-    Password = "";
-
-    for (i = 0; i <= LargoDatos - 3; i++)
-      Password += Datos[i];
-    
+    Password = Datos;
     WiFi.begin(SSID, Password);
     EnviarIP = true;
     break;
 
   case 'N':
-    SSID = "";
-
-    for (i = 0; i <= LargoDatos - 3; i++)
-      SSID += Datos[i];
+    SSID = Datos;
     break;
   }
 }
