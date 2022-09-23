@@ -5,64 +5,52 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-String processor(const String &var);
-String desconvercionhora(uint8_t, uint8_t);
-uint8_t convercionhora(uint8_t, String);
-void Serial_Read_NODEMCU();
-void Serial_Send_NODEMCU(uint8_t);
+String DesConvercionhora(uint8_t, uint8_t);
+uint8_t Convercionhora(uint8_t, String);
+String ImprimirEnWeb(const String &var);
+void Enviar_Serial(uint8_t);
+void Leer_Serial();
 
-//█████████████████████████████████████████████████████████████████████████████████
-
-String ssid = "WifiChuco";
-String password = "AloAmbAr!";
-
-//█████████████████████████████████████████████████████████████████████████████████
-bool EnviarIP;
-struct save_data
+struct Guardado
 {
-  uint8_t hour;
-  uint8_t level;
-  uint8_t temp;
+  uint8_t Hora;
+  uint8_t Nivel;
+  uint8_t Temp;
 };
-save_data save[3];
 
-String TVal = "60";
-String LVal = "70";
-String HVal = "12:30";
-String errorS = "     ";
-String errorLVL = "    ";
-String errorTEMP = "    ";
-
+String Password = "AloAmbAr!";
+String SSID = "WifiChuco";
+bool EnviarIP;
+Guardado save[3];
+String Texto_Temp = "60";
+String Texto_Nivel = "70";
+String Texto_Hora = "12:30";
+String Texto_Error_Guardado = "     ";
+String Texto_Error_Nivel = "    ";
+String Texto_Error_Temp = "    ";
 String IP;
-String InputString;
-char Individualdata[22];
-char input;
-char message;
+String LetraString;
+char Datos[22];
+char Letra;
+char Estado;
 char IParray[18];
-uint8_t seriallength;
+uint8_t LargoDatos;
 uint8_t i;
+char DatosEnviarSerial[60];
+int8_t TempActual = 0;
+uint8_t NivelActual = 0;
+uint8_t HoraActual = 0;
+uint8_t MinutoActual = 0;
+uint8_t SlotGuardado = 0;
+uint8_t TemperaturaCalentar = 0;
+uint8_t TemperaturaMinima = 0;
+uint8_t NivelCalentar = 0;
+uint8_t NivelMinimo = 0;
+bool Llenando = false;
+bool Calentando = false;
+uint8_t CalentadoAuto = false;
+uint8_t LLenadoAuto = false;
 
-char Output_message[60];
-
-int8_t TEMP_VAL = 0;
-uint8_t LVL_VAL = 0;
-uint8_t HOUR_VAL = 0;
-uint8_t MINUTE_VAL = 0;
-uint8_t Struct = 0;
-uint8_t Temp_Max = 0;
-uint8_t Temp_Min = 0;
-uint8_t Level_Max = 0;
-uint8_t Level_Min = 0;
-uint8_t Actual_temp = 0;
-uint8_t Actual_level = 0;
-
-bool CHARGING_STATE = false;
-bool HEATING_STATE = false;
-uint8_t AUTOTEMP_STATE = false;
-uint8_t AUTOLVL_STATE = false;
-
-bool ConvertString = true;
-bool ComunicationError = false;
 
 //█████████████████████████████████████████████████████████████████████████████████
 // Asigna el webserver al puerto 80 de la red wifi
@@ -80,7 +68,7 @@ void setup()
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/index.html", String(), false, processor); });
+            { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/desing.css", "text/css"); });
@@ -88,130 +76,130 @@ void setup()
 
   server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
             {  
-  if (request->hasParam("hour")) 
+  if (request->hasParam("Hora")) 
     {
-      String inputMessage = request->getParam("hour")->value();
-      HVal = inputMessage;
-      request->send(LittleFS, "/index.html", String(), false, processor);
+      String LetraEstado = request->getParam("Hora")->value();
+      Texto_Hora = LetraEstado;
+      request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });
 
   server.on("/slider", HTTP_GET, [](AsyncWebServerRequest *request)
             {   
-    String inputMessage;
-    //Toma datos del slider temp
-    if (request->hasParam("temp")) 
+    String LetraEstado;
+    //Toma datos del slider Temp
+    if (request->hasParam("Temp")) 
     {
-      inputMessage = request->getParam("temp")->value();
-      TVal= inputMessage;
-      TEMP_VAL = TVal.toInt();
-      request->send(LittleFS, "/index.html", String(), false, processor);
+      LetraEstado = request->getParam("Temp")->value();
+      Texto_Temp= LetraEstado;
+      TempActual = Texto_Temp.toInt();
+      request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     }
     //Toma datos del slider nivel
     if (request->hasParam("nivel")) 
     {
-      inputMessage = request->getParam("nivel")->value();
-      LVal = inputMessage;
-      LVL_VAL = LVal.toInt();
-      request->send(LittleFS, "/index.html", String(), false, processor);
+      LetraEstado = request->getParam("nivel")->value();
+      Texto_Nivel = LetraEstado;
+      NivelActual = Texto_Nivel.toInt();
+      request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });
 
   // detectaa cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
   // Activa el calentamiento de manera manual
-  server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/STATemp", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    HEATING_STATE= !HEATING_STATE; 
-    Serial_Send_NODEMCU(1);
-    request->send(LittleFS, "/index.html", String(), false, processor); });
+    Calentando= !Calentando; 
+    Enviar_Serial(1);
+    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
   // Activa el llenado de agua manual
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    CHARGING_STATE= !CHARGING_STATE;
-    Serial_Send_NODEMCU(2); 
-    request->send(LittleFS, "/index.html", String(), false, processor); });
+    Llenando= !Llenando;
+    Enviar_Serial(2); 
+    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
   // Setea el calentamiento de manera automatica
-  server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
-    AUTOTEMP_STATE++; 
-    if (AUTOTEMP_STATE==1 && TEMP_VAL<90)Temp_Min=TEMP_VAL;
-    if (AUTOTEMP_STATE==1 &&TEMP_VAL>=90) errorTEMP="La temperatura minima debe ser menor a 90";
+  server.on("/SETemp", HTTP_GET, [](AsyncWebServerRequest *request)
+    {
+    CalentadoAuto++; 
+    if (CalentadoAuto==1 && TempActual<90)TemperaturaMinima=TempActual;
+    if (CalentadoAuto==1 &&TempActual>=90) Texto_Error_Temp="La Temperatura minima debe ser menor a 90";
 
-    if (AUTOTEMP_STATE==2 && TEMP_VAL>Temp_Min)Temp_Max=TEMP_VAL;
-    if (AUTOTEMP_STATE==2 && TEMP_VAL<Temp_Min)errorTEMP="La temperatura maxima debe ser mayor a la minima";
+    if (CalentadoAuto==2 && TempActual>TemperaturaMinima)TemperaturaCalentar=TempActual;
+    if (CalentadoAuto==2 && TempActual<TemperaturaMinima)Texto_Error_Temp="La Temperatura maxima debe ser mayor a la minima";
 
-    if(AUTOTEMP_STATE>2){
-      AUTOTEMP_STATE=0; 
-      Serial_Send_NODEMCU(4);
+    if(CalentadoAuto>2){
+      CalentadoAuto=0; 
+      Enviar_Serial(4);
     }
-
-    request->send(LittleFS, "/index.html", String(), false, processor); });
+    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); 
+    });
 
   // Setea el llenado de manera automatica
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    AUTOLVL_STATE++; 
-    if (AUTOLVL_STATE==1 && TEMP_VAL<100)Level_Min=LVL_VAL;
-    if (AUTOLVL_STATE==1 && TEMP_VAL>=100)errorLVL="El nivel minimo debe ser menor a 100";
+    LLenadoAuto++; 
+    if (LLenadoAuto==1 && TempActual<100)NivelMinimo=NivelActual;
+    if (LLenadoAuto==1 && TempActual>=100)Texto_Error_Nivel="El nivel minimo debe ser menor a 100";
 
-    if (AUTOLVL_STATE==2 && LVL_VAL>Level_Min)Level_Max=LVL_VAL;
-    if (AUTOLVL_STATE==2 && LVL_VAL<=Level_Min)errorLVL="El nivel maximo debe ser mayor al minimo";
+    if (LLenadoAuto==2 && NivelActual>NivelMinimo)NivelCalentar=NivelActual;
+    if (LLenadoAuto==2 && NivelActual<=NivelMinimo)Texto_Error_Nivel="El nivel maximo debe ser mayor al minimo";
 
-    if(AUTOLVL_STATE>2){
-      AUTOLVL_STATE=0; 
-      Serial_Send_NODEMCU(5);
+    if(LLenadoAuto>2){
+      LLenadoAuto=0; 
+      Enviar_Serial(5);
     }
 
-    request->send(LittleFS, "/index.html", String(), false, processor); });
+    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
   // Redirige a pagina de automatico por tiempo
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/config.html", String(), false, processor); });
+            { request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
   // Guarda en el primer slot de guardado por tiempo
   server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request)
             {
 
-    if (convercionhora(1, HVal) == save[1].hour || convercionhora(1, HVal) == save[2].hour){
-      errorS = "No podes guardar dos variables en la misma hora";
+    if (Convercionhora(1, Texto_Hora) == save[1].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora){
+      Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
     else{
-    save[0].hour=convercionhora(1, HVal);
-    save[0].level=convercionhora(2, LVal);
-    save[0].temp=convercionhora(2, TVal);
-    Struct=0;
-    Serial_Send_NODEMCU(3);
+    save[0].Hora=Convercionhora(1, Texto_Hora);
+    save[0].Nivel=Convercionhora(2, Texto_Nivel);
+    save[0].Temp=Convercionhora(2, Texto_Temp);
+    SlotGuardado=0;
+    Enviar_Serial(3);
     }
-    request->send(LittleFS, "/config.html", String(), false, processor); });
+    request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
   // Guarda en el segundo slot de guardado por tiempo
   server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request)
             {
     
-    if (convercionhora(1, HVal) == save[0].hour || convercionhora(1, HVal) == save[2].hour){
-      errorS = "No podes guardar dos variables en la misma hora";
+    if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora){
+      Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
     else{
-    save[1].hour=convercionhora(1, HVal);
-    save[1].level=convercionhora(2, LVal);
-    save[1].temp=convercionhora(2, TVal);
-    Struct=1;
-    Serial_Send_NODEMCU(3);
+    save[1].Hora=Convercionhora(1, Texto_Hora);
+    save[1].Nivel=Convercionhora(2, Texto_Nivel);
+    save[1].Temp=Convercionhora(2, Texto_Temp);
+    SlotGuardado=1;
+    Enviar_Serial(3);
     }
-    request->send(LittleFS, "/config.html", String(), false, processor); });
+    request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
   // Guarda en el tercer slot de guardado por tiempo
   server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    if (convercionhora(1, HVal) == save[0].hour || convercionhora(1, HVal) == save[1].hour){
-      errorS = "No podes guardar dos variables en la misma hora";
+    if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[1].Hora){
+      Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
     else{
-    save[2].hour=convercionhora(1, HVal);
-    save[2].level=convercionhora(2, LVal);
-    save[2].temp=convercionhora(2, TVal);
-    Struct=2;
-    Serial_Send_NODEMCU(3);
+    save[2].Hora=Convercionhora(1, Texto_Hora);
+    save[2].Nivel=Convercionhora(2, Texto_Nivel);
+    save[2].Temp=Convercionhora(2, Texto_Temp);
+    SlotGuardado=2;
+    Enviar_Serial(3);
     }
-    request->send(LittleFS, "/config.html", String(), false, processor); });
+    request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
   // Redirige a pagina principal (index)
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/index.html", String(), false, processor); });
+            { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
   server.begin();
 }
 
@@ -220,67 +208,67 @@ void setup()
 void loop()
 {
   if (Serial.available() > 0)
-    Serial_Read_NODEMCU();
+    Leer_Serial();
 
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
-    Serial_Send_NODEMCU(6);
+    Enviar_Serial(6);
     EnviarIP = false;
   }
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
-String processor(const String &var)
+String ImprimirEnWeb(const String &var)
 {
   // Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
-  // entrega numeros de temperatura actual a la pagina
-  if (var == "TVAL")
-    return TVal;
-  if (var == "LVAL")
-    return LVal;
-  if (var == "HVAL")
-    return HVal;
+  // entrega numeros de Temperatura actual a la pagina
+  if (var == "Texto_Temp")
+    return Texto_Temp;
+  if (var == "Texto_Nivel")
+    return Texto_Nivel;
+  if (var == "Texto_Hora")
+    return Texto_Hora;
   // entrega strings de error
-  if (var == "ERRORSAVE")
-    return errorS;
-  if (var == "ERRORLVL")
-    return errorLVL;
-  if (var == "ERRORTEMP")
-    return errorTEMP;
-  // entrega numeros de temperatura y nivel maxima y minima
+  if (var == "Texto_Error_GuardadoAVE")
+    return Texto_Error_Guardado;
+  if (var == "Texto_Error_Nivel")
+    return Texto_Error_Nivel;
+  if (var == "Texto_Error_Temp")
+    return Texto_Error_Temp;
+  // entrega numeros de Temperatura y nivel maxima y minima
   if (var == "LMAX")
-    return String(Level_Max);
+    return String(NivelCalentar);
   if (var == "LMIN")
-    return String(Level_Min);
+    return String(NivelMinimo);
   if (var == "TMAX")
-    return String(Temp_Max);
+    return String(TemperaturaCalentar);
   if (var == "TMIN")
-    return String(Temp_Min);
+    return String(TemperaturaMinima);
   // entrega datos de horas seteadas (primer slot)
   if (var == "H1")
-    return String(save[0].hour);
+    return String(save[0].Hora);
   if (var == "L1")
-    return String(save[0].level);
+    return String(save[0].Nivel);
   if (var == "T1")
-    return String(save[0].temp);
+    return String(save[0].Temp);
   // entrega datos de horas seteadas (segundo slot)
   if (var == "H2")
-    return String(save[1].hour);
+    return String(save[1].Hora);
   if (var == "L2")
-    return String(save[1].level);
+    return String(save[1].Nivel);
   if (var == "T2")
-    return String(save[1].temp);
+    return String(save[1].Temp);
   // entrega datos de horas seteadas (tercer slot)
   if (var == "H3")
-    return String(save[2].hour);
+    return String(save[2].Hora);
   if (var == "L3")
-    return String(save[2].level);
+    return String(save[2].Nivel);
   if (var == "T3")
-    return String(save[2].temp);
+    return String(save[2].Temp);
   // Devuelve un texto (Activar calentamiento)
   if (var == "BTNT")
   {
-    if (HEATING_STATE)
+    if (Calentando)
       return "Calentamiento encendido";
     else
       return "Calentamiento apagado";
@@ -289,7 +277,7 @@ String processor(const String &var)
   // Devuelve un texto (Activar llenado)
   if (var == "BTNL")
   {
-    if (CHARGING_STATE)
+    if (Llenando)
       return "llenado encendido";
     else
       return "llenado apagado";
@@ -298,138 +286,138 @@ String processor(const String &var)
   // Devuelve un texto (Activar calentamiento automatico)
   if (var == "STTA")
   {
-    if (AUTOTEMP_STATE == 0)
+    if (CalentadoAuto == 0)
       return "Setear calentamiento automatico";
-    if (AUTOTEMP_STATE == 1)
-      return "Setear temperatura minima";
-    if (AUTOTEMP_STATE == 2)
-      return "Setear temperatura a calentar";
-    if (AUTOTEMP_STATE == 3)
+    if (CalentadoAuto == 1)
+      return "Setear Temperatura minima";
+    if (CalentadoAuto == 2)
+      return "Setear Temperatura a calentar";
+    if (CalentadoAuto == 3)
       return "Confirmar seteo";
   }
 
   // Devuelve un texto (Activar llenado automatico)
   if (var == "STLA")
   {
-    if (AUTOLVL_STATE == 0)
+    if (LLenadoAuto == 0)
       return "Setear llenado automatico";
-    if (AUTOLVL_STATE == 1)
+    if (LLenadoAuto == 1)
       return "Setear llenado minima";
-    if (AUTOLVL_STATE == 2)
+    if (LLenadoAuto == 2)
       return "Setear llenado a calentar";
-    if (AUTOLVL_STATE == 3)
+    if (LLenadoAuto == 3)
       return "Confirmar seteo";
   }
 
   return String();
 }
 
-void Serial_Send_NODEMCU(uint8_t WhatSend)
+void Enviar_Serial(uint8_t WhatSend)
 {
 
   switch (WhatSend)
   {
   case 1:
-    if (HEATING_STATE == false)
-      message = 'O';
-    if (HEATING_STATE == true)
-      message = 'I';
-    sprintf(Output_message, "W_%c%c", TEMP_VAL + 33, message);
-    Serial.println(Output_message);
+    if (Calentando == false)
+      Estado = 'O';
+    if (Calentando == true)
+      Estado = 'I';
+    sprintf(DatosEnviarSerial, "W_%c%c", TempActual + 33, Estado);
+    Serial.println(DatosEnviarSerial);
     break;
   case 2:
-    if (CHARGING_STATE == false)
-      message = 'O';
-    if (CHARGING_STATE == true)
-      message = 'I';
-    sprintf(Output_message, "F_%c%c", LVL_VAL + 33, message);
-    Serial.println(Output_message);
+    if (Llenando == false)
+      Estado = 'O';
+    if (Llenando == true)
+      Estado = 'I';
+    sprintf(DatosEnviarSerial, "F_%c%c", NivelActual + 33, Estado);
+    Serial.println(DatosEnviarSerial);
     break;
   case 3:
-    sprintf(Output_message, "S_%c%c%c%c", save[Struct].hour + 33, save[Struct].temp + 33, save[Struct].level + 33, Struct + 48);
-    Serial.println(Output_message);
+    sprintf(DatosEnviarSerial, "S_%c%c%c%c", save[SlotGuardado].Hora + 33, save[SlotGuardado].Temp + 33, save[SlotGuardado].Nivel + 33, SlotGuardado + 48);
+    Serial.println(DatosEnviarSerial);
     break;
   case 4:
-    sprintf(Output_message, "H_%c%c", Temp_Min + 33, Temp_Max + 33);
-    Serial.println(Output_message);
+    sprintf(DatosEnviarSerial, "H_%c%c", TemperaturaMinima + 33, TemperaturaCalentar + 33);
+    Serial.println(DatosEnviarSerial);
     break;
   case 5:
-    sprintf(Output_message, "C_%c%c", Level_Min + 33, Level_Max + 33);
-    Serial.println(Output_message);
+    sprintf(DatosEnviarSerial, "C_%c%c", NivelMinimo + 33, NivelCalentar + 33);
+    Serial.println(DatosEnviarSerial);
     break;
   case 6:
     IP = WiFi.localIP().toString();
-    seriallength = IP.length();
+    LargoDatos = IP.length();
     IP.toCharArray(IParray,18);
-    sprintf(Output_message, "I_%s", IParray);
-    Serial.println(Output_message);
+    sprintf(DatosEnviarSerial, "I_%s", IParray);
+    Serial.println(DatosEnviarSerial);
     break;
   case 7:
     Serial.println("E_E");
   }
 }
 
-void Serial_Read_NODEMCU()
+void Leer_Serial()
 {
-  InputString = Serial.readString();
-  seriallength = InputString.length();
+  LetraString = Serial.readString();
+  LargoDatos = LetraString.length();
 
-  for (i = 0; i <= seriallength; i++)
+  for (i = 0; i <= LargoDatos; i++)
   {
     if (i == 0)
-      input = InputString.charAt(0);
-    if (i >= 2 && i < seriallength)
-      Individualdata[i - 2] = InputString.charAt(i);
+      Letra = LetraString.charAt(0);
+    if (i >= 2 && i < LargoDatos)
+      Datos[i - 2] = LetraString.charAt(i);
   }
 
-  switch (input) // dependiendo del char de comando
+  switch (Letra) // dependiendo del char de comando
   {
   case 'K':
-    Struct = Individualdata[3] - 48;
-    if (Struct <= 2 && Struct >= 0)
+    SlotGuardado = Datos[3] - 48;
+    if (SlotGuardado <= 2 && SlotGuardado >= 0)
     {
-      save[Struct].hour = Individualdata[0] - 33;
-      save[Struct].level = Individualdata[1] - 33;
-      save[Struct].temp = Individualdata[2] - 33;
+      save[SlotGuardado].Hora = Datos[0] - 33;
+      save[SlotGuardado].Nivel = Datos[1] - 33;
+      save[SlotGuardado].Temp = Datos[2] - 33;
     }
     break;
   case 'H':
-    Temp_Max = Individualdata[1] - 33;
-    Temp_Min = Individualdata[0] - 33;
+    TemperaturaCalentar = Datos[1] - 33;
+    TemperaturaMinima = Datos[0] - 33;
     break;
   case 'C':
-    Level_Max = Individualdata[1] - 33;
-    Level_Min = Individualdata[0] - 33;
+    NivelCalentar = Datos[1] - 33;
+    NivelMinimo = Datos[0] - 33;
     break;
   case 'U':
-    TEMP_VAL = Individualdata[0] - 128;
-    LVL_VAL = Individualdata[1] - 33;
-    if (Individualdata[2] == 'I')
-      HEATING_STATE = true;
+    TempActual = Datos[0] - 128;
+    NivelActual = Datos[1] - 33;
+    if (Datos[2] == 'I')
+      Calentando = true;
     else
-      HEATING_STATE = false;
-    if (Individualdata[3] == 'I')
-      CHARGING_STATE = true;
+      Calentando = false;
+    if (Datos[3] == 'I')
+      Llenando = true;
     else
-      CHARGING_STATE = false;
+      Llenando = false;
     break;
 
   case 'P':
-    password = "";
-    for (i = 0; i <= seriallength - 3; i++)
-      password += Individualdata[i];
+    Password = "";
+    for (i = 0; i <= LargoDatos - 3; i++)
+      Password += Datos[i];
     EnviarIP = true;
-    WiFi.begin(ssid, password);
+    WiFi.begin(SSID, Password);
     break;
   case 'N':
-    ssid = "";
-    for (i = 0; i <= seriallength - 3; i++)
-      ssid += Individualdata[i];
+    SSID = "";
+    for (i = 0; i <= LargoDatos - 3; i++)
+      SSID += Datos[i];
     break;
   }
 }
 
-String desconvercionhora(uint8_t function, uint8_t save)
+String DesConvercionhora(uint8_t function, uint8_t save)
 {
   uint8_t var1_deconvert = 0; // solo una variable (_deconvert  nos evita modificar variables globales como bldos)
   uint8_t var2_deconvert = 0;
@@ -459,7 +447,7 @@ String desconvercionhora(uint8_t function, uint8_t save)
   }
 }
 
-uint8_t convercionhora(uint8_t function, String toconvert)
+uint8_t Convercionhora(uint8_t function, String toconvert)
 {
   uint8_t var1_convert;  // solo una variable (_convert  nos evita modificar variables globales como bldos)
   uint8_t var2_convert;  // solo una variable
