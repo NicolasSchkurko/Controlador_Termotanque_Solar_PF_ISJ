@@ -204,7 +204,7 @@ void setup()
       PosicionActual++;
     }
   }
-
+  MiliSegundos = 0;
   TiempoDeStandby = MiliSegundos;
   PosicionActual = PosicionEntradas;
   Estadoequipo = estado_inicial;
