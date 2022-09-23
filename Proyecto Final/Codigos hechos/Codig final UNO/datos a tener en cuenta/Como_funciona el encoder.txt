@@ -1,7 +1,0 @@
-Como anda el encoder
-https://www.epitran.it/ebayDrive/datasheet/25.pdf
-https://www.best-microcontroller-projects.com/rotary-encoder.html#Digital_Debounce_Filter
-
-
-Datasheet
-https://www.best-microcontroller-projects.com/support-files/pec11l.pdf

@@ -2,6 +2,12 @@ Condiciones dentro de digitalWrite
 https://www.youtube.com/watch?v=Un3dDMO_wC8
 https://forum.arduino.cc/t/conditional-in-digitalwrite/310660
 
+Como anda el encoder
+https://www.epitran.it/ebayDrive/datasheet/25.pdf
+https://www.best-microcontroller-projects.com/rotary-encoder.html#Digital_Debounce_Filter
+Datasheet
+https://www.best-microcontroller-projects.com/support-files/pec11l.pdf
+
 Como funcionan los registros 
 https://www.instructables.com/Arduino-and-Port-Manipulation/
 https://hekilledmywire.wordpress.com/2011/02/23/direct-port-manipulation-using-the-digital-ports-tutorial-part-3/
@@ -29,3 +35,7 @@ entonces sigamos con que esta presionado quedaria algo asi Como
 
 AHORRAR RAM 
 https://www.electrosoftcloud.com/arduino-ahorrar-espacio-sram/
+
+el ristal tiene que estar lo mas cerca del integrad (328p) posible
+
+01146499900
