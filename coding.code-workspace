@@ -26,7 +26,12 @@
 			"vector": "cpp",
 			"system_error": "cpp",
 			"random": "cpp",
-			"functional": "cpp"
+			"functional": "cpp",
+			"array": "cpp",
+			"string_view": "cpp",
+			"initializer_list": "cpp",
+			"ranges": "cpp",
+			"regex": "cpp"
 		}
 	}
 }

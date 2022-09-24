@@ -27,7 +27,7 @@ int16_t Celcius_O_Farenheit(int8_t,uint8_t);
 void    Imprimir_Hora(char[20], uint8_t, uint8_t);
 uint8_t Guardado_a_hora(uint8_t, uint8_t);
 void    Imprimir_LCD(char[20], uint8_t, uint8_t);
-uint8_t Volver_a_Cero(int8_t, uint8_t);
+uint8_t Volver_a_Cero(uint8_t,uint8_t);
 char    Retorno_Caracter(uint8_t, bool);
 int8_t  Hora_a_guardado(char[20]);
 void    Pin_Salida(uint8_t, bool);
