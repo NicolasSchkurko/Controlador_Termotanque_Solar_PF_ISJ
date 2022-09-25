@@ -104,11 +104,13 @@ char ContraWifi[20];
 char NombreWifi[20];
 
 bool InternetDisponible = false;
+uint8_t Enviar_Variables_Serial;
 uint8_t TiempoPulsadorEncoder;
 uint8_t LetraSeleccionada = 0;
 uint16_t TiempoDeStandby;
 int8_t TemperaturaActual; // temp actual
 uint8_t PosicionEntradas; // es el "sumador" del encoder
+uint16_t tiempoSensores;
 bool Mayusculas = false;
 uint8_t PosicionActual2; // por cambiar
 uint8_t PosicionActual;
@@ -128,6 +130,7 @@ bool LLenar;
 
 void setup()
 {
+
   // Interrupcion cada 1 mili
   SREG = (SREG & 0b01111111);
   TIMSK2 = TIMSK2 | 0b00000001;
@@ -148,9 +151,9 @@ void setup()
   Sensor_temp.requestTemperatures();
   TemperaturaActual = Sensor_temp.getTempCByIndex(0);
   rtc.begin(); 
-  Serial.begin(9600);
+  Serial.begin(115200);
   lcd.init(); // Iniciacion del LCD
-
+  
   lcd.createChar(0, hora);
   lcd.createChar(3, wifi);
   lcd.createChar(4, barra_abajo);
@@ -158,53 +161,9 @@ void setup()
   lcd.createChar(6, barra_izquierda);
   lcd.createChar(7, barra_arriba);
   eep.readChars(16, ContraWifi, 20);
-  eep.readChars(36, NombreWifi, 20);
+  eep.readChars(37, NombreWifi, 20);
 
   MiliSegundos=0;
-  while (PosicionActual <= 7) // manda set-up de todos los datos actuales al esp (con retardo pq sino no puede leer todos los datos juntos)
-  {
-    if (PosicionActual == 0 && MiliSegundos>250)
-    {
-      Enviar_Serial(3, 0);
-      PosicionActual++;
-    }
-    if (PosicionActual == 1 && MiliSegundos>500)
-    {
-      Enviar_Serial(1, 0);
-      PosicionActual++;
-    }
-    if (PosicionActual == 2 && MiliSegundos>750)
-    {
-      Enviar_Serial(5, 0);
-      PosicionActual++;
-    }
-    if (PosicionActual == 3 && MiliSegundos>1000)
-    {
-      Enviar_Serial(6, 0);
-      PosicionActual++;
-    }
-    if (PosicionActual == 4 && MiliSegundos>1250)
-    {
-      Enviar_Serial(2, 1);
-      PosicionActual++;
-    }
-    if (PosicionActual == 5 && MiliSegundos>1500)
-    {
-      Enviar_Serial(2, 2);
-      PosicionActual++;
-    }
-    if (PosicionActual == 6 && MiliSegundos>1750)
-    {
-      Enviar_Serial(2, 3);
-      PosicionActual++;
-    }
-    if (PosicionActual == 7 && MiliSegundos>2000)
-    {
-      Enviar_Serial(4, 0);
-      PosicionActual++;
-    }
-  }
-  MiliSegundos = 0;
   TiempoDeStandby = MiliSegundos;
   PosicionActual = PosicionEntradas;
   Estadoequipo = estado_inicial;
@@ -236,6 +195,9 @@ void loop()
   case funciones:
     switch (funcionActual)
     {
+    case posicion_inicial:
+      Estadoequipo=estado_inicial;
+      break;
     case llenado_manual:
       eep.write(14, menu_de_llenado_manual());
       break;
@@ -272,8 +234,6 @@ void loop()
 
 void Actualizar_entradas()
 {
-uint16_t tiempoSensores;
-
   if (MiliSegundos >= tiempoSensores + TIEMPO_LECTURA_TEMP)
   {
     if (Estadoequipo == estado_Standby || Estadoequipo == estado_inicial)
@@ -282,10 +242,44 @@ uint16_t tiempoSensores;
       TemperaturaActual = Sensor_temp.getTempCByIndex(0);
       tiempoSensores = MiliSegundos;
       if(InternetDisponible)
-        Enviar_Serial(1, 0);
+      Enviar_Serial(1, 0);
     }
   }
-
+  if (Enviar_Variables_Serial == 0 && MiliSegundos>250 && InternetDisponible)
+  {
+    //Enviar_Serial(5, 0);
+    Enviar_Variables_Serial++;
+  }
+  if (Enviar_Variables_Serial == 1 && MiliSegundos>500 && InternetDisponible)
+  {
+    //Enviar_Serial(6, 0);
+    Enviar_Variables_Serial++;
+  }
+  if (Enviar_Variables_Serial == 2 && MiliSegundos>1000 && InternetDisponible)
+  {
+    //Enviar_Serial(2, 1);
+    Enviar_Variables_Serial++;
+  }
+  if (Enviar_Variables_Serial == 3 && MiliSegundos>1500 && InternetDisponible)
+  {
+    //Enviar_Serial(2, 2);
+    Enviar_Variables_Serial++;
+  }
+  if (Enviar_Variables_Serial == 4 && MiliSegundos>2000 && InternetDisponible)
+  {
+    //Enviar_Serial(2, 3);
+    Enviar_Variables_Serial++;
+  }
+  if (Enviar_Variables_Serial == 5 && MiliSegundos>2500 && InternetDisponible)
+  {
+    Enviar_Serial(3, 0);
+    Enviar_Variables_Serial++;
+  }
+  if (Enviar_Variables_Serial == 6 && MiliSegundos>3000 && InternetDisponible)
+  {
+    Enviar_Serial(4, 0);
+    Enviar_Variables_Serial++;
+  }
   if (analogRead(SENSOR_NIVEL) < 100)
     NivelActual = 0;
   if (analogRead(SENSOR_NIVEL) >= 100 && analogRead(SENSOR_NIVEL) < 256)
@@ -304,9 +298,9 @@ void Actualizar_salidas()
 {
   char textoHora[6];
 
-  if (TemperaturaActual < eep.read(15))
+  if (TemperaturaActual < eep.read(15))         //temp a llenar
     Calentar = true;
-  else if (TemperaturaActual <= eep.read(10))            //Temp minima
+  else if (TemperaturaActual <= eep.read(10)) //Temp minima
     eep.write(15,eep.read(11));               //Temp maxima
   else if (TemperaturaActual >= eep.read(15))
   {
@@ -314,9 +308,9 @@ void Actualizar_salidas()
     eep.write(15,0);
   }
 
-  if (NivelActual < eep.read(14))//nivel a llenar
+  if (NivelActual < eep.read(14))           //nivel a llenar
     LLenar = true;
-  else if (NivelActual <= eep.read(12))      //Nivel minimo
+  else if (NivelActual <= eep.read(12))    //Nivel minimo
     eep.write(14,eep.read(13));            //Nivel maximo
   else if (NivelActual >= eep.read(14))
   {
@@ -331,6 +325,7 @@ void Actualizar_salidas()
   Pin_Salida(10, Calentar); // resistencia
 
   Imprimir_Hora(textoHora, now.hour(), now.minute()); 
+
   for (uint8_t i = 0; i < 3; i++)
   {
     if (Hora_a_guardado(textoHora) == eep.read(i * 3 + 1)) // compara hora con las guardadas y activa segun hora, multiplica por 3 para agrupar entre los tres "perfiles".
@@ -407,7 +402,7 @@ void Standby()
 
   sprintf(ImprimirLCD, "%d%c", NivelActual, '%'); // inserta nivel al array
   for (PosicionActual2 = 0; ImprimirLCD[PosicionActual2] != '\0'; PosicionActual2++) {} //Detecta espacios en blanco para imprimirlo a la derecha 
-  Imprimir_LCD(ImprimirLCD, 20 - PosicionActual2, 0); //imprime nivel a la derecha
+  Imprimir_LCD(ImprimirLCD, 20-PosicionActual2, 0); //imprime nivel a la derecha
 
   if (4 - PosicionActual2 == 2)
     Imprimir_LCD("  ", 16, 0);// Borra caracter para no dejarlo en el lcd
@@ -482,13 +477,6 @@ void Menu_Basico()
     sprintf(ImprimirLCD, "%s", Menuprincipal[Volver_a_Cero(PosicionActual + 3, COLUMNAS_MAXIMAS_M1)]);
     Imprimir_LCD(ImprimirLCD, 1, 3);
 
-    if (PosicionEntradas / 2 != PosicionActual) // cada 2 pulsos del encoder baja/sube una columna del menu
-    {
-      TiempoDeStandby = MiliSegundos;
-      lcd.clear();
-      PosicionActual = PosicionEntradas / 2;
-    }
-
     if (Pin_Entrada(4))
       PosicionEntradas += 2; // baja una columna
 
@@ -511,7 +499,13 @@ void Menu_Basico()
         TiempoPulsadorEncoder -= 10;
     }
 
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, COLUMNAS_MAXIMAS_M1 * 2);
+    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 14);
+    if (PosicionEntradas / 2 != PosicionActual) // cada 2 pulsos del encoder baja/sube una columna del menu
+    {
+      TiempoDeStandby = MiliSegundos;
+      lcd.clear();
+      PosicionActual = PosicionEntradas/2;
+    }
 
     if (Pin_Entrada(6))
     {
@@ -1821,7 +1815,7 @@ void menu_seteo_wifi()
     for (PosicionActual = 0; PosicionActual < 20; PosicionActual++)
     {
       eep.writeChars(16, ContraWifi, 20);
-      eep.writeChars(36, NombreWifi, 20);
+      eep.writeChars(37, NombreWifi, 20);
     }
     Enviar_Serial(3, 0);
     Enviar_Serial(4, 0);
@@ -2007,15 +2001,18 @@ int16_t Celcius_O_Farenheit(int8_t value, uint8_t function)
   }
 }
 
-uint8_t Volver_a_Cero(int8_t actualpos, uint8_t maxpos)
+uint8_t Volver_a_Cero(uint8_t actualpos, uint8_t maxpos)
 {
-  if (actualpos >= maxpos)
+  if (actualpos >= maxpos && actualpos <= 254 - (254%maxpos))
   {
     return actualpos % maxpos;
   }
   if (actualpos < 0)
   {
     return maxpos - actualpos;
+  }
+  if(actualpos > 254 - (254%maxpos)){
+    return maxpos-1;
   }
   if (actualpos >= 0 && actualpos < maxpos)
     return actualpos;
@@ -2332,6 +2329,11 @@ void Leer_Serial()
       break;
 
     case 'E':
+      datosObtenidos = false;
+      break;
+
+    case 'O':
+      InternetDisponible = true;
       datosObtenidos = false;
       break;
     }
