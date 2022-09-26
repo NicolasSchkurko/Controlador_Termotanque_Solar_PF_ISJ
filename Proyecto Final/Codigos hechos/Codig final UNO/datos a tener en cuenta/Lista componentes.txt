@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 Resistencia 4k7 (x3)
 Resistencia 1k (x4)
 Resistencia 10k (x5)
@@ -21,9 +21,6 @@ Trafo 12v 1a (x1)
 IDC 2x6 macho y hembra (x3) 
 IDC 2x5 macho y hembra (x3) 
 IDC 3x2 macho y hembra (x3) 
-=======
-
->>>>>>> 5814cf2b3e4ce057af50372ccfec657fb6c197af
 
 A CAMBIAR
 Regleta de pines 3x1
