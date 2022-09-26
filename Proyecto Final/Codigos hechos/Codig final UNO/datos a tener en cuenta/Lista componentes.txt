@@ -1,7 +1,6 @@
 
 Resistencia 4k7 (x3)
 Resistencia 1k (x4)
-Resistencia 10k (x5)
 Resistencia 220 (x)
 Resistencia 680 (x3)
 Resistencia 2.5k (x3)
