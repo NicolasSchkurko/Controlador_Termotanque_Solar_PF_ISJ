@@ -14,6 +14,10 @@
 		{
 			"name": "Codigo final esp",
 			"path": "Proyecto Final\\Codigos hechos\\Codigo final esp"
+		},
+		{
+			"name": "Esp8366",
+			"path": "../../Users/chuco/Documents/PlatformIO/Projects/Esp8366"
 		}
 	],
 	"settings": {
