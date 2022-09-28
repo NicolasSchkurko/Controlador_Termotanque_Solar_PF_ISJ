@@ -2387,11 +2387,11 @@ void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
   {
 
   case 1:
-    sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 33 + NivelActual, calentando, llenando);
+    sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
     Serial.print(mensajeAEnviar);
     break;
   case 2:
-    sprintf(mensajeAEnviar, "K_%c%c%c%c", 33 + eep.read((What_slot * 3) + 1), 33 + eep.read((What_slot * 3) + 2), 33 + eep.read((What_slot * 3) + 3), What_slot + 48);
+    sprintf(mensajeAEnviar, "K_%c%c%c%c", 34 + eep.read((What_slot * 3) + 1), 34 + eep.read((What_slot * 3) + 2), 33 + eep.read((What_slot * 3) + 3), What_slot + 48);
     Serial.print(mensajeAEnviar);
     break;
   case 3:
@@ -2403,11 +2403,11 @@ void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
     Serial.print(mensajeAEnviar);
     break;
   case 5:
-    sprintf(mensajeAEnviar, "C_%c%c", 33 + eep.read(12), 33 + eep.read(13));
+    sprintf(mensajeAEnviar, "C_%c%c", 34 + eep.read(12), 34 + eep.read(13));
     Serial.print(mensajeAEnviar);
     break;
   case 6:
-    sprintf(mensajeAEnviar, "H_%c%c", 33 + eep.read(10), 33 + eep.read(11));
+    sprintf(mensajeAEnviar, "H_%c%c", 34 + eep.read(10), 34 + eep.read(11));
     Serial.print(mensajeAEnviar);
   default:
     break;
