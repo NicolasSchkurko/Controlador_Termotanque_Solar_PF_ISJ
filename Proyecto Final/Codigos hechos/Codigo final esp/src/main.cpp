@@ -356,8 +356,19 @@ void Enviar_Serial(uint8_t WhatSend)
 
 void Leer_Serial()
 {
-  LetraString = Serial.readString();
-  LargoDatos = LetraString.length();
+
+  LargoDatos = Serial.available();
+
+  for (i = 0; i <= LargoDatos; i++)
+  {
+    if (i == 0)
+      Letra = Serial.read();
+      LetraString="";
+    if (i == 1)
+      Serial.read();
+    if (i >= 2 && i < LargoDatos)
+      LetraString += Serial.read();
+  }
 
   for (i = 0; i <= LargoDatos; i++)
   {
@@ -402,11 +413,11 @@ void Leer_Serial()
   case 'P':
     Password = Datos;
     WiFi.begin(SSID, Password);
-    EnviarIP = true;
     break;
 
   case 'N':
     SSID = Datos;
+    EnviarIP = true;
     break;
   }
 }

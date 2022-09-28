@@ -2369,7 +2369,7 @@ void Leer_Serial()
 
 void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
 {
-  char mensajeAEnviar[22];
+  char mensajeAEnviar[24];
   char calentando; 
   char llenando;
 
@@ -2406,5 +2406,6 @@ void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
   default:
     break;
   }
-  Serial.println(mensajeAEnviar);
+  Serial.print(mensajeAEnviar);
+  Serial.println();
 }
