@@ -1,0 +1,9 @@
+(sym_lib_table
+  (lib (name "BOB-12009")(type "Legacy")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/Conversor_logico_nivel.pretty/BOB-12009.lib")(options "")(descr ""))
+  (lib (name "ENCODER+PULS")(type "KiCad")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ENCODER+PULS.pretty/ENCODER+PULS.kicad_sym")(options "")(descr ""))
+  (lib (name "ENCODER+PULS_arduino")(type "KiCad")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ENCODER+PULS.pretty/ENCODER+PULS_arduino.kicad_sym")(options "")(descr ""))
+  (lib (name "ESP8266-12E_ESP-12E")(type "Legacy")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266-12E_ESP-12E.pretty/ESP8266-12E_ESP-12E.lib")(options "")(descr ""))
+  (lib (name "RELAY+DS18B20+LVLSENS")(type "KiCad")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/RELAY+DS18B20+LVLSENS.pretty/RELAY+DS18B20+LVLSENS.kicad_sym")(options "")(descr ""))
+  (lib (name "RELAY+DS18B20+LVLSENS_PLACA_SALIDAS")(type "KiCad")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/RELAY+DS18B20+LVLSENS.pretty/RELAY+DS18B20+LVLSENS_PLACA_SALIDAS.kicad_sym")(options "")(descr ""))
+  (lib (name "ESP8266")(type "Legacy")(uri "D:/Users/Jeremias/Escritorio/Trabajos colegio/Proyecto final/Proyecto Final/Circuitos del kicad/Libs Kicad/ESP8266.lib")(options "")(descr ""))
+)
