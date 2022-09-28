@@ -370,13 +370,6 @@ void Leer_Serial()
       LetraString += Serial.read();
   }
 
-  for (i = 0; i <= LargoDatos; i++)
-  {
-    if (i == 0)
-      Letra = LetraString.charAt(0);
-    if (i >= 2 && i < LargoDatos)
-      Datos[i - 2] = LetraString.charAt(i);
-  }
 
   switch (Letra) // dependiendo del char de comando
   {
