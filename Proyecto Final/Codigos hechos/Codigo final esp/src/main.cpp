@@ -30,7 +30,11 @@ String Texto_Error_Nivel = "    ";
 String Texto_Error_Temp = "    ";
 String IP;
 char Estado;
-
+char Datos[22];
+char Letra;
+uint8_t i;
+uint8_t largoDatos;
+bool DatosObtenidos;
 int8_t TempActual = 0;
 uint8_t NivelActual = 0;
 uint8_t HoraActual = 0;
@@ -57,17 +61,13 @@ void setup()
   Serial.begin(9600);
   LittleFS.begin();
   WiFi.begin(SSID, Password);
-  // Connect to Wi-Fi
-  // Print ESP32 Local IP Address
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             {
               request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
               Texto_Temp = String(TempActual);
-              Texto_Nivel = String(Texto_Temp); 
-              Leer_Serial();
-              });
+              Texto_Nivel = String(Texto_Temp); });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/desing.css", "text/css"); });
@@ -205,9 +205,9 @@ void setup()
 
 void loop()
 {
-  if(Serial.available()>0)
-  Leer_Serial();
-
+  if (Serial.available() > 0)
+    Leer_Serial();
+    
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
     Enviar_Serial(6);
@@ -312,7 +312,7 @@ String ImprimirEnWeb(const String &var)
 
 void Enviar_Serial(uint8_t WhatSend)
 {
-  char DatosEnviarSerial [22];
+  char DatosEnviarSerial[22];
   switch (WhatSend)
   {
   case 1:
@@ -354,66 +354,70 @@ void Enviar_Serial(uint8_t WhatSend)
 
 void Leer_Serial()
 {
+  bool datosObtenidos;
+  char datos[18];
+  char CharSeleccionado;
+  uint8_t largoDatos;
+  uint8_t i;
 
+  largoDatos = Serial.available();
 
   for (i = 0; i <= largoDatos; i++)
   {
-    if (i == 0)
-      Letra = Serial.read();
-    if (i == 1)
-      Serial.read();
-    if (i >= 2 && i < largoDatos)
-      Datos[i - 2] = Serial.read();
+    if (i < largoDatos)
+      datos[i] = Serial.read();
     if (i == largoDatos)
       datosObtenidos = true;
-  }     
+    delay(1);
+  }
 
-  if(datosObtenidos){
-    Serial.print(Datos);
-      switch (Letra) // dependiendo del char de comando
+  if (datosObtenidos)
+  {
+    Serial.print(DatosObtenidos);
+    switch (Letra) // dependiendo del char de comando
+    {
+    case 'K':
+      SlotGuardado = Datos[5] - 48;
+      if (SlotGuardado <= 2 && SlotGuardado >= 0)
       {
-      case 'K':
-        SlotGuardado = Datos[5] - 48;
-        if (SlotGuardado <= 2 && SlotGuardado >= 0)
-        {
-          save[SlotGuardado].Hora = int(Datos[2] - 34);
-          save[SlotGuardado].Nivel = int(Datos[3] - 34);
-          save[SlotGuardado].Temp = int(Datos[4] - 34);
-          Enviar_Serial(3);
-        }
-        break;
-      case 'H':
-        TemperaturaCalentar = Datos[3] - 34;
-        TemperaturaMinima = Datos[2] - 34;
-        break;
-      case 'C':
-        NivelCalentar = Datos[3] - 34;
-        NivelMinimo = Datos[2] - 34;
-        break;
-      case 'U':
-        TempActual = Datos[2] - 128;
-        NivelActual = Datos[3] - 34;
-        if (Datos[4] == 'I')
-          Calentando = true;
-        else
-          Calentando = false;
-        if (Datos[5] == 'I')
-          Llenando = true;
-        else
-          Llenando = false;
-        break;
-
-      case 'P':
-        Password = String(Datos);
-        Password.remove(0, 2);
-        WiFi.begin(SSID, Password);
-        EnviarIP = true;
-        break;
-
-      case 'N':
-        SSID = String(Datos);
-        break;
+        save[SlotGuardado].Hora = int(Datos[2] - 34);
+        save[SlotGuardado].Nivel = int(Datos[3] - 34);
+        save[SlotGuardado].Temp = int(Datos[4] - 34);
+        Enviar_Serial(3);
       }
+      break;
+    case 'H':
+      TemperaturaCalentar = Datos[3] - 34;
+      TemperaturaMinima = Datos[2] - 34;
+      break;
+    case 'C':
+      NivelCalentar = Datos[3] - 34;
+      NivelMinimo = Datos[2] - 34;
+      break;
+    case 'U':
+      TempActual = Datos[2] - 128;
+      NivelActual = Datos[3] - 34;
+      if (Datos[4] == 'I')
+        Calentando = true;
+      else
+        Calentando = false;
+      if (Datos[5] == 'I')
+        Llenando = true;
+      else
+        Llenando = false;
+      break;
+
+    case 'P':
+      Password = String(Datos);
+      Password.remove(0, 2);
+      WiFi.begin(SSID, Password);
+      EnviarIP = true;
+      break;
+
+    case 'N':
+      SSID = String(Datos);
+      break;
+    }
   }
 }
 
