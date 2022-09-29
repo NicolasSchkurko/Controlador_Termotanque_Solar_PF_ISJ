@@ -18,8 +18,8 @@ struct Guardado
   uint8_t Temp;
 };
 
-String Password = "AloAmbAr!";
-String SSID = "WifiChuco";
+String Password = "k";
+String SSID = "k";
 bool EnviarIP;
 Guardado save[3];
 String Texto_Temp = "60";
@@ -29,13 +29,8 @@ String Texto_Error_Guardado = "     ";
 String Texto_Error_Nivel = "    ";
 String Texto_Error_Temp = "    ";
 String IP;
-char Datos[22];
 char Estado;
-bool iniciar=false;
 
-uint8_t LargoDatos;
-uint8_t i;
-char DatosEnviarSerial[22];
 int8_t TempActual = 0;
 uint8_t NivelActual = 0;
 uint8_t HoraActual = 0;
@@ -50,7 +45,6 @@ bool Calentando = false;
 uint8_t CalentadoAuto = false;
 uint8_t LLenadoAuto = false;
 
-
 //█████████████████████████████████████████████████████████████████████████████████
 // Asigna el webserver al puerto 80 de la red wifi
 AsyncWebServer server(80);
@@ -62,12 +56,18 @@ void setup()
 
   Serial.begin(9600);
   LittleFS.begin();
+  WiFi.begin(SSID, Password);
   // Connect to Wi-Fi
   // Print ESP32 Local IP Address
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
+            {
+              request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
+              Texto_Temp = String(TempActual);
+              Texto_Nivel = String(Texto_Temp); 
+              Leer_Serial();
+              });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/desing.css", "text/css"); });
@@ -104,7 +104,7 @@ void setup()
 
   // detectaa cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
   // Activa el calentamiento de manera manual
-  server.on("/STATemp", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request)
             {
     Calentando= !Calentando; 
     Enviar_Serial(1);
@@ -117,8 +117,8 @@ void setup()
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
   // Setea el calentamiento de manera automatica
-  server.on("/SETemp", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
+  server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
     CalentadoAuto++; 
     if (CalentadoAuto==1 && TempActual<90)TemperaturaMinima=TempActual;
     if (CalentadoAuto==1 &&TempActual>=90) Texto_Error_Temp="La Temperatura minima debe ser menor a 90";
@@ -130,8 +130,7 @@ void setup()
       CalentadoAuto=0; 
       Enviar_Serial(4);
     }
-    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); 
-    });
+    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
   // Setea el llenado de manera automatica
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -206,6 +205,7 @@ void setup()
 
 void loop()
 {
+  if(Serial.available()>0)
   Leer_Serial();
 
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
@@ -312,7 +312,7 @@ String ImprimirEnWeb(const String &var)
 
 void Enviar_Serial(uint8_t WhatSend)
 {
-
+  char DatosEnviarSerial [22];
   switch (WhatSend)
   {
   case 1:
@@ -320,7 +320,7 @@ void Enviar_Serial(uint8_t WhatSend)
       Estado = 'O';
     if (Calentando == true)
       Estado = 'I';
-    sprintf(DatosEnviarSerial, "W_%c%c", TempActual + 33, Estado);
+    sprintf(DatosEnviarSerial, "W_%c%c", TempActual + 34, Estado);
     Serial.println(DatosEnviarSerial);
     break;
   case 2:
@@ -328,23 +328,23 @@ void Enviar_Serial(uint8_t WhatSend)
       Estado = 'O';
     if (Llenando == true)
       Estado = 'I';
-    sprintf(DatosEnviarSerial, "F_%c%c", NivelActual + 33, Estado);
+    sprintf(DatosEnviarSerial, "F_%c%c", NivelActual + 34, Estado);
     Serial.println(DatosEnviarSerial);
     break;
   case 3:
-    sprintf(DatosEnviarSerial, "S_%c%c%c%c", save[SlotGuardado].Hora + 33, save[SlotGuardado].Temp + 33, save[SlotGuardado].Nivel + 33, SlotGuardado + 48);
+    sprintf(DatosEnviarSerial, "K_%c%c%c%c", save[SlotGuardado].Hora + 34, save[SlotGuardado].Temp + 34, save[SlotGuardado].Nivel + 34, SlotGuardado + 48);
     Serial.println(DatosEnviarSerial);
     break;
   case 4:
-    sprintf(DatosEnviarSerial, "H_%c%c", TemperaturaMinima + 33, TemperaturaCalentar + 33);
+    sprintf(DatosEnviarSerial, "H_%c%c", TemperaturaMinima + 34, TemperaturaCalentar + 34);
     Serial.println(DatosEnviarSerial);
     break;
   case 5:
-    sprintf(DatosEnviarSerial, "C_%c%c", NivelMinimo + 33, NivelCalentar + 33);
+    sprintf(DatosEnviarSerial, "C_%c%c", NivelMinimo + 34, NivelCalentar + 34);
     Serial.println(DatosEnviarSerial);
     break;
   case 6:
-    sprintf(DatosEnviarSerial, "I_%d.%d.%d.%d", WiFi.localIP()[0],WiFi.localIP()[1],WiFi.localIP()[2],WiFi.localIP()[3]);
+    sprintf(DatosEnviarSerial, "I_%d.%d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
     Serial.println(DatosEnviarSerial);
     break;
   case 7:
@@ -354,46 +354,45 @@ void Enviar_Serial(uint8_t WhatSend)
 
 void Leer_Serial()
 {
-  if(iniciar && Serial.available()>0){
-    if(i<LargoDatos){
-      Datos[i]=Serial.read();
-      i++;
-    }
-    if(i==LargoDatos){
-      iniciar=false;
-      i=0;
-    }
-  }
 
-  else{
-  if(Serial.available()>0){
-    LargoDatos=Serial.available();
-    iniciar=true;
-  }
 
-  if(Serial.available()==0){
-    switch (Datos[0]) // dependiendo del char de comando
-    {
+  for (i = 0; i <= largoDatos; i++)
+  {
+    if (i == 0)
+      Letra = Serial.read();
+    if (i == 1)
+      Serial.read();
+    if (i >= 2 && i < largoDatos)
+      Datos[i - 2] = Serial.read();
+    if (i == largoDatos)
+      datosObtenidos = true;
+  }     
+
+  if(datosObtenidos){
+    Serial.print(Datos);
+      switch (Letra) // dependiendo del char de comando
+      {
       case 'K':
         SlotGuardado = Datos[5] - 48;
         if (SlotGuardado <= 2 && SlotGuardado >= 0)
         {
-          save[SlotGuardado].Hora = Datos[2] - 33;
-          save[SlotGuardado].Nivel = Datos[3] - 33;
-          save[SlotGuardado].Temp = Datos[4] - 33;
+          save[SlotGuardado].Hora = int(Datos[2] - 34);
+          save[SlotGuardado].Nivel = int(Datos[3] - 34);
+          save[SlotGuardado].Temp = int(Datos[4] - 34);
+          Enviar_Serial(3);
         }
         break;
       case 'H':
-        TemperaturaCalentar = Datos[3] - 33;
-        TemperaturaMinima = Datos[2] - 33;
+        TemperaturaCalentar = Datos[3] - 34;
+        TemperaturaMinima = Datos[2] - 34;
         break;
       case 'C':
-        NivelCalentar = Datos[3] - 33;
-        NivelMinimo = Datos[2] - 33;
+        NivelCalentar = Datos[3] - 34;
+        NivelMinimo = Datos[2] - 34;
         break;
       case 'U':
         TempActual = Datos[2] - 128;
-        NivelActual = Datos[3] - 33;
+        NivelActual = Datos[3] - 34;
         if (Datos[4] == 'I')
           Calentando = true;
         else
@@ -405,26 +404,16 @@ void Leer_Serial()
         break;
 
       case 'P':
-        for(i=0;i<LargoDatos-2;i++){
-          if (i==0)
-            Password = Datos[2];
-          if (i>1)
-            Password += Datos[2+i];
-        }
+        Password = String(Datos);
+        Password.remove(0, 2);
         WiFi.begin(SSID, Password);
         EnviarIP = true;
         break;
 
       case 'N':
-        for(i=0;i<LargoDatos-2;i++){
-          if (i==0)
-            SSID = Datos[2];
-          if (i>1)
-            SSID += Datos[2+i];
-        }
+        SSID = String(Datos);
         break;
       }
-    }
   }
 }
 
