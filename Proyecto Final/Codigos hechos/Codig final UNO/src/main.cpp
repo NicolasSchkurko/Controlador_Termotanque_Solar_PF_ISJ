@@ -2411,6 +2411,6 @@ void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
     Serial.print(mensajeAEnviar);
   default:
     break;
-  
+  }
   Serial.println();
 }
