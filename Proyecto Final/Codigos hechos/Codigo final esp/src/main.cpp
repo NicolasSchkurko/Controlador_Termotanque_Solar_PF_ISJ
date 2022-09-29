@@ -29,10 +29,9 @@ String Texto_Error_Guardado = "     ";
 String Texto_Error_Nivel = "    ";
 String Texto_Error_Temp = "    ";
 String IP;
-String LetraString;
 char Datos[22];
-char Letra;
 char Estado;
+bool iniciar=false;
 
 uint8_t LargoDatos;
 uint8_t i;
@@ -207,8 +206,7 @@ void setup()
 
 void loop()
 {
-  if (Serial.available() > 0)
-    Leer_Serial();
+  Leer_Serial();
 
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
@@ -356,62 +354,77 @@ void Enviar_Serial(uint8_t WhatSend)
 
 void Leer_Serial()
 {
-
-  LargoDatos = Serial.available();
-
-  for (i = 0; i <= LargoDatos; i++)
-  {
-    if (i == 0)
-      Letra = Serial.read();
-      LetraString="";
-    if (i == 1)
-      Serial.read();
-    if (i >= 2 && i < LargoDatos)
-      LetraString += Serial.read();
+  if(iniciar && Serial.available()>0){
+    if(i<LargoDatos){
+      Datos[i]=Serial.read();
+      i++;
+    }
+    if(i==LargoDatos){
+      iniciar=false;
+      i=0;
+    }
   }
 
+  else{
+  if(Serial.available()>0){
+    LargoDatos=Serial.available();
+    iniciar=true;
+  }
 
-  switch (Letra) // dependiendo del char de comando
-  {
-  case 'K':
-    SlotGuardado = Datos[3] - 48;
-    if (SlotGuardado <= 2 && SlotGuardado >= 0)
+  if(Serial.available()==0){
+    switch (Datos[0]) // dependiendo del char de comando
     {
-      save[SlotGuardado].Hora = Datos[0] - 33;
-      save[SlotGuardado].Nivel = Datos[1] - 33;
-      save[SlotGuardado].Temp = Datos[2] - 33;
+      case 'K':
+        SlotGuardado = Datos[5] - 48;
+        if (SlotGuardado <= 2 && SlotGuardado >= 0)
+        {
+          save[SlotGuardado].Hora = Datos[2] - 33;
+          save[SlotGuardado].Nivel = Datos[3] - 33;
+          save[SlotGuardado].Temp = Datos[4] - 33;
+        }
+        break;
+      case 'H':
+        TemperaturaCalentar = Datos[3] - 33;
+        TemperaturaMinima = Datos[2] - 33;
+        break;
+      case 'C':
+        NivelCalentar = Datos[3] - 33;
+        NivelMinimo = Datos[2] - 33;
+        break;
+      case 'U':
+        TempActual = Datos[2] - 128;
+        NivelActual = Datos[3] - 33;
+        if (Datos[4] == 'I')
+          Calentando = true;
+        else
+          Calentando = false;
+        if (Datos[5] == 'I')
+          Llenando = true;
+        else
+          Llenando = false;
+        break;
+
+      case 'P':
+        for(i=0;i<LargoDatos-2;i++){
+          if (i==0)
+            Password = Datos[2];
+          if (i>1)
+            Password += Datos[2+i];
+        }
+        WiFi.begin(SSID, Password);
+        EnviarIP = true;
+        break;
+
+      case 'N':
+        for(i=0;i<LargoDatos-2;i++){
+          if (i==0)
+            SSID = Datos[2];
+          if (i>1)
+            SSID += Datos[2+i];
+        }
+        break;
+      }
     }
-    break;
-  case 'H':
-    TemperaturaCalentar = Datos[1] - 33;
-    TemperaturaMinima = Datos[0] - 33;
-    break;
-  case 'C':
-    NivelCalentar = Datos[1] - 33;
-    NivelMinimo = Datos[0] - 33;
-    break;
-  case 'U':
-    TempActual = Datos[0] - 128;
-    NivelActual = Datos[1] - 33;
-    if (Datos[2] == 'I')
-      Calentando = true;
-    else
-      Calentando = false;
-    if (Datos[3] == 'I')
-      Llenando = true;
-    else
-      Llenando = false;
-    break;
-
-  case 'P':
-    Password = Datos;
-    WiFi.begin(SSID, Password);
-    break;
-
-  case 'N':
-    SSID = Datos;
-    EnviarIP = true;
-    break;
   }
 }
 

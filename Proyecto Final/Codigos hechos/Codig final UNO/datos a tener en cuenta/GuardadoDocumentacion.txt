@@ -25,8 +25,8 @@ String ssid                         (16;20)
 String ssid contraseña              (37;20)
 Cual unidad usar                    (58;1) 
 Activacion de la bomba              (59;1)
-IP                                  (60,18) 
-SIGUIENTE SLOT libre                (78)
+IP                                  (60,22) 
+SIGUIENTE SLOT libre                (82)
 
 https://roboticsbackend.com/arduino-write-string-in-eeprom/  //pag de donde sace el write/read string to eeprom (copie y pege la funcion pq es una boludez como funca)
 

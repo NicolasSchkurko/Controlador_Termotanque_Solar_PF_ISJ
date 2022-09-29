@@ -1713,7 +1713,7 @@ void menu_seteo_wifi()
     Imprimir_LCD(ImprimirLCD, 6, 0);
     sprintf(ImprimirLCD, "%s", ContraWifi);
     Imprimir_LCD(ImprimirLCD, 6, 1);
-    eep.readChars(60, ImprimirLCD, 18);
+    eep.readChars(60, ImprimirLCD, 22);
     Imprimir_LCD(ImprimirLCD, 4, 2);
     memcpy(ImprimirLCD, "SSID:", 6);
     Imprimir_LCD(ImprimirLCD, 0, 0);
@@ -2348,7 +2348,7 @@ void Leer_Serial()
       datosObtenidos = false;
       break;
     case 'I': // Ip
-      eep.writeChars(60, datos, 18);
+      eep.writeChars(60, datos, 22);
       InternetDisponible = true;
       if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
         lcd.clear();
