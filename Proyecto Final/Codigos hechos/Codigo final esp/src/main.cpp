@@ -385,14 +385,59 @@ void Leer_Serial()
   } 
 
   if (datosObtenidos==true){
-    
+    /*
+       case 'K':
+        SlotGuardado = Datos[5] - 48;
+        if (SlotGuardado <= 2 && SlotGuardado >= 0)
+        {
+          save[SlotGuardado].Hora = int(Datos[2] - 34);
+          save[SlotGuardado].Nivel = int(Datos[3] - 34);
+          save[SlotGuardado].Temp = int(Datos[4] - 34);
+          Enviar_Serial(3);
+        }
+        break;
+      case 'H':
+        TemperaturaCalentar = Datos[3] - 34;
+        TemperaturaMinima = Datos[2] - 34;
+        break;
+      case 'C':
+        NivelCalentar = Datos[3] - 34;
+        NivelMinimo = Datos[2] - 34;
+        break;
+      case 'U':
+        TempActual = Datos[2] - 128;
+        NivelActual = Datos[3] - 34;
+        if (Datos[4] == 'I')
+          Calentando = true;
+        else
+          Calentando = false;
+        if (Datos[5] == 'I')
+          Llenando = true;
+        else
+          Llenando = false;
+        break;
+
+      case 'P':
+        Password = String(Datos);
+        Password.remove(0, 2);
+        WiFi.begin(SSID, Password);
+        EnviarIP = true;
+        break;
+
+      case 'N':
+        SSID = String(Datos);
+        break;
+      */
     switch (input)//dependiendo del char de comando
     {
     case 'N':
-      Serial.println(Datos);
+      memcpy( SSID, Datos, 22);
+      Serial.println(SSID);
       break;
     case 'P':
-            datosObtenidos=false;
+      memcpy( Password, Datos, 22);
+      WiFi.begin(SSID, Password);
+      EnviarIP = true;
     break;
     case 'U':
           datosObtenidos=false;
