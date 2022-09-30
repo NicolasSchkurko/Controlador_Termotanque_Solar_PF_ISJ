@@ -205,9 +205,9 @@ void setup()
 
 void loop()
 {
-  if (Serial.available() > 0)
+  while (Serial.available() > 0)
     Leer_Serial();
-    
+
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
     Enviar_Serial(6);
@@ -352,75 +352,81 @@ void Enviar_Serial(uint8_t WhatSend)
   }
 }
 
+bool iniciar = false;
+uint8_t LargoDatos;
+bool datosObtenidos;
+
 void Leer_Serial()
 {
-  bool datosObtenidos;
-  char datos[18];
-  char CharSeleccionado;
-  uint8_t largoDatos;
-  uint8_t i;
-
-  largoDatos = Serial.available();
-
-  for (i = 0; i <= largoDatos; i++)
+  if (Serial.available() > 0 && iniciar == false)
   {
-    if (i < largoDatos)
-      datos[i] = Serial.read();
-    if (i == largoDatos)
-      datosObtenidos = true;
-    delay(1);
+    LargoDatos = Serial.available();
+    iniciar = true;
   }
 
-  if (datosObtenidos)
+  if (iniciar)
   {
-    Serial.print(DatosObtenidos);
-    switch (Letra) // dependiendo del char de comando
+    if (i < LargoDatos)
     {
-    case 'K':
-      SlotGuardado = Datos[5] - 48;
-      if (SlotGuardado <= 2 && SlotGuardado >= 0)
+      Datos[i] = Serial.read();
+      i++;
+    }
+    if (i == LargoDatos)
+    {
+      Letra = Datos[0];
+      Serial.print(Datos);
+      switch (Letra) // dependiendo del char de comando
       {
-        save[SlotGuardado].Hora = int(Datos[2] - 34);
-        save[SlotGuardado].Nivel = int(Datos[3] - 34);
-        save[SlotGuardado].Temp = int(Datos[4] - 34);
-        Enviar_Serial(3);
+      case 'K':
+        SlotGuardado = Datos[5] - 48;
+        if (SlotGuardado <= 2 && SlotGuardado >= 0)
+        {
+          save[SlotGuardado].Hora = int(Datos[2] - 34);
+          save[SlotGuardado].Nivel = int(Datos[3] - 34);
+          save[SlotGuardado].Temp = int(Datos[4] - 34);
+          Enviar_Serial(3);
+        }
+        break;
+      case 'H':
+        TemperaturaCalentar = Datos[3] - 34;
+        TemperaturaMinima = Datos[2] - 34;
+        break;
+      case 'C':
+        NivelCalentar = Datos[3] - 34;
+        NivelMinimo = Datos[2] - 34;
+        break;
+      case 'U':
+        TempActual = Datos[2] - 128;
+        NivelActual = Datos[3] - 34;
+        if (Datos[4] == 'I')
+          Calentando = true;
+        else
+          Calentando = false;
+        if (Datos[5] == 'I')
+          Llenando = true;
+        else
+          Llenando = false;
+        break;
+
+      case 'P':
+        Password = String(Datos);
+        Password.remove(0, 2);
+        WiFi.begin(SSID, Password);
+        EnviarIP = true;
+        break;
+
+      case 'N':
+        SSID = String(Datos);
+        break;
       }
-      break;
-    case 'H':
-      TemperaturaCalentar = Datos[3] - 34;
-      TemperaturaMinima = Datos[2] - 34;
-      break;
-    case 'C':
-      NivelCalentar = Datos[3] - 34;
-      NivelMinimo = Datos[2] - 34;
-      break;
-    case 'U':
-      TempActual = Datos[2] - 128;
-      NivelActual = Datos[3] - 34;
-      if (Datos[4] == 'I')
-        Calentando = true;
-      else
-        Calentando = false;
-      if (Datos[5] == 'I')
-        Llenando = true;
-      else
-        Llenando = false;
-      break;
-
-    case 'P':
-      Password = String(Datos);
-      Password.remove(0, 2);
-      WiFi.begin(SSID, Password);
-      EnviarIP = true;
-      break;
-
-    case 'N':
-      SSID = String(Datos);
-      break;
+    }
+    if (Serial.available() == 0)
+    {
+      i = 0;
+      iniciar = false;
     }
   }
 }
-
 String DesConvercionhora(uint8_t function, uint8_t save)
 {
   uint8_t var1_deconvert = 0; // solo una variable (_deconvert  nos evita modificar variables globales como bldos)
