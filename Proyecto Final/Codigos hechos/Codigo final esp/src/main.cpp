@@ -212,6 +212,7 @@ LoopFunca=true;
   // Redirige a pagina principal (index)
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
+    server.begin();
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -225,6 +226,7 @@ void loop()
     Enviar_Serial(6);
     EnviarIP = false;
   }
+  delay(1);
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -375,21 +377,21 @@ void Leer_Serial()
   Serial_Input=Serial.readString();// iguala el string del serial a un string imput
   StringLength= Serial_Input.length();// saca el largo del string
   input=Serial_Input.charAt(0); // toma el char de comando (el primer char usualmente una letra)
-
-  for (uint8_t CharPos = 2; CharPos <= StringLength-2; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+  memset(Datos, 0, 22);
+  for (uint8_t CharPos = 0; CharPos <= StringLength-2; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
-      if(CharPos<StringLength-2)Datos[CharPos]==Serial_Input.charAt(CharPos+2); //si hay : divide los datos
+      if(CharPos<StringLength-2)Datos[CharPos]=Serial_Input.charAt(CharPos+2); //si hay : divide los datos
       if(CharPos==StringLength-2)datosObtenidos=true;// activa el comando final (flag)
   } 
 
   if (datosObtenidos==true){
     
-    switch (Datos[0])//dependiendo del char de comando
+    switch (input)//dependiendo del char de comando
     {
     case 'N':
-      Serial.println(Serial_Input);
+      Serial.println(Datos);
       break;
-    case 'S':
+    case 'P':
             datosObtenidos=false;
     break;
     case 'U':
