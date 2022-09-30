@@ -1,0 +1,285 @@
+/*https://www.youtube.com/watch?v=L_bctronMFo*/
+
+body {
+    font-family: monospace;
+    background-color: #30011c;
+}
+h1 {
+    color: white;
+    text-align: center;
+    margin: 1%;
+    font-size: 250%;
+}
+h3 {
+    color: white;
+    text-align: center;
+    margin: 1%;
+    font-size: 180%
+}
+h4 {
+  color: white;
+  text-align: center;
+  margin: 1%;
+  font-size: 130%
+}
+h5 {
+    color: white;
+    text-align: center;
+    margin: 1%;
+    font-size: 120%
+}
+
+.temperature{
+  align-items: center;
+  text-align: center;
+  width: 40%;
+  margin: 4%;
+}
+.Waterlevel{
+  align-items: center;
+  text-align: center;
+  width: 40%;
+  margin: 4%;
+}
+.barraTemp{
+    height: 200px;
+    width: 200px;
+    margin: auto;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.cont{
+    height: 100px;
+    width: 200px;
+}
+.circulo_centro {
+    width: 150px;
+    height: 150px;
+    background-color: #30011c;
+    border-radius: 50%;
+    margin: auto;
+    position: relative;
+    margin: -175px auto 50px;
+}
+.rectangulo{
+    width: 200px;
+    height: 100px;
+    background-color: #30011c;
+    position: relative;
+    margin: -125px auto 50px;
+}
+.slider{
+    height: 19px;
+    -webkit-appearance: none;
+    margin: 10px 0;
+    width: 100%;
+    background-color: #30011c;
+  }
+.slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 14px;
+    cursor: pointer;
+    animation: 0.2s;
+    background: #3f0025;
+    border-radius: 12px;
+  }
+.slider::-webkit-slider-thumb {
+    height: 12px;
+    width: 50px;
+    border-radius: 50px;
+    background: #ffee00;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: 0px;
+  }
+.slider::-moz-range-thumb {
+    box-shadow: 0px 0px 0px #000000;
+    border: 1px solid #000000;
+    height: 12px;
+    width: 50px;
+    border-radius: 50px;
+    background: #FFFFFF;
+    cursor: pointer;
+  }
+.slider::-webkit-slider-thumb:active { 
+    outline: none !important;
+    border-color: #e5ff00;
+    box-shadow: 0 0 10px #e5ff00;
+ }
+.button{
+    background-color: #3f0025;
+    border-radius: 4px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Farfetch Basis","Helvetica Neue",Arial,sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+    max-width: none;
+    min-height: 44px;
+    min-width: 10px;
+    outline: none;
+    overflow: hidden;
+    padding: 9px 20px 8px;
+    position: relative;
+    text-align: center;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 100%;
+  }
+.button:hover,.button:focus {
+    opacity: .75;
+  }
+
+.set{
+    background-color: #3f0025;
+    border-radius: 4px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Farfetch Basis","Helvetica Neue",Arial,sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+    max-width: none;
+    min-height: 44px;
+    min-width: 10px;
+    outline: none;
+    overflow: hidden;
+    padding: 9px 20px 8px;
+    position: relative;
+    text-align: center;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 100%;
+  }
+.set:hover,.set:focus {
+    opacity: .75;
+  }
+
+.Pagechange{
+    background-color: #3f0025;
+    border-radius: 4px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Farfetch Basis","Helvetica Neue",Arial,sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+    max-width: none;
+    min-height: 44px;
+    min-width: 10px;
+    outline: none;
+    overflow: hidden;
+    padding: 9px 20px 8px;
+    margin: auto;
+    text-align: center;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 500px;
+  }
+.Pagechange:hover,.config:focus {
+    opacity: .75;
+  }
+
+input[type=time] {
+    border: none;
+    color: #e5ff00;
+    font-size: 14px;
+    font-family: helvetica;
+    width: 180px;
+    background-color: #3f0025;
+
+  }
+
+input[type=time]::-webkit-datetime-edit-fields-wrapper {
+    display: flex;
+  }
+  
+input[type=time]::-webkit-datetime-edit-text {
+  border-radius: 5%;
+  padding: 12% 1%;
+  color: white;
+
+  }
+
+input[type=time]::-webkit-datetime-edit-hour-field {
+  border-radius: 5%;
+  padding: 12% 12%;
+  color: white;
+  }
+  input[type=time]::-webkit-datetime-edit-hour-field:focus {
+    background-color: #3f0034;
+    border-radius: 20%;
+  }
+input[type=time]::-webkit-datetime-edit-minute-field {
+  border-radius: 5%;
+  padding: 12% 12%;
+  color: white;
+  }
+  input[type=time]::-webkit-datetime-edit-minute-field:focus {
+    background-color: #3f0034;
+    border-radius: 20%;
+    
+  }
+input[type=time]::-webkit-datetime-edit-ampm-field {
+    border-radius: 5%;
+    padding: 12% 12%;
+    color: white;
+  
+  }
+  input[type=time]::-webkit-datetime-edit-ampm-field:focus {
+    background-color: #3f0034;
+    border-radius: 20%;
+  }
+  input[type="time"]::-webkit-calendar-picker-indicator{
+    color: white;
+    filter: invert(80%) sepia(13%) saturate(3300%)  brightness(95%) contrast(80%);
+  }
+  input[type="time"]:focus { 
+    outline: none !important;
+    border-color: #e5ff00;
+    box-shadow: 0 0 10px #e5ff00;
+ }
+
+.Column{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    text-align: center;
+    padding-left: 30%;
+    padding-right: 30%;
+  }
+
+.Sliders{
+    align-items: center;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-wrap: w;
+}  
+.elbicho{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  padding-left: 30%;
+  padding-right: 30%;
+}

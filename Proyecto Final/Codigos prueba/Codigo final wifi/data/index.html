@@ -1,0 +1,116 @@
+<html>
+
+<head>
+    <meta charset='utf-8'> <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>SLB_x02</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='desing.css'>
+</head>
+
+<body>
+    <h1>Controladora temperatura</h1>
+<div class="Sliders">
+    <div class="temperature">
+    <h1>Temperatura</h1>
+
+    <div class="barraTemp" id="barratemp">
+         <div class="cont" style="background-color: rgb(51, 14, 51);"></div>
+         <div class="cont" style="background-color: rgb(255, 208, 0);"></div>   
+
+    </div>
+    <div class="circulo_centro"></div>
+    <div class="rectangulo"></div>
+    <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="TSV">%TVAL%</h1>
+
+    <input type="range" id="temp"  min="40"  class="slider" max="90" step="5" onchange="updateSliderTEMP(this)" value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+    <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
+
+    <div id="auto">
+        <h5> %ERRORTEMP% </h5>
+        <h5> Automatic temp start min: %TMIN% </h5>
+        <h5> Automatic temp max: %TMAX% </h5>
+    </div>
+    <button class="Set" onclick=location.href="/SETEMP" >%STTA%</button>
+    
+    <script>
+        var TVal = document.getElementById("temp").value;
+        var degrees = (TVal)*1.8;
+        document.getElementById("barratemp").style.transform = String("rotate("+degrees+"deg)");
+        document.getElementById("TSV").innerHTML = TVal;
+        function updateSliderTEMP(element)
+        {
+            var TVal = document.getElementById("temp").value;
+            var degrees = (TVal)*1.8;
+            document.getElementById("barratemp").style.transform = String("rotate("+degrees+"deg)");
+            console.log(TVal);
+            document.getElementById("TSV").innerHTML = TVal;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/slider?temp="+TVal, true);
+            xhr.send();
+        }
+    </script>
+    </div>
+    <div class="Waterlevel">
+    <h1>Waterlevel</h1>
+    <div class="barraTemp" id="barralvl">
+        <div class="cont" style="background-color: rgb(51, 14, 51);"></div>
+        <div class="cont" style="background-color: rgb(255, 208, 0);"></div>   
+
+    </div>
+    <div class="circulo_centro"></div>
+    <div class="rectangulo"></div>
+    <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;"id="LSV">%LVAL%</h1>
+
+    <input type="range" id="lvl" min="40" max="100" step="5" onchange="updateSliderLVL(this)" class="slider" value="%LVAL%"  oninput="this.nextElementSibling.value = this.value">
+    <button class="button" onclick=location.href="/STALVL">%BTNL%</button>
+
+    <div id="auto">
+        <h5>%ERRORLVL%</h5>
+        <h5> Automatic level start min: %LMIN% </h5>
+        <h5> Automatic level max: %LMAX% </h5>
+    </div>
+    <button class="Set" onclick=location.href="/SETLVL">%STLA%</button> 
+
+    <script>
+        var LVal = document.getElementById("lvl").value;
+        var degrees = (LVal)*1.8;
+        document.getElementById("LSV").innerHTML = LVal;
+        document.getElementById("barralvl").style.transform = String("rotate("+degrees+"deg)");
+        function updateSliderLVL(element) 
+            {
+                var LVal = document.getElementById("lvl").value;
+                var degrees = (LVal)*1.8;
+                document.getElementById("barralvl").style.transform = String("rotate("+degrees+"deg)");
+                console.log(LVal);
+                document.getElementById("LSV").innerHTML = LVal;
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/slider?nivel="+LVal, true);
+                xhr.send();
+            }
+    </script>
+</div>
+</div>
+<div class="Column">
+    <div class="bloqueset">
+    <h3>Start by timer 1</h3>
+    <h5>Hour: %H1% Water level: %L1% Water temp:%T1%</h5>     
+    </div> 
+    <div class="bloqueset">
+    <h3>Start by timer 2</h3>
+    <h5>Hour: %H2% Water level: %L2% Water temp:%T2%</h5>
+    </div>
+    <div class="bloqueset">      
+    <h3>Start by timer 3</h3>
+    <h5>Hour: %H3% Water level: %L3% Water temp:%T3%</h5>     
+    </div> 
+    <div class="bloqueset">  
+    <button class="Pagechange" onclick=location.href="/TIMERSET" >Set timer </button>
+</div> 
+</div>
+</body>
+
+
+</html>
+
+
+
