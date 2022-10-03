@@ -102,7 +102,7 @@ byte barra_abajo[8] = {
 char ImprimirLCD[20];
 char ContraWifi[20];
 char NombreWifi[20];
-
+char mensajeAEnviar[24];
 bool InternetDisponible = false;
 uint8_t Enviar_Variables_Serial;
 uint8_t TiempoPulsadorEncoder;
@@ -247,10 +247,9 @@ void Actualizar_entradas()
       Sensor_temp.requestTemperatures();
       TemperaturaActual = Sensor_temp.getTempCByIndex(0);
       tiempoSensores = MiliSegundos;
-      if(InternetDisponible)
-      Enviar_Serial(1, 0);
     }
   }
+
 // Envia mensajes al esp al iniciar el controlador
   if (Enviar_Variables_Serial < 7)
   {
@@ -292,7 +291,7 @@ void Actualizar_entradas()
   }
   
   NivelActual=map(analogRead(SENSOR_NIVEL),0,1024,0,100);
-
+  Enviar_Serial(0, 0); // serial print
   now = rtc.now();// Actualiza el rtc
 }
 
@@ -2367,11 +2366,14 @@ void Leer_Serial()
   }
 }
 
+bool enviado;
+
 void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
 {
-  char mensajeAEnviar[24];
+
   char calentando; 
   char llenando;
+  bool update;
 
   if (Calentar)
     calentando = 'I';
@@ -2385,32 +2387,42 @@ void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
 
   switch (WhatSend)
   {
-
+  case 0:
+    if(update) 
+      sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
+    if(now.second()%3==0 && !update && !enviado){
+      Serial.print(mensajeAEnviar);
+      Serial.println();
+      update=true;
+      enviado=true;
+    }
+    if(now.second()%3!=0 && enviado)
+      enviado=false;
   case 1:
-    sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
-    Serial.print(mensajeAEnviar);
+      sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
+      if(now.second()%3!=0) 
+        update=false;
     break;
   case 2:
     sprintf(mensajeAEnviar, "K_%c%c%c%c", 34 + eep.read((What_slot * 3) + 1), 34 + eep.read((What_slot * 3) + 2), 33 + eep.read((What_slot * 3) + 3), What_slot + 48);
-    Serial.print(mensajeAEnviar);
+    update=false;
     break;
   case 3:
     sprintf(mensajeAEnviar, "N_%s", NombreWifi);
-    Serial.print(mensajeAEnviar);
+    update=false;
     break;
   case 4:
     sprintf(mensajeAEnviar, "P_%s", ContraWifi);
-    Serial.print(mensajeAEnviar);
+    update=false;
     break;
   case 5:
     sprintf(mensajeAEnviar, "C_%c%c", 34 + eep.read(12), 34 + eep.read(13));
-    Serial.print(mensajeAEnviar);
+    update=false;
     break;
   case 6:
     sprintf(mensajeAEnviar, "H_%c%c", 34 + eep.read(10), 34 + eep.read(11));
-    Serial.print(mensajeAEnviar);
+    update=false;
   default:
     break;
   }
-  Serial.println();
 }
