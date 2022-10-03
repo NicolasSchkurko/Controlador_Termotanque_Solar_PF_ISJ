@@ -46,7 +46,6 @@ bool Calentando = false;
 bool LoopFunca;
 uint8_t CalentadoAuto = 0;
 uint8_t LLenadoAuto = 0;
-
 //█████████████████████████████████████████████████████████████████████████████████
 // Asigna el webserver al puerto 80 de la red wifi
 AsyncWebServer server(80);
@@ -65,38 +64,36 @@ void setup()
             {
               LoopFunca=true;
               request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
-              sprintf(Texto_Temp,"%c",TempActual);
-              sprintf(Texto_Nivel,"%c",NivelActual); 
-                  Leer_Serial();
-                  });
+              sprintf(Texto_Temp,"%d",TempActual);
+              sprintf(Texto_Nivel,"%d",NivelActual);  
+                
+              });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/desing.css", "text/css"); 
-            LoopFunca=true;     Leer_Serial();});
+             
+            });
   // Toma datos del slider y los guarda en una variable
 
   server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
             {  
   if (request->hasParam("Hora")) 
     {
-      LoopFunca=true;
+       
       String LetraEstado = request->getParam("Hora")->value();
       LetraEstado.toCharArray(Texto_Hora,6);
-          Leer_Serial();
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });
 
   server.on("/slider", HTTP_GET, [](AsyncWebServerRequest *request)
             {   
-              LoopFunca=true;
-                  Leer_Serial();
+     
     String LetraEstado;
     //Toma datos del slider Temp
     if (request->hasParam("Temp")) 
     {
       LetraEstado = request->getParam("Temp")->value();
       LetraEstado.toCharArray(Texto_Temp,5);
-          Leer_Serial();
       TempActual = atoi(Texto_Temp);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     }
@@ -105,7 +102,6 @@ void setup()
     {
       LetraEstado = request->getParam("nivel")->value();
        LetraEstado.toCharArray(Texto_Nivel,4);
-           Leer_Serial();
       NivelActual = atoi(Texto_Nivel);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });
@@ -114,14 +110,14 @@ void setup()
   // Activa el calentamiento de manera manual
   server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              LoopFunca=true;
+   
     Calentando= !Calentando; 
     Enviar_Serial(1);
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
   // Activa el llenado de agua manual
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              LoopFunca=true;
+ 
     Llenando= !Llenando;
     Enviar_Serial(2); 
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
@@ -129,7 +125,7 @@ void setup()
   // Setea el calentamiento de manera automatica
   server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              LoopFunca=true;
+ 
     CalentadoAuto++; 
     if (CalentadoAuto==1 && TempActual<90)TemperaturaMinima=TempActual;
     if (CalentadoAuto==1 &&TempActual>=90) Texto_Error_Temp="La Temperatura minima debe ser menor a 90";
@@ -146,7 +142,7 @@ void setup()
   // Setea el llenado de manera automatica
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              LoopFunca=true;
+ 
     LLenadoAuto++; 
     if (LLenadoAuto==1 && TempActual<100)NivelMinimo=NivelActual;
     if (LLenadoAuto==1 && TempActual>=100)Texto_Error_Nivel="El nivel minimo debe ser menor a 100";
@@ -162,12 +158,12 @@ void setup()
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
   // Redirige a pagina de automatico por tiempo
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request)
-            { LoopFunca=true;
+            {  
               request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
   // Guarda en el primer slot de guardado por tiempo
   server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-LoopFunca=true;
+ 
     if (Convercionhora(1, Texto_Hora) == save[1].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora){
       Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
@@ -182,7 +178,7 @@ LoopFunca=true;
   // Guarda en el segundo slot de guardado por tiempo
   server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    LoopFunca=true;
+ 
     if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora){
       Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
@@ -197,7 +193,7 @@ LoopFunca=true;
   // Guarda en el tercer slot de guardado por tiempo
   server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              LoopFunca=true;
+ 
     if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[1].Hora){
       Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
@@ -211,20 +207,24 @@ LoopFunca=true;
     request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
   // Redirige a pagina principal (index)
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
+            { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); 
+              });
+  server.begin();
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
 
 void loop()
 {
-   if (Serial.available()>0) Leer_Serial();
+  if (Serial.available() > 0)
+    Leer_Serial();
 
   if (WiFi.status() == WL_CONNECTED && EnviarIP == true)
   {
     Enviar_Serial(6);
     EnviarIP = false;
   }
+  delay(1);
 }
 
 //█████████████████████████████████████████████████████████████████████████████████
@@ -232,18 +232,18 @@ String ImprimirEnWeb(const String &var)
 {
   // Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
   // entrega numeros de Temperatura actual a la pagina
-  if (var == "Texto_Temp")
-    return Texto_Temp;
-  if (var == "Texto_Nivel")
-    return Texto_Nivel;
-  if (var == "Texto_Hora")
-    return Texto_Hora;
+  if (var == "TVAL")
+    return String(Texto_Temp);
+  if (var == "LVAL")
+    return String(Texto_Nivel);
+  if (var == "HVAL")
+    return String(Texto_Hora);
   // entrega strings de error
-  if (var == "Texto_Error_GuardadoAVE")
+  if (var == "ERRORSAVE")
     return Texto_Error_Guardado;
-  if (var == "Texto_Error_Nivel")
+  if (var == "ERRORLVL")
     return Texto_Error_Nivel;
-  if (var == "Texto_Error_Temp")
+  if (var == "ERRORTEMP")
     return Texto_Error_Temp;
   // entrega numeros de Temperatura y nivel maxima y minima
   if (var == "LMAX")
@@ -372,44 +372,74 @@ void Leer_Serial()
   char input;
   bool datosObtenidos;
 
-  Serial_Input=Serial.readString();// iguala el string del serial a un string imput
-  StringLength= Serial_Input.length();// saca el largo del string
-  input=Serial_Input.charAt(0); // toma el char de comando (el primer char usualmente una letra)
-
-  for (uint8_t CharPos = 2; CharPos <= StringLength-2; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+  Serial_Input = Serial.readString();   // iguala el string del serial a un string imput
+  StringLength = Serial_Input.length(); // saca el largo del string
+  input = Serial_Input.charAt(0);       // toma el char de comando (el primer char usualmente una letra)
+  memset(Datos, 0, 22);
+  for (uint8_t CharPos = 0; CharPos <= StringLength - 2; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
-      if(CharPos<StringLength-2)Datos[CharPos]==Serial_Input.charAt(CharPos+2); //si hay : divide los datos
-      if(CharPos==StringLength-2)datosObtenidos=true;// activa el comando final (flag)
-  } 
+    if (CharPos < StringLength - 2)
+      Datos[CharPos] = Serial_Input.charAt(CharPos + 2); // si hay : divide los datos
+    if (CharPos == StringLength - 2)
+      datosObtenidos = true; // activa el comando final (flag)
+  }
 
-  if (datosObtenidos==true){
-    
-    switch (Datos[0])//dependiendo del char de comando
+  if (datosObtenidos == true)
+  {
+    /* */
+    switch (input) // dependiendo del char de comando
     {
     case 'N':
-      Serial.println(Serial_Input);
+      memcpy(SSID, Datos, 22);
+      Serial.println(SSID);
+      datosObtenidos = false;
       break;
-    case 'S':
-            datosObtenidos=false;
-    break;
+    case 'P':
+      memcpy(Password, Datos, 22);
+      WiFi.begin(SSID, Password);
+      EnviarIP = true;
+      datosObtenidos = false;
+      break;
     case 'U':
-          datosObtenidos=false;
+      TempActual = Datos[0] - 128;
+      NivelActual = Datos[1] - 34;
+      if (Datos[2] == 'I')
+        Calentando = true;
+      else
+        Calentando = false;
+      if (Datos[3] == 'I')
+        Llenando = true;
+      else
+        Llenando = false;
+      datosObtenidos = false;
       break;
-    case 'J':
-          datosObtenidos=false;
+    case 'C':
+      NivelCalentar = Datos[1] - 34;
+      NivelMinimo = Datos[0] - 34;
+      datosObtenidos = false;
       break;
-    case 'V':
-            datosObtenidos=false;
+    case 'H':
+      TemperaturaCalentar = Datos[1] - 34;
+      TemperaturaMinima = Datos[0] - 34;
+      datosObtenidos = false;
       break;
-    case '?':
-            // RESET INO
-            datosObtenidos=false;
-        break;
+    case 'K':
+      SlotGuardado = Datos[3] - 48;
+      if (SlotGuardado <= 2 && SlotGuardado >= 0)
+      {
+        save[SlotGuardado].Hora = int(Datos[0] - 34);
+        save[SlotGuardado].Nivel = int(Datos[1] - 34);
+        save[SlotGuardado].Temp = int(Datos[2] - 34);
+        Enviar_Serial(3);
+      }
+      datosObtenidos = false;
+      break;
     default:
       break;
     }
   }
 }
+
 String DesConvercionhora(uint8_t function, uint8_t save)
 {
   uint8_t var1_deconvert = 0; // solo una variable (_deconvert  nos evita modificar variables globales como bldos)

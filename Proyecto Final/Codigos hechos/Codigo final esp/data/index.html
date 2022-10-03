@@ -88,6 +88,10 @@
                     xhr.open("GET", "/slider?nivel=" + LVal, true);
                     xhr.send();
                 }
+                function autoRefresh() {
+                    window.location = window.location.href;
+                }
+                setInterval('autoRefresh()', 6000);
             </script>
         </div>
     </div>
