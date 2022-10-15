@@ -1,0 +1,17 @@
+¿Que tienen que enviarse entre el esp/ino?
+ino/esp
+Temperatura actual, nivel actual, cargando/calentando y unidad de medida 	./U_(temp)(nivel)(estado temp)(estado nivel)(unidad)
+seteos por hora guardados							./S_(slot)(char hora)(Nivel)(temp)
+Contraseña wifi 								./P_(contraseña)
+nombre wifi									./N_(contraseña)
+Temperatura maxima/minima							.H_(Tmin)(Tmax)
+Nivel maximo/minimo								.C_(Nmin)(Nmax)
+
+esp/ino
+seteos por hora guardados (modificados)						'S_(slot)(char hora)(Nivel)(temp) /
+Temperatura maxima/minima							'H_(Tmin)(Tmax) /
+nivel maxima/minimo								'C_(Nmin)(Nmax) /
+Si se establecio calentamiento							'W_(Temp a setear)(Prendido/apagado) /
+carga manual									'F_(nivel a calentar)(Pendido/apagado) /
+IP										I_(192)(168)(x)(x) /
+ERROR										E_E
