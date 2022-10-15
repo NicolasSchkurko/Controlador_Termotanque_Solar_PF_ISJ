@@ -386,12 +386,12 @@ void Leer_Serial()
 
   if (datosObtenidos == true)
   {
+    Serial.println(Datos);
     /* */
     switch (input) // dependiendo del char de comando
     {
     case 'N':
       memcpy(SSID, Datos, 22);
-      Serial.println(SSID);
       datosObtenidos = false;
       break;
     case 'P':

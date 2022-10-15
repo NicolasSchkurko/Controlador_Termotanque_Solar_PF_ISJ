@@ -149,6 +149,7 @@ void setup()
   Sensor_temp.begin();
   Sensor_temp.requestTemperatures();
   TemperaturaActual = Sensor_temp.getTempCByIndex(0);
+  Sensor_temp.setResolution(9);
   // inicia rtc
   rtc.begin(); 
   // inicia serial
@@ -245,45 +246,46 @@ void Actualizar_entradas()
     if (Estadoequipo == estado_Standby || Estadoequipo == estado_inicial)
     {
       Sensor_temp.requestTemperatures();
+      Enviar_Serial(0, 0);
+    }     // serial print
       TemperaturaActual = Sensor_temp.getTempCByIndex(0);
       tiempoSensores = MiliSegundos;
-    }
   }
 
 // Envia mensajes al esp al iniciar el controlador
   if (Enviar_Variables_Serial < 7)
   {
-    if (Enviar_Variables_Serial == 0 && MiliSegundos>250 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 0 && MiliSegundos>TIEMPO_LECTURA_TEMP-1000 && !InternetDisponible)
     {
       Enviar_Serial(5, 0);
       Enviar_Variables_Serial++;
     }
-    if (Enviar_Variables_Serial == 1 && MiliSegundos>500 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 1 && MiliSegundos>TIEMPO_LECTURA_TEMP*2-1000 & !InternetDisponible)
     {
       Enviar_Serial(6, 0);
       Enviar_Variables_Serial++;
     }
-    if (Enviar_Variables_Serial == 2 && MiliSegundos>1000 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 2 && MiliSegundos>TIEMPO_LECTURA_TEMP*3-1000 && !InternetDisponible)
     {
       Enviar_Serial(2, 1);
       Enviar_Variables_Serial++;
     }
-    if (Enviar_Variables_Serial == 3 && MiliSegundos>1500 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 3 && MiliSegundos>TIEMPO_LECTURA_TEMP*4-1000 && !InternetDisponible)
     {
       Enviar_Serial(2, 2);
       Enviar_Variables_Serial++;
     }
-    if (Enviar_Variables_Serial == 4 && MiliSegundos>2000 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 4 && MiliSegundos>TIEMPO_LECTURA_TEMP*5-1000 && !InternetDisponible)
     {
       Enviar_Serial(2, 3);
       Enviar_Variables_Serial++;
     }
-    if (Enviar_Variables_Serial == 5 && MiliSegundos>2500 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 5 && MiliSegundos>TIEMPO_LECTURA_TEMP*6-1000 && !InternetDisponible)
     {
       Enviar_Serial(3, 0);
       Enviar_Variables_Serial++;
     }
-    if (Enviar_Variables_Serial == 6 && MiliSegundos>3000 && !InternetDisponible)
+    if (Enviar_Variables_Serial == 6 && MiliSegundos>TIEMPO_LECTURA_TEMP*7-1000 && !InternetDisponible)
     {
       Enviar_Serial(4, 0);
       Enviar_Variables_Serial++;
@@ -291,7 +293,6 @@ void Actualizar_entradas()
   }
   
   NivelActual=map(analogRead(SENSOR_NIVEL),0,1024,0,100);
-  Enviar_Serial(0, 0); // serial print
   now = rtc.now();// Actualiza el rtc
 }
 
@@ -2367,13 +2368,13 @@ void Leer_Serial()
 }
 
 bool enviado;
+bool update;
 
 void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
 {
 
   char calentando; 
   char llenando;
-  bool update;
 
   if (Calentar)
     calentando = 'I';
@@ -2388,20 +2389,10 @@ void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
   switch (WhatSend)
   {
   case 0:
-    if(update) 
-      sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
-    if(now.second()%3==0 && !update && !enviado){
-      Serial.print(mensajeAEnviar);
-      Serial.println();
-      update=true;
-      enviado=true;
-    }
-    if(now.second()%3!=0 && enviado)
-      enviado=false;
-  case 1:
-      sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
-      if(now.second()%3!=0) 
-        update=false;
+    Serial.print(mensajeAEnviar);
+    Serial.println();
+    sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
+
     break;
   case 2:
     sprintf(mensajeAEnviar, "K_%c%c%c%c", 34 + eep.read((What_slot * 3) + 1), 34 + eep.read((What_slot * 3) + 2), 33 + eep.read((What_slot * 3) + 3), What_slot + 48);
