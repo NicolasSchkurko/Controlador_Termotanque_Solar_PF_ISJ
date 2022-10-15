@@ -57,7 +57,6 @@ void setup()
 
   Serial.begin(9600);
   LittleFS.begin();
-  WiFi.begin(String(SSID), String(Password));
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -376,27 +375,30 @@ void Leer_Serial()
   StringLength = Serial_Input.length(); // saca el largo del string
   input = Serial_Input.charAt(0);       // toma el char de comando (el primer char usualmente una letra)
   memset(Datos, 0, 22);
-  for (uint8_t CharPos = 0; CharPos <= StringLength - 2; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+  for (uint8_t CharPos = 0; CharPos <= 22; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
     if (CharPos < StringLength - 2)
       Datos[CharPos] = Serial_Input.charAt(CharPos + 2); // si hay : divide los datos
     if (CharPos == StringLength - 2)
       datosObtenidos = true; // activa el comando final (flag)
+    if (CharPos > StringLength - 2)
+      Datos[CharPos] = 0;
   }
 
   if (datosObtenidos == true)
   {
-    Serial.println(Datos);
     /* */
     switch (input) // dependiendo del char de comando
     {
     case 'N':
       memcpy(SSID, Datos, 22);
       datosObtenidos = false;
+      Serial.print(SSID);
       break;
     case 'P':
       memcpy(Password, Datos, 22);
-      WiFi.begin(SSID, Password);
+      Serial.print(Password);
+      WiFi.begin(String(SSID), String(Password));
       EnviarIP = true;
       datosObtenidos = false;
       break;
@@ -430,7 +432,7 @@ void Leer_Serial()
         save[SlotGuardado].Hora = int(Datos[0] - 34);
         save[SlotGuardado].Nivel = int(Datos[1] - 34);
         save[SlotGuardado].Temp = int(Datos[2] - 34);
-        Enviar_Serial(3);
+
       }
       datosObtenidos = false;
       break;

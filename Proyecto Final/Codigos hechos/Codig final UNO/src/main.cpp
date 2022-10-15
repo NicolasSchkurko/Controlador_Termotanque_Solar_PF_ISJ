@@ -1744,8 +1744,8 @@ void menu_seteo_wifi()
 
     for (PosicionActual = 0; PosicionActual < 19; PosicionActual++)
     {
-      NombreWifi[PosicionActual] = '\0';
-      ContraWifi[PosicionActual] = '\0';
+      NombreWifi[PosicionActual] = 0;
+      ContraWifi[PosicionActual] = 0;
     }
     CharSeleccionado = 0;
     PosicionEntradas = 0;
@@ -1781,7 +1781,7 @@ void menu_seteo_wifi()
     }
     if (Pin_Entrada(6) && PosicionActual2 >= 3)
     {
-      NombreWifi[PosicionActual2] = '\0';
+      NombreWifi[PosicionActual2] = 0;
       lcd.clear();
       Flag = 3;
       PosicionActual2 = 0;
@@ -1790,7 +1790,7 @@ void menu_seteo_wifi()
     if (Pin_Entrada(7) && PosicionActual2 > 0)
     {
       CharSeleccionado = 0;
-      NombreWifi[PosicionActual2] = '\0';
+      NombreWifi[PosicionActual2] = 0;
       PosicionActual2--;
       lcd.clear();
     }
