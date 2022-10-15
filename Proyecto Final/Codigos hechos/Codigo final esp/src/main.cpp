@@ -343,7 +343,7 @@ void Enviar_Serial(uint8_t WhatSend)
     Serial.println(DatosEnviarSerial);
     break;
   case 3:
-    sprintf(DatosEnviarSerial, "K_%c%c%c%c", save[SlotGuardado].Hora + 34, save[SlotGuardado].Temp + 34, save[SlotGuardado].Nivel + 34, SlotGuardado + 48);
+    sprintf(DatosEnviarSerial, "K_%c%c%c%c", save[SlotGuardado].Hora + 34, save[SlotGuardado].Temp + 34, save[SlotGuardado].Nivel + 34, SlotGuardado + 49);
     Serial.println(DatosEnviarSerial);
     break;
   case 4:
