@@ -257,12 +257,12 @@ void Actualizar_entradas()
   {
     if (Enviar_Variables_Serial == 0 && MiliSegundos>TIEMPO_LECTURA_TEMP-1000 && !InternetDisponible)
     {
-      Enviar_Serial(5, 0);
+      Enviar_Serial(3, 0);
       Enviar_Variables_Serial++;
     }
     if (Enviar_Variables_Serial == 1 && MiliSegundos>TIEMPO_LECTURA_TEMP*2-1000 & !InternetDisponible)
     {
-      Enviar_Serial(6, 0);
+      Enviar_Serial(4, 0);
       Enviar_Variables_Serial++;
     }
     if (Enviar_Variables_Serial == 2 && MiliSegundos>TIEMPO_LECTURA_TEMP*3-1000 && !InternetDisponible)
@@ -282,12 +282,12 @@ void Actualizar_entradas()
     }
     if (Enviar_Variables_Serial == 5 && MiliSegundos>TIEMPO_LECTURA_TEMP*6-1000 && !InternetDisponible)
     {
-      Enviar_Serial(3, 0);
+      Enviar_Serial(5, 0);
       Enviar_Variables_Serial++;
     }
     if (Enviar_Variables_Serial == 6 && MiliSegundos>TIEMPO_LECTURA_TEMP*7-1000 && !InternetDisponible)
     {
-      Enviar_Serial(4, 0);
+      Enviar_Serial(6, 0);
       Enviar_Variables_Serial++;
     }
   }
@@ -1826,14 +1826,14 @@ void menu_seteo_wifi()
     }
     if (Pin_Entrada(6) && PosicionActual2 >= 8)
     {
-      ContraWifi[PosicionActual2] = '\0';
+      ContraWifi[PosicionActual2] = 0;
       lcd.clear();
       Flag = 4;
     }
     if (Pin_Entrada(7) && PosicionActual2 > 0)
     {
       CharSeleccionado = 0;
-      ContraWifi[PosicionActual2] = '\0';
+      ContraWifi[PosicionActual2] = 0;
       PosicionActual2--;
       lcd.clear();
     }
