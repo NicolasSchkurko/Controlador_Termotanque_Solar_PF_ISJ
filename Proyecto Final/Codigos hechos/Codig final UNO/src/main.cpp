@@ -2289,7 +2289,7 @@ void Leer_Serial()
     switch (CharSeleccionado)
     {         // dependiendo del char de comando
     case 'W': // calentamiento manual
-      eep.write(15, datos[0] - 33);
+      eep.write(15, datos[0] - 34);
 
       if (datos[1] == 'O')
         Calentar = false;
@@ -2301,7 +2301,7 @@ void Leer_Serial()
       break;
 
     case 'F': // llenmado manual
-      eep.write(14, datos[0] - 33);
+      eep.write(14, datos[0] - 34);
 
       if (datos[1] == 'O') // prendido
         LLenar = false;
@@ -2312,25 +2312,25 @@ void Leer_Serial()
       datosObtenidos = false;
       break;
 
-    case 'S': // H por hora
-      slotEeprom = datos[0] - 48;
+    case 'K': // H por hora
+      slotEeprom = datos[3] - 49;
       if (slotEeprom <= 2 && slotEeprom >= 0)
       {
-        eep.write((slotEeprom * 3) + 1, datos[1] - 33); // hora
-        eep.write((slotEeprom * 3) + 2, datos[2] - 33); // nivel
-        eep.write((slotEeprom * 3) + 3, datos[3] - 33); // temp
+        eep.write((slotEeprom * 3) + 1, datos[3] - 34); // hora
+        eep.write((slotEeprom * 3) + 2, datos[2] - 34); // nivel
+        eep.write((slotEeprom * 3) + 3, datos[0] - 34); // temp
         datosObtenidos = false;
       }
       break;
 
     case 'H': // temp auto
-      eep.write(10, datos[0] - 33);
-      eep.write(11, datos[1] - 33);
+      eep.write(10, datos[0] - 34);
+      eep.write(11, datos[1] - 34);
       datosObtenidos = false;
       break;
     case 'C': // llenado auto
-      eep.write(12, datos[0] - 33);
-      eep.write(13, datos[1] - 33);
+      eep.write(12, datos[0] - 34);
+      eep.write(13, datos[1] - 34);
       datosObtenidos = false;
       break;
     case 'I': // Ip

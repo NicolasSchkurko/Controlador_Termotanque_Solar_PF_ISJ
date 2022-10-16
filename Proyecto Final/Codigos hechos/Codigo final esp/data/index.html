@@ -1,11 +1,26 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' media='screen' href='./Css/desing.css'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="./Media/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./Media/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./Media/favicon-16x16.png">
+    <link rel="manifest" href="./Media/site.webmanifest">
+    <link rel="mask-icon" href="./Media/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+    <title>SLB_X05</title>
     <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>SLB_x02</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='desing.css'>
 </head>
 
 <body>
@@ -14,11 +29,11 @@
         <div class="temperature">
             <h1>Temperatura</h1>
 
-            <div class="barraTemp" id="barratemp">
+            <div class="barraTemp">
                 <div class="cont" style="background-color: #506ee5;"></div>
                 <div class="cont" style="background-color: #68b2f8;"></div>
-
             </div>
+
             <div class="circulo_centro"></div>
             <div class="rectangulo"></div>
             <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="TSV">%TVAL%</h1>
@@ -88,26 +103,10 @@
                     xhr.open("GET", "/slider?nivel=" + LVal, true);
                     xhr.send();
                 }
-                function autoRefresh() {
-                    window.location = window.location.href;
-                }
-                setInterval('autoRefresh()', 6000);
             </script>
         </div>
     </div>
     <div class="Column">
-        <div class="bloqueset">
-            <h3>Start by timer 1</h3>
-            <h5>Hour: %H1% Water level: %L1% Water temp:%T1%</h5>
-        </div>
-        <div class="bloqueset">
-            <h3>Start by timer 2</h3>
-            <h5>Hour: %H2% Water level: %L2% Water temp:%T2%</h5>
-        </div>
-        <div class="bloqueset">
-            <h3>Start by timer 3</h3>
-            <h5>Hour: %H3% Water level: %L3% Water temp:%T3%</h5>
-        </div>
         <div class="bloqueset">
             <button class="Pagechange" onclick=location.href="/TIMERSET">Set timer </button>
         </div>

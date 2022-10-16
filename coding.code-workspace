@@ -36,6 +36,7 @@
 			"initializer_list": "cpp",
 			"ranges": "cpp",
 			"regex": "cpp"
-		}
+		},
+		"liveServer.settings.multiRootWorkspaceName": "Programming"
 	}
 }
