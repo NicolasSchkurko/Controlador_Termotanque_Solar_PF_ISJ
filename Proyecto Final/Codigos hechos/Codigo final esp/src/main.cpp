@@ -79,28 +79,28 @@ void setup()
   if (request->hasParam("Hora")) 
     {
        
-      String LetraEstado = request->getParam("Hora")->value();
-      LetraEstado.toCharArray(Texto_Hora,6);
+      String TextoEstado = request->getParam("Hora")->value();
+      TextoEstado.toCharArray(Texto_Hora,6);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });
 
   server.on("/slider", HTTP_GET, [](AsyncWebServerRequest *request)
             {   
      
-    String LetraEstado;
+    String TextoEstado;
     //Toma datos del slider Temp
     if (request->hasParam("Temp")) 
     {
-      LetraEstado = request->getParam("Temp")->value();
-      LetraEstado.toCharArray(Texto_Temp,5);
+      TextoEstado = request->getParam("Temp")->value();
+      TextoEstado.toCharArray(Texto_Temp,5);
       TempActual = atoi(Texto_Temp);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     }
     //Toma datos del slider nivel
     if (request->hasParam("nivel")) 
     {
-      LetraEstado = request->getParam("nivel")->value();
-       LetraEstado.toCharArray(Texto_Nivel,4);
+      TextoEstado = request->getParam("nivel")->value();
+       TextoEstado.toCharArray(Texto_Nivel,4);
       NivelActual = atoi(Texto_Nivel);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });

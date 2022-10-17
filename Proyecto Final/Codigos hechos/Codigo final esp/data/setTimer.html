@@ -26,8 +26,8 @@
 
 <body>
   <h1>Set by hour at:</h1>
-  <h4 class="titl"><span id="HSV">%HVAL%</span>hs</h4>
-  <h4 class="titl"><span id="TSV">%TVAL%</span>°C<span id="LSV">%LVAL%</span>℅</h4>
+  <h4 class="titl"><span id="HSV">-:-</span>hs</h4>
+  <h4 class="titl"><span id="TSV">65</span>°C<span id="LSV">75</span>℅</h4>
 
   <div class="elbicho">
     <div class="bloqueset">
@@ -45,7 +45,7 @@
       }
     </script>
     <div class="bloqueset">
-      <input type="range" id="lvl" min="40" max="100" step="5" onchange="updateSliderLVL(this)" class="slider"
+      <input type="range" id="lvl" min="25" max="100" step="25" onchange="updateSliderLVL(this)" class="slider"
         value="%LVAL%" oninput="this.nextElementSibling.value = this.value">
     </div>
     <script>

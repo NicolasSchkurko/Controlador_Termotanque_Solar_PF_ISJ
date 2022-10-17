@@ -36,32 +36,23 @@
 
             <div class="circulo_centro"></div>
             <div class="rectangulo"></div>
-            <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="TSV">%TVAL%</h1>
+            <h1 style="font-size: 22px;  position: relative; margin: -125px auto 50px;" id="TSVs">%TVAL%</h1>
 
             <input type="range" id="temp" min="40" class="slider" max="90" step="5" onchange="updateSliderTEMP(this)"
                 value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
+            <h1 style="font-size: 22px;" id="TSV">65</h1>
             <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
 
-            <div id="auto">
-                <h2> %ERRORTEMP% </h2>
-                <h5> Automatic temp start min: %TMIN% </h5>
-                <h5> Automatic temp max: %TMAX% </h5>
-            </div>
-            <button class="Set" onclick=location.href="/SETEMP">%STTA%</button>
-
             <script>
-                var TVal = document.getElementById("temp").value;
+                var TVal = document.getElementById("TSVs").value;
                 var degrees = (TVal) * 1.8;
                 document.getElementById("barratemp").style.transform = String("rotate(" + degrees + "deg)");
-                document.getElementById("TSV").innerHTML = TVal;
                 function updateSliderTEMP(element) {
-                    var TVal = document.getElementById("temp").value;
-                    var degrees = (TVal) * 1.8;
-                    document.getElementById("barratemp").style.transform = String("rotate(" + degrees + "deg)");
-                    console.log(TVal);
-                    document.getElementById("TSV").innerHTML = TVal;
+                    var STVal = document.getElementById("temp").value;;
+                    console.log(STVal);
+                    document.getElementById("TSV").innerHTML = STVal;
                     var xhr = new XMLHttpRequest();
-                    xhr.open("GET", "/slider?temp=" + TVal, true);
+                    xhr.open("GET", "/slider?temp=" + STVal, true);
                     xhr.send();
                 }
             </script>
@@ -75,30 +66,21 @@
             </div>
             <div class="circulo_centro"></div>
             <div class="rectangulo"></div>
-            <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="LSV">%LVAL%</h1>
+            <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="LSVs">%LVALS%</h1>
 
             <input type="range" id="lvl" min="25" max="100" step="25" onchange="updateSliderLVL(this)" class="slider"
                 value="%LVAL%" oninput="this.nextElementSibling.value = this.value">
+
+            <h1 style="font-size: 22px;" id="LSV">75</h1>
             <button class="button" onclick=location.href="/STALVL">%BTNL%</button>
-
-            <div id="auto">
-                <h2>%ERRORLVL%</h2>
-                <h5> Automatic level start min: %LMIN% </h5>
-                <h5> Automatic level max: %LMAX% </h5>
-            </div>
-            <button class="Set" onclick=location.href="/SETLVL">%STLA%</button>
-
             <script>
-                var LVal = document.getElementById("lvl").value;
+                var LVal = document.getElementById("LSVs").value;
                 var degrees = (LVal) * 1.8;
-                document.getElementById("LSV").innerHTML = LVal;
                 document.getElementById("barralvl").style.transform = String("rotate(" + degrees + "deg)");
                 function updateSliderLVL(element) {
-                    var LVal = document.getElementById("lvl").value;
-                    var degrees = (LVal) * 1.8;
-                    document.getElementById("barralvl").style.transform = String("rotate(" + degrees + "deg)");
-                    console.log(LVal);
-                    document.getElementById("LSV").innerHTML = LVal;
+                    var SLval = document.getElementById("lvl").value;
+                    console.log(SLval);
+                    document.getElementById("LSV").innerHTML = SLval;
                     var xhr = new XMLHttpRequest();
                     xhr.open("GET", "/slider?nivel=" + LVal, true);
                     xhr.send();
@@ -109,6 +91,7 @@
     <div class="Column">
         <div class="bloqueset">
             <button class="Pagechange" onclick=location.href="/TIMERSET">Set timer </button>
+            <button class="Pagechange" onclick=location.href="/AUTOSET">Set auto </button>
         </div>
     </div>
 </body>

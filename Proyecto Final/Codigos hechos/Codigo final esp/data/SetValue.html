@@ -1,0 +1,108 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' media='screen' href='./Css/desing.css'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="./Media/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./Media/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./Media/favicon-16x16.png">
+    <link rel="manifest" href="./Media/site.webmanifest">
+    <link rel="mask-icon" href="./Media/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+    <title>SLB_X05</title>
+    <meta charset='utf-8'>
+</head>
+
+<body>
+    <h1>Set by min and max</h1>
+    <div class="elbicho">
+        <div class="bloqueset">
+            <h1>Temperatura</h1>
+            <div id="auto">
+                <h5>Temp max: <span id="+TSV">65</span>°C</h5>
+            </div>
+            <input type="range" id="tempmax" min="45" class="slider" max="80" step="5"
+                onchange="updateSliderTEMPMAX(this)" value="%TVAL%"
+                oninput="this.nextElementSibling.value = this.value">
+            <div id="auto">
+                <h5>Temp min: <span id="-TSV">65</span>°C</h5>
+            </div>
+            <input type="range" id="tempmin" min="40" class="slider" max="75" step="5"
+                onchange="updateSliderTEMPMIN(this)" value="%TVAL%"
+                oninput="this.nextElementSibling.value = this.value">
+
+
+            <div id="auto">
+                <h2> %ERRORTEMP% </h2>
+            </div>
+
+            <button class="Set" onclick=location.href="/SETEMP">%STTA%</button>
+
+            <script>
+                function updateSliderTEMPMAX(element) {
+                    var TValmax = document.getElementById("tempmax").value;
+                    document.getElementById("+TSV").innerHTML = TValmax;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", "/slider?tempmax=" + TValmax, true);
+                    xhr.send();
+                }
+                function updateSliderTEMPMIN(element) {
+                    var TValmin = document.getElementById("tempmin").value;
+                    document.getElementById("-TSV").innerHTML = TValmin;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", "/slider?tempmin=" + TValmin, true);
+                    xhr.send();
+                }
+            </script>
+        </div>
+        <div class="bloqueset">
+            <h1>Nivel</h1>
+            <div id="auto">
+                <h5>Level max: <span id="+LSV">75</span>%</h5>
+            </div>
+            <input type="range" id="lvlmax" min="50" max="100" step="25" onchange="updateSliderLVLMAX(this)" class="slider"
+                value="%LVAL%" oninput="this.nextElementSibling.value = this.value">
+            <div id="auto">
+                <h5>Level min: <span id="-LSV">50</span>%</h5>
+            </div>
+            <input type="range" id="lvlmin" min="25" max="75" step="25" onchange="updateSliderLVLMIN(this)" class="slider"
+                value="%LVAL%" oninput="this.nextElementSibling.value = this.value">
+            <div id="auto">
+                <h2>%ERRORLVL%</h2>
+            </div>
+            <button class="Set" onclick=location.href="/SETLVL">%STLA%</button>
+            <script>
+                function updateSliderLVLMAX(element) {
+                    var TValmax = document.getElementById("lvlmax").value;
+                    document.getElementById("+LSV").innerHTML = TValmax;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", "/slider?nivelmax=" + TValmax, true);
+                    xhr.send();
+                }
+                function updateSliderLVLMIN(element) {
+                    var TValmin = document.getElementById("lvlmin").value;
+                    document.getElementById("-LSV").innerHTML = TValmin;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", "/slider?nivelmin=" + TValmin, true);
+                    xhr.send();
+                }
+            </script>
+        </div>
+        <div class="bloqueset">
+            <p><button class="Set" onclick=location.href="/RETURN">RETURN TO MAIN PAGE</button></p>
+        </div>
+    </div>
+</body>
+
+
+</html>
