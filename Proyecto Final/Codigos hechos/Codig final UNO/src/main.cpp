@@ -106,21 +106,22 @@ char mensajeAEnviar[24];
 bool InternetDisponible = false;
 uint8_t Enviar_Variables_Serial;
 uint8_t TiempoPulsadorEncoder;
-uint8_t CharSeleccionado = 0;
-uint16_t TiempoDeStandby;
+uint8_t ItemSeleccionado = 0;
+uint32_t TiempoDeStandby;
 int8_t TemperaturaActual; // temp actual
 uint8_t PosicionEntradas; // es el "sumador" del encoder
-uint16_t tiempoSensores;
+uint32_t tiempoSensores;
 bool Mayusculas = false;
 uint8_t PosicionActual2; // por cambiar
 uint8_t PosicionActual;
-uint16_t MiliSegundos;
+uint32_t MiliSegundos;
 uint8_t MinutoASetear;
 uint8_t NivelASetear2;
 uint8_t NivelASetear;
 uint8_t TempASetear2;
 uint8_t TempASetear;
 uint8_t HoraASetear;
+uint8_t GuardadoDeHora;
 uint8_t NivelActual;
 uint8_t Flag = 0;
 bool Calentar;
@@ -253,8 +254,7 @@ void Actualizar_entradas()
   if (MiliSegundos >= tiempoSensores + TIEMPO_LECTURA_TEMP && !datosenviados)
   {
     // Lee el sensor de temp y envia al esp el estado actual (temp y nivel actual)
-    if (Estadoequipo == estado_Standby || Estadoequipo == estado_inicial)
-      Enviar_Serial(0, 0);
+    Enviar_Serial(0, 0);
     datosenviados = true;
     if (Enviar_Variables_Serial < 8)
       Enviar_Variables_Serial++;
@@ -401,8 +401,7 @@ void Standby()
 
   sprintf(ImprimirLCD, " %d%c", NivelActual, '%');
   for (PosicionActual2 = 0; ImprimirLCD[PosicionActual2] != '\0'; PosicionActual2++)
-  {
-  }                                                   // Detecta espacios en blanco para imprimirlo a la derecha
+  { }                                                   // Detecta espacios en blanco para imprimirlo a la derecha
   Imprimir_LCD(ImprimirLCD, 20 - PosicionActual2, 0); // imprime nivel a la derecha
 
   // imprime relojito
@@ -417,9 +416,11 @@ void Standby()
   Barra_de_carga(16, 1, NivelActual);
 
   // detecta si se presiono algun boton
-  if (Pin_Entrada(4) || Pin_Entrada(5) || Pin_Entrada(6) || Pin_Entrada(7) || Pin_Entrada(42))
+  if (Pin_Entrada(4) || Pin_Entrada(5) || Pin_Entrada(6) || Pin_Entrada(7) || Pin_Entrada(42)){
     PosicionEntradas += 1;
-
+    MiliSegundos=0;
+    tiempoSensores = MiliSegundos;
+  }
   // Si se presiono algun boton cambia de estado
   if (PosicionActual != PosicionEntradas)
   {
@@ -502,8 +503,10 @@ void Menu_Basico()
       if (TiempoPulsadorEncoder <= 100 && TiempoPulsadorEncoder >= 10)
         TiempoPulsadorEncoder -= 10;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, COLUMNAS_MAXIMAS_M1 * 2); // Retorna a cero > cuando llega al maximo (14) vuelve a 0
+    if (PosicionEntradas >= 14 && PosicionEntradas <= 28)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 29)
+      PosicionEntradas=13;
 
     if (PosicionEntradas / 2 != PosicionActual) // cada 2 pulsos del encoder baja/sube una columna del menu
     {
@@ -617,8 +620,10 @@ void Menu_Avanzado()
       if (TiempoPulsadorEncoder <= 100 && TiempoPulsadorEncoder >= 10)
         TiempoPulsadorEncoder -= 10;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, COLUMNAS_MAXIMAS_M2 * 2);
+    if (PosicionEntradas >= 10 && PosicionEntradas <= 20)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 21)
+      PosicionEntradas=9;
 
     if (PosicionEntradas / 2 != PosicionActual)
     {
@@ -708,14 +713,16 @@ uint8_t menu_de_llenado_manual()
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
+
+    if (PosicionEntradas >= 4 && PosicionEntradas <= 8)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 9)
+      PosicionEntradas=3;
     if ((PosicionEntradas + 1) * SUMADOR_NIVEL != NivelASetear)
     {
       NivelASetear = (PosicionEntradas + 1) * SUMADOR_NIVEL; // actualiza el nivel a setear
       TiempoDeStandby = MiliSegundos;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 4);
-
     if (Pin_Entrada(6))
     {
       Flag = 2;
@@ -801,13 +808,17 @@ uint8_t menu_de_calefaccion_manual()
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
+  
+    if (PosicionEntradas >= 9 && PosicionEntradas <= 18)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 19)
+      PosicionEntradas=8;
+    
     if ((PosicionEntradas + 8) * SUMADOR_TEMP != TempASetear)
     {
       TempASetear = (PosicionEntradas + 8) * SUMADOR_TEMP; // actualiza el nivel a setear
       TiempoDeStandby = MiliSegundos;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 9);
 
     if (Pin_Entrada(6))
     {
@@ -864,10 +875,11 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
   switch (Flag)
   {
   case 0:
-    HoraASetear = hora_actual;
-    MinutoASetear = minutos_actual;
+    HoraASetear = 0;
+    MinutoASetear = 0;
     PosicionEntradas = 0;
     lcd.clear();
+    TiempoDeStandby = MiliSegundos;
     Flag = 1;
     break;
 
@@ -889,7 +901,7 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     Imprimir_Hora(ImprimirLCD, Guardado_a_hora(1, eep.read(8)), Guardado_a_hora(2, eep.read(8)));
     Imprimir_LCD(ImprimirLCD, 3, 2);
     memcpy(ImprimirLCD, ">", 2);
-    Imprimir_LCD(ImprimirLCD, 0, CharSeleccionado + 1);
+    Imprimir_LCD(ImprimirLCD, 0, ItemSeleccionado + 1);
 
     if (Pin_Entrada(4))
       PosicionEntradas += 4;
@@ -897,18 +909,6 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
       PosicionEntradas -= 4;
     if (Pin_Entrada(42))
       PosicionEntradas += 1;
-
-    if (NivelASetear != CharSeleccionado)
-    {
-      memcpy(ImprimirLCD, " ", 2);
-      Imprimir_LCD(ImprimirLCD, 0, NivelASetear + 1);
-      NivelASetear = CharSeleccionado;
-      TiempoDeStandby = MiliSegundos;
-    }
-
-    CharSeleccionado = PosicionEntradas / 4;
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 12);
 
     if (Pin_Entrada(6))
     {
@@ -925,6 +925,20 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
       Estadoequipo = menu1;
       lcd.clear();
     }
+    ItemSeleccionado = PosicionEntradas / 4;
+    if (PosicionEntradas >= 12 && PosicionEntradas <= 30 )
+      PosicionEntradas=1;
+    if (PosicionEntradas >= 31)
+      PosicionEntradas=11;
+
+    if (PosicionActual2 != ItemSeleccionado)
+    {
+      memcpy(ImprimirLCD, " ", 2);
+      Imprimir_LCD(ImprimirLCD, 0, PosicionActual2 + 1);
+      PosicionActual2 = ItemSeleccionado;
+      TiempoDeStandby = MiliSegundos;
+    }
+
     break;
 
   case 2:
@@ -946,7 +960,10 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 9);
+    if (PosicionEntradas >= 9 && PosicionEntradas <= 18 )
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 19)
+      PosicionEntradas=8;
 
     if ((PosicionEntradas + 8) * SUMADOR_TEMP != TempASetear)
     {
@@ -1014,8 +1031,10 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
       lcd.clear();
       PosicionEntradas = 0;
     }
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 4);
-
+    if (PosicionEntradas >= 4 && PosicionEntradas <= 8 )
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 9)
+      PosicionEntradas=3;
     if (MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
     {
       Flag = 0;
@@ -1038,12 +1057,11 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     memcpy(ImprimirLCD, "Volver 4", 10);
     Imprimir_LCD(ImprimirLCD, 12, 3);
 
-    if (HoraASetear != Volver_a_Cero((hora_actual + PosicionEntradas), HORA_MAX))
+    if (HoraASetear !=  PosicionEntradas)
     {
-      HoraASetear = Volver_a_Cero((hora_actual + PosicionEntradas), HORA_MAX);
+      HoraASetear = PosicionEntradas;
       TiempoDeStandby = MiliSegundos;
     }
-
     if (Pin_Entrada(4) || Pin_Entrada(42))
       PosicionEntradas += 1;
     if (Pin_Entrada(5))
@@ -1063,7 +1081,10 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
       PosicionEntradas = 0;
     }
 
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, HORA_MAX);
+    if (PosicionEntradas >= 24 && PosicionEntradas <= 48)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 49)
+      PosicionEntradas=23;
 
     if (MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
     {
@@ -1087,9 +1108,9 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     memcpy(ImprimirLCD, "Volver 4", 10);
     Imprimir_LCD(ImprimirLCD, 12, 3);
 
-    if (MinutoASetear != Volver_a_Cero((minutos_actual + PosicionEntradas), MINUTO_MAX))
+    if (MinutoASetear != PosicionEntradas)
     {
-      MinutoASetear = Volver_a_Cero((minutos_actual + PosicionEntradas), MINUTO_MAX);
+      MinutoASetear = PosicionEntradas;
       TiempoDeStandby = MiliSegundos;
     }
 
@@ -1100,9 +1121,29 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
 
     if (Pin_Entrada(6))
     {
-      Flag = 6;
-      lcd.clear();
-      PosicionEntradas = 0;
+      Imprimir_Hora(ImprimirLCD, HoraASetear, MinutoASetear);
+      GuardadoDeHora = Hora_a_guardado(ImprimirLCD);
+      if (GuardadoDeHora != eep.read(1) && GuardadoDeHora != eep.read(4) && GuardadoDeHora != eep.read(7))
+      {
+        Flag = 6;
+        lcd.clear();
+        PosicionEntradas = 0;
+      }
+      else
+      {
+        if(GuardadoDeHora == eep.read((ItemSeleccionado * 3) + 1))
+        {
+          Flag = 6;
+          lcd.clear();
+          PosicionEntradas = 0;
+        }
+        else
+        {
+          memcpy(ImprimirLCD, "Hora ya usada", 15);
+          Imprimir_LCD(ImprimirLCD, 3, 1);
+        }
+      }
+
     }
 
     if (Pin_Entrada(7))
@@ -1111,8 +1152,10 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
       lcd.clear();
       PosicionEntradas = 0;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, MINUTO_MAX);
+    if (PosicionEntradas >= 60 && PosicionEntradas <= 80)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 81)
+      PosicionEntradas=59;
 
     if (MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
     {
@@ -1155,12 +1198,12 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
 
   case 7:
     Imprimir_Hora(ImprimirLCD, HoraASetear, MinutoASetear);
-    eep.write((CharSeleccionado * 3) + 1, Hora_a_guardado(ImprimirLCD));
+    eep.write((ItemSeleccionado * 3) + 1, Hora_a_guardado(ImprimirLCD));
 
-    eep.write((CharSeleccionado * 3) + 2, NivelASetear);
-    eep.write((CharSeleccionado * 3) + 3, TempASetear);
+    eep.write((ItemSeleccionado * 3) + 2, NivelASetear);
+    eep.write((ItemSeleccionado * 3) + 3, TempASetear);
 
-    Enviar_Serial(2, CharSeleccionado);
+    Enviar_Serial(2, ItemSeleccionado);
 
     TiempoDeStandby = MiliSegundos;
     guardado_para_menus(true);
@@ -1176,6 +1219,7 @@ void menu_de_llenado_auto()
     NivelASetear = eep.read(12);  // nivel minimo
     NivelASetear2 = eep.read(13); // nivel maximo
     PosicionEntradas = 0;
+    TiempoDeStandby = MiliSegundos;
     lcd.clear();
     Flag = 1;
     break;
@@ -1183,7 +1227,7 @@ void menu_de_llenado_auto()
   case 1:
     memcpy(ImprimirLCD, "Nivel min", 11);
     Imprimir_LCD(ImprimirLCD, 3, 0);
-    sprintf(ImprimirLCD, "%d%c ", eep.read(12), '%');
+    sprintf(ImprimirLCD, "%d%c  ", eep.read(12), '%');
     Imprimir_LCD(ImprimirLCD, 14, 0);
     memcpy(ImprimirLCD, "1 +25", 6);
     Imprimir_LCD(ImprimirLCD, 0, 2);
@@ -1199,6 +1243,11 @@ void menu_de_llenado_auto()
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
+    if (PosicionEntradas >= 4 && PosicionEntradas <= 8)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 9)
+      PosicionEntradas=3;
+
     if ((PosicionEntradas)*SUMADOR_NIVEL != eep.read(12))
     {
       eep.write(12, (PosicionEntradas)*SUMADOR_NIVEL);
@@ -1210,7 +1259,7 @@ void menu_de_llenado_auto()
       Flag = 2;
       eep.write(13, eep.read(12) + SUMADOR_NIVEL);
       lcd.clear();
-      PosicionEntradas = 0;
+      PosicionEntradas = (eep.read(12) / SUMADOR_NIVEL)+1;
     }
 
     if (Pin_Entrada(7) == true || MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
@@ -1221,8 +1270,6 @@ void menu_de_llenado_auto()
       Flag = 0;
       lcd.clear();
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 4);
 
     break;
 
@@ -1245,9 +1292,22 @@ void menu_de_llenado_auto()
     if (Pin_Entrada(5) == true)
       PosicionEntradas -= 1;
 
-    if ((PosicionEntradas + 1 + (eep.read(12) / SUMADOR_NIVEL)) * SUMADOR_NIVEL != eep.read(13))
+    if (PosicionEntradas >= 5 && PosicionEntradas <= 10)
+      PosicionEntradas=(eep.read(12)/SUMADOR_NIVEL)+1;
+    if(eep.read(12)==0)
     {
-      eep.write(13, ((PosicionEntradas + 1 + (eep.read(12) / SUMADOR_NIVEL)) * SUMADOR_NIVEL));
+    if (PosicionEntradas >= 9)
+      PosicionEntradas= 4;
+    }
+    else
+    {
+    if (PosicionEntradas < eep.read(12)/SUMADOR_NIVEL)
+      PosicionEntradas= 4;
+    }
+
+    if (PosicionEntradas * SUMADOR_NIVEL != eep.read(13))
+    {
+      eep.write(13, PosicionEntradas * SUMADOR_NIVEL);
       TiempoDeStandby = MiliSegundos;
     }
 
@@ -1264,8 +1324,6 @@ void menu_de_llenado_auto()
       lcd.clear();
       PosicionEntradas = 0;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 4 - (eep.read(12) / SUMADOR_NIVEL));
 
     if (MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
     {
@@ -1316,7 +1374,7 @@ void menu_de_calefaccion_auto()
     TempASetear = eep.read(10);
     TempASetear2 = eep.read(11);
     eep.write(10, TEMP_MINIMO);
-    PosicionEntradas = 0;
+    PosicionEntradas = 8;
     lcd.clear();
     Flag = 1;
     break;
@@ -1324,12 +1382,12 @@ void menu_de_calefaccion_auto()
   case 1:
     memcpy(ImprimirLCD, "Temp. min", 11);
     Imprimir_LCD(ImprimirLCD, 3, 0);
-    sprintf(ImprimirLCD, "%d%c%c ", Celcius_O_Farenheit(eep.read(10), 1), (char)223, Celcius_O_Farenheit(eep.read(10), 2));
+    sprintf(ImprimirLCD, "%d%c%c ", Celcius_O_Farenheit(eep.read(10), 1), (char)223, Celcius_O_Farenheit(0, 2));
     Imprimir_LCD(ImprimirLCD, 13, 0);
     sprintf(ImprimirLCD, "1 +%d", Celcius_O_Farenheit(5, 3));
-    Imprimir_LCD(ImprimirLCD, 0, 1);
+    Imprimir_LCD(ImprimirLCD, 0, 2);
     sprintf(ImprimirLCD, "-%d 2", Celcius_O_Farenheit(5, 3));
-    Imprimir_LCD(ImprimirLCD, 16, 1);
+    Imprimir_LCD(ImprimirLCD, 16, 2);
     memcpy(ImprimirLCD, "3 Seguir", 9);
     Imprimir_LCD(ImprimirLCD, 0, 3);
     memcpy(ImprimirLCD, "Volver 4", 9);
@@ -1340,16 +1398,20 @@ void menu_de_calefaccion_auto()
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
-    if ((PosicionEntradas + 8) * SUMADOR_TEMP != eep.read(10))
+    if (PosicionEntradas >= 16)
+      PosicionEntradas=8;
+    if (PosicionEntradas < 8)
+      PosicionEntradas=15;
+
+    if (PosicionEntradas * SUMADOR_TEMP != eep.read(10))
     {
-      eep.write(10, (PosicionEntradas + 8) * SUMADOR_TEMP);
+      eep.write(10, PosicionEntradas * SUMADOR_TEMP);
       TiempoDeStandby = MiliSegundos;
     }
 
     if (Pin_Entrada(6))
     {
       Flag = 2;
-      eep.write(11, eep.read(10) + SUMADOR_TEMP);
       PosicionEntradas = 0;
     }
 
@@ -1361,19 +1423,17 @@ void menu_de_calefaccion_auto()
       Flag = 0;
       lcd.clear();
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 8);
     break;
 
   case 2:
     memcpy(ImprimirLCD, "Temp. max", 11);
     Imprimir_LCD(ImprimirLCD, 3, 0);
-    sprintf(ImprimirLCD, "%d%c%c ", Celcius_O_Farenheit(eep.read(11), 1), (char)223, Celcius_O_Farenheit(eep.read(11), 2));
+    sprintf(ImprimirLCD, "%d%c%c ", Celcius_O_Farenheit(eep.read(11), 1), (char)223, Celcius_O_Farenheit(0, 2));
     Imprimir_LCD(ImprimirLCD, 13, 0);
     sprintf(ImprimirLCD, "1 +%d", Celcius_O_Farenheit(5, 3));
-    Imprimir_LCD(ImprimirLCD, 0, 1);
+    Imprimir_LCD(ImprimirLCD, 0, 2);
     sprintf(ImprimirLCD, "-%d 2", Celcius_O_Farenheit(5, 3));
-    Imprimir_LCD(ImprimirLCD, 16, 1);
+    Imprimir_LCD(ImprimirLCD, 16, 2);
     memcpy(ImprimirLCD, "3 Seguir", 9);
     Imprimir_LCD(ImprimirLCD, 0, 3);
     memcpy(ImprimirLCD, "Volver 4", 9);
@@ -1384,12 +1444,16 @@ void menu_de_calefaccion_auto()
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
-    if ((PosicionEntradas + 1 + (eep.read(10) / SUMADOR_TEMP)) * SUMADOR_TEMP != eep.read(11))
+    if (PosicionEntradas >= 17)
+      PosicionEntradas= (eep.read(10)+SUMADOR_TEMP) / SUMADOR_TEMP;
+    if (PosicionEntradas <= eep.read(10) / SUMADOR_TEMP)
+      PosicionEntradas= 16;
+
+    if (PosicionEntradas * SUMADOR_TEMP != eep.read(11))
     {
-      eep.write(11, (PosicionEntradas + 1 + (eep.read(10) / SUMADOR_TEMP)) * SUMADOR_TEMP);
+      eep.write(11, PosicionEntradas * SUMADOR_TEMP);
       TiempoDeStandby = MiliSegundos;
     }
-
     if (Pin_Entrada(6))
     {
       Flag = 3;
@@ -1401,11 +1465,10 @@ void menu_de_calefaccion_auto()
     {
       Flag = 1;
       lcd.clear();
-      PosicionEntradas = 0;
+      PosicionEntradas= eep.read(10) / SUMADOR_TEMP;
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 16 - (eep.read(10) / SUMADOR_TEMP));
-
+  
+    
     if (MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
     {
       Flag = 0;
@@ -1474,9 +1537,14 @@ void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
     memcpy(ImprimirLCD, "Volver 4", 9);
     Imprimir_LCD(ImprimirLCD, 12, 3);
 
-    if (HoraASetear != Volver_a_Cero(hora + PosicionEntradas, HORA_MAX))
+    if (PosicionEntradas >= 24 && PosicionEntradas <= 48)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 49)
+      PosicionEntradas=23;
+
+    if (HoraASetear != PosicionEntradas)
     {
-      HoraASetear = Volver_a_Cero(hora + PosicionEntradas, HORA_MAX);
+      HoraASetear = PosicionEntradas;
       TiempoDeStandby = MiliSegundos;
     }
 
@@ -1499,8 +1567,6 @@ void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
       lcd.clear();
     }
 
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, HORA_MAX);
-
     break;
 
   case 2:
@@ -1522,9 +1588,14 @@ void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
     if (Pin_Entrada(5))
       PosicionEntradas -= 1;
 
-    if (MinutoASetear != Volver_a_Cero(minutos + PosicionEntradas, MINUTO_MAX))
+    if (PosicionEntradas >= 60 && PosicionEntradas <= 70)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 71)
+      PosicionEntradas=59;
+
+    if (MinutoASetear != PosicionEntradas)
     {
-      MinutoASetear = Volver_a_Cero(minutos + PosicionEntradas, MINUTO_MAX);
+      MinutoASetear = PosicionEntradas;
       TiempoDeStandby = MiliSegundos;
     }
 
@@ -1535,6 +1606,7 @@ void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
       TiempoDeStandby = MiliSegundos;
       PosicionEntradas = 0;
     }
+
     if (Pin_Entrada(7))
     {
       Flag = 1;
@@ -1542,7 +1614,6 @@ void menu_modificar_hora_rtc(uint8_t hora, uint8_t minutos)
       lcd.clear();
     }
 
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, MINUTO_MAX);
 
     if (MiliSegundos >= TiempoDeStandby + TIEMPO_ESPERA_FUNCIONES)
     {
@@ -1618,6 +1689,11 @@ void menu_activar_bomba()
     if (PosicionEntradas <= 8)
       eep.write(59, 1);
 
+
+    if (PosicionEntradas >= 16 && PosicionEntradas <= 32)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 33)
+      PosicionEntradas=15;
     if (PosicionEntradas != PosicionActual)
     {
       lcd.clear();
@@ -1630,8 +1706,6 @@ void menu_activar_bomba()
       Flag = 1;
       lcd.clear();
     }
-
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 16);
     break;
   case 1:
     TiempoDeStandby = MiliSegundos;
@@ -1667,6 +1741,11 @@ void menu_farenheit_celsius()
     if (Pin_Entrada(5))
       PosicionEntradas -= 8;
 
+    if (PosicionEntradas >= 16 && PosicionEntradas <= 32)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 33)
+      PosicionEntradas=15;
+
     if (PosicionEntradas != PosicionActual)
     {
       PosicionActual = PosicionEntradas;
@@ -1679,7 +1758,6 @@ void menu_farenheit_celsius()
       lcd.clear();
     }
 
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 16);
     break;
 
   case 1:
@@ -1732,7 +1810,7 @@ void menu_seteo_wifi()
       NombreWifi[PosicionActual] = 0;
       ContraWifi[PosicionActual] = 0;
     }
-    CharSeleccionado = 0;
+    ItemSeleccionado = 0;
     PosicionEntradas = 0;
     PosicionActual2 = 0;
     Flag = 2;
@@ -1752,9 +1830,12 @@ void menu_seteo_wifi()
     memcpy(ImprimirLCD, "Del. 4", 10);
     Imprimir_LCD(ImprimirLCD, 14, 3);
 
-    CharSeleccionado = PosicionEntradas / 2;
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 80);
-    NombreWifi[PosicionActual2] = Retorno_Caracter(CharSeleccionado, Mayusculas);
+    ItemSeleccionado = PosicionEntradas / 2;
+    if (PosicionEntradas >= 81 && PosicionEntradas <= 91)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 92)
+      PosicionEntradas=80;
+    NombreWifi[PosicionActual2] = Retorno_Caracter(ItemSeleccionado, Mayusculas);
     if (Pin_Entrada(42))
       PosicionEntradas++;
     if (Pin_Entrada(4))
@@ -1762,7 +1843,7 @@ void menu_seteo_wifi()
     if (Pin_Entrada(5) && PosicionActual2 <= 19)
     {
       PosicionActual2++;
-      CharSeleccionado = 0;
+      ItemSeleccionado = 0;
     }
     if (Pin_Entrada(6) && PosicionActual2 >= 3)
     {
@@ -1770,11 +1851,11 @@ void menu_seteo_wifi()
       lcd.clear();
       Flag = 3;
       PosicionActual2 = 0;
-      CharSeleccionado = 0;
+      ItemSeleccionado = 0;
     }
     if (Pin_Entrada(7) && PosicionActual2 > 0)
     {
-      CharSeleccionado = 0;
+      ItemSeleccionado = 0;
       NombreWifi[PosicionActual2] = 0;
       PosicionActual2--;
       lcd.clear();
@@ -1795,10 +1876,12 @@ void menu_seteo_wifi()
     memcpy(ImprimirLCD, "Del. 4", 10);
     Imprimir_LCD(ImprimirLCD, 14, 3);
 
-    CharSeleccionado = PosicionEntradas / 2;
-    PosicionEntradas = Volver_a_Cero(PosicionEntradas, 80);
-
-    ContraWifi[PosicionActual2] = Retorno_Caracter(CharSeleccionado, Mayusculas);
+    ItemSeleccionado = PosicionEntradas / 2;
+    if (PosicionEntradas >= 81 && PosicionEntradas <= 91)
+      PosicionEntradas=0;
+    if (PosicionEntradas >= 92)
+      PosicionEntradas=80;
+    ContraWifi[PosicionActual2] = Retorno_Caracter(ItemSeleccionado, Mayusculas);
 
     if (Pin_Entrada(42))
       PosicionEntradas++;
@@ -1807,7 +1890,7 @@ void menu_seteo_wifi()
     if (Pin_Entrada(5) && PosicionActual2 <= 19)
     {
       PosicionActual2++;
-      CharSeleccionado = 0;
+      ItemSeleccionado = 0;
     }
     if (Pin_Entrada(6) && PosicionActual2 >= 8)
     {
@@ -1817,7 +1900,7 @@ void menu_seteo_wifi()
     }
     if (Pin_Entrada(7) && PosicionActual2 > 0)
     {
-      CharSeleccionado = 0;
+      ItemSeleccionado = 0;
       ContraWifi[PosicionActual2] = 0;
       PosicionActual2--;
       lcd.clear();
@@ -2019,14 +2102,6 @@ uint8_t Volver_a_Cero(uint8_t actualpos, uint8_t maxpos)
   {
     return actualpos % maxpos;
   }
-  if (actualpos < 0)
-  {
-    return maxpos - actualpos;
-  }
-  if (actualpos > 254 - (254 % maxpos))
-  {
-    return maxpos - 1;
-  }
   if (actualpos >= 0 && actualpos < maxpos)
     return actualpos;
   return (0);
@@ -2052,7 +2127,7 @@ uint8_t Guardado_a_hora(uint8_t function, uint8_t save)
   }
 }
 
-int8_t Hora_a_guardado(char buffer[20]) //// ya arregle lo de colver
+int8_t Hora_a_guardado(char buffer[20]) //// ya arregle lo de volver
 {
   uint8_t hora;
   uint8_t minuto;
@@ -2275,7 +2350,7 @@ void Leer_Serial()
   for (i = 0; i <= largoDatos; i++)
   {
     if (i == 0)
-      CharSeleccionado = Serial.read();
+      ItemSeleccionado = Serial.read();
     if (i == 1)
       Serial.read();
     if (i >= 2 && i < largoDatos)
@@ -2283,10 +2358,11 @@ void Leer_Serial()
     if (i == largoDatos)
       datosObtenidos = true;
   }
-
+  for(i=1; i<=18 - largoDatos;i++)
+    datos[largoDatos+i]='0';
   if (datosObtenidos == true)
   {
-    switch (CharSeleccionado)
+    switch (ItemSeleccionado)
     {         // dependiendo del char de comando
     case 'W': // calentamiento manual
       eep.write(15, datos[0] - 34);
@@ -2338,15 +2414,6 @@ void Leer_Serial()
       InternetDisponible = true;
       if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
         lcd.clear();
-      datosObtenidos = false;
-      break;
-
-    case 'E':
-      datosObtenidos = false;
-      break;
-
-    case 'O':
-      InternetDisponible = true;
       datosObtenidos = false;
       break;
     }

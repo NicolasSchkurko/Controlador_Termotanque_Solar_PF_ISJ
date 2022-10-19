@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' type='text/css' media='screen' href='./Css/desing.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='./desing.css'>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
-    <link rel="apple-touch-icon" sizes="180x180" href="./Media/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./Media/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./Media/favicon-16x16.png">
-    <link rel="manifest" href="./Media/site.webmanifest">
-    <link rel="mask-icon" href="./Media/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
+    <link rel="mask-icon" href="./safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
     <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
@@ -38,17 +38,40 @@
             <div class="rectangulo"></div>
             <h1 style="font-size: 22px;  position: relative; margin: -125px auto 50px;" id="TSVs">%TVAL%</h1>
 
-            <input type="range" id="temp" min="40" class="slider" max="90" step="5" onchange="updateSliderTEMP(this)"
+            <input type="range" id="temp" min="40" class="slider" max="80" step="5" onchange="updateSliderTEMP(this)"
                 value="%TVAL%" oninput="this.nextElementSibling.value = this.value">
             <h1 style="font-size: 22px;" id="TSV">65</h1>
-            <button class="button" onclick=location.href="/STATEMP">%BTNT%</button>
+            <button class="button" onclick=location.href="/STATEMP"><span id="BTNT">%BTNT%</span></button>
 
             <script>
-                var TVal = document.getElementById("TSVs").value;
-                var degrees = (TVal) * 1.8;
-                document.getElementById("barratemp").style.transform = String("rotate(" + degrees + "deg)");
+                var STVal = document.getElementById("temp").value;
+                console.log(STVal);
+                document.getElementById("TSV").innerHTML = STVal;
+                setInterval(function () {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            document.getElementById("TSVs").innerHTML = this.responseText;
+                        }
+                    };
+                    xhttp.open("GET", "/TSVs", true);
+                    xhttp.send();
+                    var TVal = document.getElementById("TSVs").innerHTML;
+                    var degrees = (TVal) * 1.8;
+                    document.getElementById("barratemp").style.transform = String("rotate(" + degrees + "deg)");
+                }, 250);
+                setInterval(function () {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            document.getElementById("BTNT").innerHTML = this.responseText;
+                        }
+                    };
+                    xhttp.open("GET", "/BTNT", true);
+                    xhttp.send();
+                }, 1000);
                 function updateSliderTEMP(element) {
-                    var STVal = document.getElementById("temp").value;;
+                    var STVal = document.getElementById("temp").value;
                     console.log(STVal);
                     document.getElementById("TSV").innerHTML = STVal;
                     var xhr = new XMLHttpRequest();
@@ -66,23 +89,46 @@
             </div>
             <div class="circulo_centro"></div>
             <div class="rectangulo"></div>
-            <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="LSVs">%LVALS%</h1>
+            <h1 style="font-size: 22px; position: relative; margin: -125px auto 50px;" id="LSVs">%LVAL%</h1>
 
             <input type="range" id="lvl" min="25" max="100" step="25" onchange="updateSliderLVL(this)" class="slider"
                 value="%LVAL%" oninput="this.nextElementSibling.value = this.value">
 
             <h1 style="font-size: 22px;" id="LSV">75</h1>
-            <button class="button" onclick=location.href="/STALVL">%BTNL%</button>
+            <button class="button" onclick=location.href="/STALVL"><span id="BTNL">%BTNL%</span></button>
             <script>
-                var LVal = document.getElementById("LSVs").value;
-                var degrees = (LVal) * 1.8;
-                document.getElementById("barralvl").style.transform = String("rotate(" + degrees + "deg)");
+                var SLval = document.getElementById("lvl").value;
+                console.log(SLval);
+                document.getElementById("LSV").innerHTML = SLval;
+                setInterval(function () {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            document.getElementById("LSVs").innerHTML = this.responseText;
+                        }
+                    };
+                    xhttp.open("GET", "/LSVs", true);
+                    xhttp.send();
+                    var LVal = document.getElementById("LSVs").innerHTML;
+                    var degrees = (LVal) * 1.8;
+                    document.getElementById("barralvl").style.transform = String("rotate(" + degrees + "deg)");
+                }, 500);
+                setInterval(function () {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            document.getElementById("BTNL").innerHTML = this.responseText;
+                        }
+                    };
+                    xhttp.open("GET", "/BTNL", true);
+                    xhttp.send();
+                }, 100);
                 function updateSliderLVL(element) {
                     var SLval = document.getElementById("lvl").value;
                     console.log(SLval);
                     document.getElementById("LSV").innerHTML = SLval;
                     var xhr = new XMLHttpRequest();
-                    xhr.open("GET", "/slider?nivel=" + LVal, true);
+                    xhr.open("GET", "/slider?nivel=" + SLval, true);
                     xhr.send();
                 }
             </script>
@@ -91,6 +137,7 @@
     <div class="Column">
         <div class="bloqueset">
             <button class="Pagechange" onclick=location.href="/TIMERSET">Set timer </button>
+            <p><br></p>
             <button class="Pagechange" onclick=location.href="/AUTOSET">Set auto </button>
         </div>
     </div>

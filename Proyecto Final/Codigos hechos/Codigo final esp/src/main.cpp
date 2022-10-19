@@ -24,10 +24,13 @@ bool EnviarIP;
 Guardado save[3];
 char Texto_Temp[5] = "60";
 char Texto_Nivel[4] = "70";
-char Texto_Hora[6] = "12:30";
+String Texto_Hora = "12:30";
 String Texto_Error_Guardado = "     ";
 String Texto_Error_Nivel = "    ";
 String Texto_Error_Temp = "    ";
+String Texto_Estado_Calentado;
+String Texto_Estado_LLenando;
+String TextoEstado;
 char Estado;
 char Datos[22];
 char Letra;
@@ -38,12 +41,17 @@ int8_t TempActual = 0;
 uint8_t NivelActual = 0;
 uint8_t SlotGuardado = 0;
 uint8_t TemperaturaCalentar = 0;
+uint8_t TemperaturaMaxima = 0;
 uint8_t TemperaturaMinima = 0;
-uint8_t NivelCalentar = 0;
+uint8_t TemperaturaMaximaGuardado = 0;
+uint8_t TemperaturaMinimaGuardado = 0;
+uint8_t NivelLlenar = 0;
+uint8_t NivelMaximo = 0;
 uint8_t NivelMinimo = 0;
+uint8_t NivelMaximoGuardado = 0;
+uint8_t NivelMinimoGuardado = 0;
 bool Llenando = false;
 bool Calentando = false;
-bool LoopFunca;
 uint8_t CalentadoAuto = 0;
 uint8_t LLenadoAuto = 0;
 //█████████████████████████████████████████████████████████████████████████████████
@@ -60,50 +68,68 @@ void setup()
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
-              LoopFunca=true;
-              request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
-              sprintf(Texto_Temp,"%d",TempActual);
-              sprintf(Texto_Nivel,"%d",NivelActual);  
-                
-              });
+  { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
   server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/desing.css", "text/css"); 
-             
-            });
+  { request->send(LittleFS, "/desing.css", "text/css"); });
   // Toma datos del slider y los guarda en una variable
 
   server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
             {  
-  if (request->hasParam("Hora")) 
+  if (request->hasParam("hora")) 
     {
-       
-      String TextoEstado = request->getParam("Hora")->value();
-      TextoEstado.toCharArray(Texto_Hora,6);
+      TextoEstado = request->getParam("hora")->value();
+      Texto_Hora=TextoEstado;
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
     } });
 
   server.on("/slider", HTTP_GET, [](AsyncWebServerRequest *request)
-            {   
-     
-    String TextoEstado;
-    //Toma datos del slider Temp
-    if (request->hasParam("Temp")) 
+  {   
+  String TextoEstado;
+  //Toma datos del slider Temp
+    if (request->hasParam("temp")) 
     {
-      TextoEstado = request->getParam("Temp")->value();
+      TextoEstado = request->getParam("temp")->value();
       TextoEstado.toCharArray(Texto_Temp,5);
-      TempActual = atoi(Texto_Temp);
+      TemperaturaCalentar = atoi(Texto_Temp);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
+    }
+    if (request->hasParam("tempmax")) 
+    {
+      TextoEstado = request->getParam("tempmax")->value();
+      TextoEstado.toCharArray(Texto_Temp,5);
+      TemperaturaMaxima = atoi(Texto_Temp);
+      request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb);
+    }
+    if (request->hasParam("tempmin")) 
+    {
+      TextoEstado = request->getParam("tempmin")->value();
+      TextoEstado.toCharArray(Texto_Temp,5);
+      TemperaturaMinima = atoi(Texto_Temp);
+      request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb);
     }
     //Toma datos del slider nivel
     if (request->hasParam("nivel")) 
     {
       TextoEstado = request->getParam("nivel")->value();
        TextoEstado.toCharArray(Texto_Nivel,4);
-      NivelActual = atoi(Texto_Nivel);
+      NivelLlenar = atoi(Texto_Nivel);
       request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb);
-    } });
+    } 
+    if (request->hasParam("nivelmax")) 
+    {
+      TextoEstado = request->getParam("nivelmax")->value();
+       TextoEstado.toCharArray(Texto_Nivel,4);
+      NivelMaximo = atoi(Texto_Nivel);
+      request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb);
+    } 
+    if (request->hasParam("nivelmin")) 
+    {
+      TextoEstado = request->getParam("nivelmin")->value();
+       TextoEstado.toCharArray(Texto_Nivel,4);
+      NivelMinimo = atoi(Texto_Nivel);
+      request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb);
+  } });
 
   // detectaa cuando se redirige (producto de que se presiona un boton) en alguna pagina y realiza algo
   // Activa el calentamiento de manera manual
@@ -116,7 +142,6 @@ void setup()
   // Activa el llenado de agua manual
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
- 
     Llenando= !Llenando;
     Enviar_Serial(2); 
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
@@ -124,71 +149,63 @@ void setup()
   // Setea el calentamiento de manera automatica
   server.on("/SETEMP", HTTP_GET, [](AsyncWebServerRequest *request)
             {
- 
-    CalentadoAuto++; 
-    if (CalentadoAuto==1 && TempActual<90)TemperaturaMinima=TempActual;
-    if (CalentadoAuto==1 &&TempActual>=90) Texto_Error_Temp="La Temperatura minima debe ser menor a 90";
-
-    if (CalentadoAuto==2 && TempActual>TemperaturaMinima)TemperaturaCalentar=TempActual;
-    if (CalentadoAuto==2 && TempActual<TemperaturaMinima)Texto_Error_Temp="La Temperatura maxima debe ser mayor a la minima";
-
-    if(CalentadoAuto>2){
-      CalentadoAuto=0; 
+    if (TemperaturaMaxima>TemperaturaMinima){
+      TemperaturaMaximaGuardado = TemperaturaMaxima;
+      TemperaturaMinimaGuardado = TemperaturaMinima;
       Enviar_Serial(4);
+      Texto_Error_Temp="";
     }
-    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
+    else{
+      Texto_Error_Temp="La Temperatura minima debe ser menor a la maxima";
+    }
+    request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb); });
 
   // Setea el llenado de manera automatica
   server.on("/SETLVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
- 
-    LLenadoAuto++; 
-    if (LLenadoAuto==1 && TempActual<100)NivelMinimo=NivelActual;
-    if (LLenadoAuto==1 && TempActual>=100)Texto_Error_Nivel="El nivel minimo debe ser menor a 100";
-
-    if (LLenadoAuto==2 && NivelActual>NivelMinimo)NivelCalentar=NivelActual;
-    if (LLenadoAuto==2 && NivelActual<=NivelMinimo)Texto_Error_Nivel="El nivel maximo debe ser mayor al minimo";
-
-    if(LLenadoAuto>2){
-      LLenadoAuto=0; 
+    if (NivelMaximo>NivelMinimo){
+      NivelMaximoGuardado = NivelMaximo;
+      NivelMinimoGuardado = NivelMinimo;
       Enviar_Serial(5);
+      Texto_Error_Temp="";
     }
-
-    request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
+    else Texto_Error_Temp="El nivel maximo debe ser mayor al minimo";
+    request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb); });
   // Redirige a pagina de automatico por tiempo
   server.on("/TIMERSET", HTTP_GET, [](AsyncWebServerRequest *request)
-            {  
-              request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
-  // Guarda en el primer slot de guardado por tiempo
+  { request->send(LittleFS, "/setTimer.html", String(), false, ImprimirEnWeb); });
+  server.on("/AUTOSET", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send(LittleFS, "/SetValue.html", String(), false, ImprimirEnWeb); });
+  // Guarda en el primer slot de guardado por tiempo AUTOSET
   server.on("/S1", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
- 
+  {
     if (Convercionhora(1, Texto_Hora) == save[1].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora){
       Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
     else{
+    Texto_Error_Guardado="";
     save[0].Hora=Convercionhora(1, Texto_Hora);
-    save[0].Nivel=Convercionhora(2, Texto_Nivel);
-    save[0].Temp=Convercionhora(2, Texto_Temp);
+    save[0].Nivel=NivelLlenar;
+    save[0].Temp=TemperaturaCalentar;
     SlotGuardado=0;
     Enviar_Serial(3);
     }
-    request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
+  request->send(LittleFS, "/setTimer.html", String(), false, ImprimirEnWeb); });
   // Guarda en el segundo slot de guardado por tiempo
   server.on("/S2", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
- 
+   {
     if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora){
       Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
     else{
+    Texto_Error_Guardado="";
     save[1].Hora=Convercionhora(1, Texto_Hora);
-    save[1].Nivel=Convercionhora(2, Texto_Nivel);
-    save[1].Temp=Convercionhora(2, Texto_Temp);
+    save[1].Nivel=NivelLlenar;
+    save[1].Temp=TemperaturaCalentar;
     SlotGuardado=1;
     Enviar_Serial(3);
     }
-    request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
+  request->send(LittleFS, "/setTimer.html", String(), false, ImprimirEnWeb); });
   // Guarda en el tercer slot de guardado por tiempo
   server.on("/S3", HTTP_GET, [](AsyncWebServerRequest *request)
             {
@@ -197,17 +214,57 @@ void setup()
       Texto_Error_Guardado = "No podes guardar dos variables en la misma hora";
     }
     else{
+    Texto_Error_Guardado="";
     save[2].Hora=Convercionhora(1, Texto_Hora);
-    save[2].Nivel=Convercionhora(2, Texto_Nivel);
-    save[2].Temp=Convercionhora(2, Texto_Temp);
+    save[2].Nivel=NivelLlenar;
+    save[2].Temp=TemperaturaCalentar;
     SlotGuardado=2;
     Enviar_Serial(3);
     }
-    request->send(LittleFS, "/config.html", String(), false, ImprimirEnWeb); });
+    request->send(LittleFS, "/setTimer.html", String(), false, ImprimirEnWeb); });
   // Redirige a pagina principal (index)
   server.on("/RETURN", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); 
-              });
+  { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
+  server.on("/TSVs", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(TempActual).c_str()); });
+  server.on("/LSVs", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(NivelActual).c_str()); }); 
+  server.on("/BTNL", HTTP_GET, [](AsyncWebServerRequest *request)
+  { 
+    if(Calentando)Texto_Estado_Calentado="Calentamiento encendido";
+    else Texto_Estado_Calentado="Calentamiento apagado";
+    request->send_P(200, "text/plain", Texto_Estado_LLenando.c_str()); });
+  server.on("/BTNT", HTTP_GET, [](AsyncWebServerRequest *request)
+  { 
+    if(Llenando)Texto_Estado_LLenando="LLenado encendido";
+    else Texto_Estado_LLenando="LLenado apagado";
+    request->send_P(200, "text/plain", Texto_Estado_Calentado.c_str()); });
+  server.on("/STSV", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(TemperaturaMaximaGuardado).c_str()); }); 
+  server.on("/-STSV", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(TemperaturaMinimaGuardado).c_str()); }); 
+  server.on("/SLSV", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(NivelMaximoGuardado).c_str()); }); 
+  server.on("/-SLSV", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(NivelMinimoGuardado).c_str()); }); 
+  server.on("/H1", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", DesConvercionhora(1, save[0].Hora).c_str()); }); 
+  server.on("/H2", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", DesConvercionhora(1, save[1].Hora).c_str()); }); 
+  server.on("/H3", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", DesConvercionhora(1, save[2].Hora).c_str()); }); 
+  server.on("/L1", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(save[0].Nivel).c_str()); }); 
+  server.on("/L2", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(save[1].Nivel).c_str()); }); 
+  server.on("/L3", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(save[2].Nivel).c_str()); }); 
+  server.on("/T1", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(save[0].Temp).c_str()); }); 
+  server.on("/T2", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(save[1].Temp).c_str()); }); 
+  server.on("/T3", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send_P(200, "text/plain", String(save[2].Temp).c_str()); }); 
   server.begin();
 }
 
@@ -232,9 +289,9 @@ String ImprimirEnWeb(const String &var)
   // Se encarga de buscar ciertas variables declaradas con %(nombre)% dentro del html y remplazarlos por strings
   // entrega numeros de Temperatura actual a la pagina
   if (var == "TVAL")
-    return String(Texto_Temp);
+    return String(TempActual);
   if (var == "LVAL")
-    return String(Texto_Nivel);
+    return String(NivelActual);
   if (var == "HVAL")
     return String(Texto_Hora);
   // entrega strings de error
@@ -246,7 +303,7 @@ String ImprimirEnWeb(const String &var)
     return Texto_Error_Temp;
   // entrega numeros de Temperatura y nivel maxima y minima
   if (var == "LMAX")
-    return String(NivelCalentar);
+    return String(NivelMaximo);
   if (var == "LMIN")
     return String(NivelMinimo);
   if (var == "TMAX")
@@ -255,68 +312,40 @@ String ImprimirEnWeb(const String &var)
     return String(TemperaturaMinima);
   // entrega datos de horas seteadas (primer slot)
   if (var == "H1")
-    return String(save[0].Hora);
+    return DesConvercionhora(1, save[0].Hora);
   if (var == "L1")
     return String(save[0].Nivel);
   if (var == "T1")
     return String(save[0].Temp);
   // entrega datos de horas seteadas (segundo slot)
   if (var == "H2")
-    return String(save[1].Hora);
+    return DesConvercionhora(1, save[1].Hora);
   if (var == "L2")
     return String(save[1].Nivel);
   if (var == "T2")
     return String(save[1].Temp);
   // entrega datos de horas seteadas (tercer slot)
   if (var == "H3")
-    return String(save[2].Hora);
+    return DesConvercionhora(1, save[2].Hora);
   if (var == "L3")
     return String(save[2].Nivel);
   if (var == "T3")
     return String(save[2].Temp);
   // Devuelve un texto (Activar calentamiento)
   if (var == "BTNT")
-  {
-    if (Calentando)
-      return "Calentamiento encendido";
-    else
-      return "Calentamiento apagado";
-  }
+      return Texto_Estado_Calentado;
 
   // Devuelve un texto (Activar llenado)
   if (var == "BTNL")
-  {
-    if (Llenando)
-      return "llenado encendido";
-    else
-      return "llenado apagado";
-  }
+      return Texto_Estado_LLenando;
 
   // Devuelve un texto (Activar calentamiento automatico)
   if (var == "STTA")
-  {
-    if (CalentadoAuto == 0)
       return "Setear calentamiento automatico";
-    if (CalentadoAuto == 1)
-      return "Setear Temperatura minima";
-    if (CalentadoAuto == 2)
-      return "Setear Temperatura a calentar";
-    if (CalentadoAuto == 3)
-      return "Confirmar seteo";
-  }
 
   // Devuelve un texto (Activar llenado automatico)
   if (var == "STLA")
-  {
-    if (LLenadoAuto == 0)
       return "Setear llenado automatico";
-    if (LLenadoAuto == 1)
-      return "Setear llenado minima";
-    if (LLenadoAuto == 2)
-      return "Setear llenado a calentar";
-    if (LLenadoAuto == 3)
-      return "Confirmar seteo";
-  }
 
   return String();
 }
@@ -331,7 +360,7 @@ void Enviar_Serial(uint8_t WhatSend)
       Estado = 'O';
     if (Calentando == true)
       Estado = 'I';
-    sprintf(DatosEnviarSerial, "W_%c%c", TempActual + 34, Estado);
+    sprintf(DatosEnviarSerial, "W_%c%c", TemperaturaCalentar + 34, Estado);
     Serial.println(DatosEnviarSerial);
     break;
   case 2:
@@ -339,7 +368,7 @@ void Enviar_Serial(uint8_t WhatSend)
       Estado = 'O';
     if (Llenando == true)
       Estado = 'I';
-    sprintf(DatosEnviarSerial, "F_%c%c", NivelActual + 34, Estado);
+    sprintf(DatosEnviarSerial, "F_%c%c", NivelLlenar + 34, Estado);
     Serial.println(DatosEnviarSerial);
     break;
   case 3:
@@ -347,19 +376,17 @@ void Enviar_Serial(uint8_t WhatSend)
     Serial.println(DatosEnviarSerial);
     break;
   case 4:
-    sprintf(DatosEnviarSerial, "H_%c%c", TemperaturaMinima + 34, TemperaturaCalentar + 34);
+    sprintf(DatosEnviarSerial, "H_%c%c", TemperaturaMinimaGuardado + 34, TemperaturaMaximaGuardado + 34);
     Serial.println(DatosEnviarSerial);
     break;
   case 5:
-    sprintf(DatosEnviarSerial, "C_%c%c", NivelMinimo + 34, NivelCalentar + 34);
+    sprintf(DatosEnviarSerial, "C_%c%c", NivelMinimoGuardado + 34, NivelMaximoGuardado + 34);
     Serial.println(DatosEnviarSerial);
     break;
   case 6:
     sprintf(DatosEnviarSerial, "I_%d.%d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
     Serial.println(DatosEnviarSerial);
     break;
-  case 7:
-    Serial.println("E_E");
   }
 }
 
@@ -378,7 +405,7 @@ void Leer_Serial()
   for (uint8_t CharPos = 0; CharPos <= 22; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
     if (CharPos < StringLength - 2)
-      Datos[CharPos] = Serial_Input.charAt(CharPos + 2); // si hay : divide los datos
+      Datos[CharPos] = Serial_Input.charAt(CharPos + 2); 
     if (CharPos == StringLength - 2)
       datosObtenidos = true; // activa el comando final (flag)
     if (CharPos > StringLength - 2)
@@ -416,23 +443,51 @@ void Leer_Serial()
       datosObtenidos = false;
       break;
     case 'C':
-      NivelCalentar = Datos[1] - 34;
-      NivelMinimo = Datos[0] - 34;
+      if(Datos[1] - 34<Datos[0] - 34)
+        break;
+      else
+      {
+      NivelMaximoGuardado = Datos[1] - 34;
+      NivelMinimoGuardado = Datos[0] - 34;
       datosObtenidos = false;
       break;
+      }
     case 'H':
-      TemperaturaCalentar = Datos[1] - 34;
-      TemperaturaMinima = Datos[0] - 34;
+      if(Datos[1] - 34<Datos[0] - 34)
+        break;
+      else
+      {
+      TemperaturaMaximaGuardado = Datos[1] - 34;
+      TemperaturaMinimaGuardado = Datos[0] - 34;
       datosObtenidos = false;
       break;
+      }
     case 'K':
-      SlotGuardado = Datos[3] - 48;
-      if (SlotGuardado <= 2 && SlotGuardado >= 0)
+      SlotGuardado = Datos[3] - 49;
+      if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[1].Hora )
+      {
+        if(SlotGuardado==2)
+          break;
+      }
+      else if(Convercionhora(1, Texto_Hora) == save[1].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora )
+      {
+        if(SlotGuardado==0)
+          break;
+      }
+      else if(Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora )
+      {
+        if(SlotGuardado==1)
+          break;
+      }
+      else if(SlotGuardado>2 || SlotGuardado<0)
+      {
+        break;
+      }
+      else  
       {
         save[SlotGuardado].Hora = int(Datos[0] - 34);
-        save[SlotGuardado].Nivel = int(Datos[1] - 34);
-        save[SlotGuardado].Temp = int(Datos[2] - 34);
-
+        save[SlotGuardado].Nivel = int(Datos[2] - 34);
+        save[SlotGuardado].Temp = int(Datos[1] - 34);
       }
       datosObtenidos = false;
       break;
@@ -455,7 +510,14 @@ String DesConvercionhora(uint8_t function, uint8_t save)
     resto_deconvert = (save) % 4;
     var1_deconvert = (save - resto_deconvert) / 4;
     var2_deconvert = resto_deconvert * 15;
-    returned = String(var1_deconvert) + ':' + String(var2_deconvert);
+    if(var1_deconvert<10)
+      returned = "0" + String(var1_deconvert) + ':';
+    else
+      returned = String(var1_deconvert) + ':';
+    if(var2_deconvert<10)
+      returned = returned + "0" + String(var2_deconvert);
+    else
+    returned = returned + String(var2_deconvert);
     return returned;
     break;
   case 2:
