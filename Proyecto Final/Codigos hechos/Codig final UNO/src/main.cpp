@@ -104,7 +104,7 @@ char ContraWifi[20];
 char NombreWifi[20];
 char mensajeAEnviar[24];
 bool InternetDisponible = false;
-uint8_t Enviar_Variables_Serial;
+uint8_t Enviar_Wifi_Serial;
 uint8_t TiempoPulsadorEncoder;
 uint8_t ItemSeleccionado = 0;
 uint32_t TiempoDeStandby;
@@ -167,7 +167,7 @@ void setup()
   eep.readChars(37, NombreWifi, 20);
   // Inicializa todo para iniciar el programa correctamente
   MiliSegundos = 0;
-  Enviar_Variables_Serial = 0;
+  Enviar_Wifi_Serial = 0;
   TiempoDeStandby = MiliSegundos;
   PosicionActual = PosicionEntradas;
   Estadoequipo = estado_inicial;
@@ -256,26 +256,16 @@ void Actualizar_entradas()
     // Lee el sensor de temp y envia al esp el estado actual (temp y nivel actual)
     Enviar_Serial(0, 0);
     datosenviados = true;
-    if (Enviar_Variables_Serial < 8)
-      Enviar_Variables_Serial++;
+    if (Enviar_Wifi_Serial < 3)
+      Enviar_Wifi_Serial++;
   }
   // Envia mensajes al esp al iniciar el controlador
-  if (Enviar_Variables_Serial < 7)
+  if (Enviar_Wifi_Serial < 2)
   {
-    if (Enviar_Variables_Serial == 0 && !InternetDisponible)
-      Enviar_Serial(3, 0);
-    if (Enviar_Variables_Serial == 1 && !InternetDisponible)
-      Enviar_Serial(4, 0);
-    if (Enviar_Variables_Serial == 2 && !InternetDisponible)
-      Enviar_Serial(6, 0);
-    if (Enviar_Variables_Serial == 3 && !InternetDisponible)
-      Enviar_Serial(5, 0);
-    if (Enviar_Variables_Serial == 4 && !InternetDisponible)
-      Enviar_Serial(2, 3);
-    if (Enviar_Variables_Serial == 5 && !InternetDisponible)
-      Enviar_Serial(2, 2);
-    if (Enviar_Variables_Serial == 6 && !InternetDisponible)
-      Enviar_Serial(2, 1);
+    if (Enviar_Wifi_Serial == 0 && !InternetDisponible)
+      Enviar_Serial(1, 0);
+    if (Enviar_Wifi_Serial == 1 && !InternetDisponible)
+      Enviar_Serial(2, 0);
   }
 
   NivelActual = map(analogRead(SENSOR_NIVEL), 0, 1024, 0, 100);
@@ -1203,8 +1193,6 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     eep.write((ItemSeleccionado * 3) + 2, NivelASetear);
     eep.write((ItemSeleccionado * 3) + 3, TempASetear);
 
-    Enviar_Serial(2, ItemSeleccionado);
-
     TiempoDeStandby = MiliSegundos;
     guardado_para_menus(true);
     break;
@@ -1360,7 +1348,6 @@ void menu_de_llenado_auto()
     break;
 
   case 4:
-    Enviar_Serial(5, 0);
     guardado_para_menus(true);
     break;
   }
@@ -1506,7 +1493,6 @@ void menu_de_calefaccion_auto()
 
   case 4:
     TiempoDeStandby = MiliSegundos;
-    Enviar_Serial(6, 0);
     guardado_para_menus(true);
     break;
   }
@@ -1912,8 +1898,7 @@ void menu_seteo_wifi()
       eep.writeChars(16, ContraWifi, 20);
       eep.writeChars(37, NombreWifi, 20);
     }
-    Enviar_Serial(3, 0);
-    Enviar_Serial(4, 0);
+    Enviar_Wifi_Serial=0;
     TiempoDeStandby = MiliSegundos;
     PosicionEntradas = 0;
     guardado_para_menus(false);
@@ -2392,9 +2377,9 @@ void Leer_Serial()
       slotEeprom = datos[3] - 49;
       if (slotEeprom <= 2 && slotEeprom >= 0)
       {
-        eep.write((slotEeprom * 3) + 1, datos[3] - 34); // hora
+        eep.write((slotEeprom * 3) + 1, datos[0] - 34); // hora
         eep.write((slotEeprom * 3) + 2, datos[2] - 34); // nivel
-        eep.write((slotEeprom * 3) + 3, datos[0] - 34); // temp
+        eep.write((slotEeprom * 3) + 3, datos[1] - 34); // temp
         datosObtenidos = false;
       }
       break;
@@ -2420,43 +2405,29 @@ void Leer_Serial()
   }
 }
 
-char calentando;
-char llenando;
 void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
 {
 
-  if (Calentar)
-    calentando = 'I';
-  else
-    calentando = 'O';
-
-  if (LLenar)
-    llenando = 'I';
-  else
-    calentando = 'O';
 
   switch (WhatSend)
   {
   case 0:
     Serial.print(mensajeAEnviar);
-    sprintf(mensajeAEnviar, "U_%c%c%c%c", 128 + TemperaturaActual, 34 + NivelActual, calentando, llenando);
+    sprintf( //    TempNiv |save1|save2|save3| c | H |
+    mensajeAEnviar, "U_%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c", 
+    128 + TemperaturaActual, 34 + NivelActual,
+    34 + eep.read(1), 34 + eep.read(2), 34 + eep.read(3),
+    34 + eep.read(4), 34 + eep.read(5), 34 + eep.read(6),
+    34 + eep.read(7), 34 + eep.read(8), 34 + eep.read(9),
+    34 + eep.read(12), 34 + eep.read(13),
+    34 + eep.read(10), 34 + eep.read(11));
 
     break;
-  case 2:
-    sprintf(mensajeAEnviar, "K_%c%c%c%c", 34 + eep.read((What_slot * 3) + 1), 34 + eep.read((What_slot * 3) + 2), 33 + eep.read((What_slot * 3) + 3), What_slot + 48);
-    break;
-  case 3:
+  case 1:
     sprintf(mensajeAEnviar, "N_%s", NombreWifi);
     break;
-  case 4:
+  case 2:
     sprintf(mensajeAEnviar, "P_%s", ContraWifi);
-    break;
-  case 5:
-    sprintf(mensajeAEnviar, "C_%c%c", 34 + eep.read(12), 34 + eep.read(13));
-    break;
-  case 6:
-    sprintf(mensajeAEnviar, "H_%c%c", 34 + eep.read(10), 34 + eep.read(11));
-  default:
     break;
   }
 }

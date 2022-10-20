@@ -28,8 +28,6 @@ String Texto_Hora = "12:30";
 String Texto_Error_Guardado = "     ";
 String Texto_Error_Nivel = "    ";
 String Texto_Error_Temp = "    ";
-String Texto_Estado_Calentado;
-String Texto_Estado_LLenando;
 String TextoEstado;
 char Estado;
 char Datos[22];
@@ -50,8 +48,7 @@ uint8_t NivelMaximo = 0;
 uint8_t NivelMinimo = 0;
 uint8_t NivelMaximoGuardado = 0;
 uint8_t NivelMinimoGuardado = 0;
-bool Llenando = false;
-bool Calentando = false;
+
 uint8_t CalentadoAuto = 0;
 uint8_t LLenadoAuto = 0;
 //█████████████████████████████████████████████████████████████████████████████████
@@ -135,14 +132,11 @@ void setup()
   // Activa el calentamiento de manera manual
   server.on("/STATEMP", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-   
-    Calentando= !Calentando; 
     Enviar_Serial(1);
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
   // Activa el llenado de agua manual
   server.on("/STALVL", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    Llenando= !Llenando;
     Enviar_Serial(2); 
     request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
@@ -229,16 +223,6 @@ void setup()
   { request->send_P(200, "text/plain", String(TempActual).c_str()); });
   server.on("/LSVs", HTTP_GET, [](AsyncWebServerRequest *request)
   { request->send_P(200, "text/plain", String(NivelActual).c_str()); }); 
-  server.on("/BTNL", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    if(Calentando)Texto_Estado_Calentado="Calentamiento encendido";
-    else Texto_Estado_Calentado="Calentamiento apagado";
-    request->send_P(200, "text/plain", Texto_Estado_LLenando.c_str()); });
-  server.on("/BTNT", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    if(Llenando)Texto_Estado_LLenando="LLenado encendido";
-    else Texto_Estado_LLenando="LLenado apagado";
-    request->send_P(200, "text/plain", Texto_Estado_Calentado.c_str()); });
   server.on("/STSV", HTTP_GET, [](AsyncWebServerRequest *request)
   { request->send_P(200, "text/plain", String(TemperaturaMaximaGuardado).c_str()); }); 
   server.on("/-STSV", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -333,11 +317,11 @@ String ImprimirEnWeb(const String &var)
     return String(save[2].Temp);
   // Devuelve un texto (Activar calentamiento)
   if (var == "BTNT")
-      return Texto_Estado_Calentado;
+      return "Encender calentamiento manual";
 
   // Devuelve un texto (Activar llenado)
   if (var == "BTNL")
-      return Texto_Estado_LLenando;
+      return "Encender calentamiento manual";
 
   // Devuelve un texto (Activar calentamiento automatico)
   if (var == "STTA")
@@ -356,19 +340,11 @@ void Enviar_Serial(uint8_t WhatSend)
   switch (WhatSend)
   {
   case 1:
-    if (Calentando == false)
-      Estado = 'O';
-    if (Calentando == true)
-      Estado = 'I';
-    sprintf(DatosEnviarSerial, "W_%c%c", TemperaturaCalentar + 34, Estado);
+    sprintf(DatosEnviarSerial, "W_%cI", TemperaturaCalentar + 34);
     Serial.println(DatosEnviarSerial);
     break;
   case 2:
-    if (Llenando == false)
-      Estado = 'O';
-    if (Llenando == true)
-      Estado = 'I';
-    sprintf(DatosEnviarSerial, "F_%c%c", NivelLlenar + 34, Estado);
+    sprintf(DatosEnviarSerial, "F_%cI", NivelLlenar + 34);
     Serial.println(DatosEnviarSerial);
     break;
   case 3:
@@ -410,6 +386,7 @@ void Leer_Serial()
       datosObtenidos = true; // activa el comando final (flag)
     if (CharPos > StringLength - 2)
       Datos[CharPos] = 0;
+    
   }
 
   if (datosObtenidos == true)
@@ -432,26 +409,24 @@ void Leer_Serial()
     case 'U':
       TempActual = Datos[0] - 128;
       NivelActual = Datos[1] - 34;
-      if (Datos[2] == 'I')
-        Calentando = true;
-      else
-        Calentando = false;
-      if (Datos[3] == 'I')
-        Llenando = true;
-      else
-        Llenando = false;
-      datosObtenidos = false;
-      break;
-    case 'C':
-      if(Datos[1] - 34<Datos[0] - 34)
-        break;
-      else
-      {
-      NivelMaximoGuardado = Datos[1] - 34;
-      NivelMinimoGuardado = Datos[0] - 34;
-      datosObtenidos = false;
-      break;
+      if(Datos[4]!=Datos[7] && Datos[4]!=Datos[10]){
+        save[0].Hora = int(Datos[2] - 34);
+        save[0].Nivel = int(Datos[3] - 34);
+        save[0].Temp = int(Datos[4] - 34);
+        save[1].Hora = int(Datos[5] - 34);
+        save[1].Nivel = int(Datos[6] - 34);
+        save[1].Temp = int(Datos[7] - 34);
+        save[2].Hora = int(Datos[8] - 34);
+        save[2].Nivel = int(Datos[9] - 34);
+        save[2].Temp = int(Datos[10] - 34);
       }
+      NivelMaximoGuardado = Datos[12] - 34;
+      NivelMinimoGuardado = Datos[11] - 34;
+      TemperaturaMaximaGuardado = Datos[14] - 34;
+      TemperaturaMinimaGuardado = Datos[13] - 34;
+      datosObtenidos = false;
+      break;
+
     case 'H':
       if(Datos[1] - 34<Datos[0] - 34)
         break;
@@ -462,37 +437,6 @@ void Leer_Serial()
       datosObtenidos = false;
       break;
       }
-    case 'K':
-      SlotGuardado = Datos[3] - 49;
-      if (Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[1].Hora )
-      {
-        if(SlotGuardado==2)
-          break;
-      }
-      else if(Convercionhora(1, Texto_Hora) == save[1].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora )
-      {
-        if(SlotGuardado==0)
-          break;
-      }
-      else if(Convercionhora(1, Texto_Hora) == save[0].Hora || Convercionhora(1, Texto_Hora) == save[2].Hora )
-      {
-        if(SlotGuardado==1)
-          break;
-      }
-      else if(SlotGuardado>2 || SlotGuardado<0)
-      {
-        break;
-      }
-      else  
-      {
-        save[SlotGuardado].Hora = int(Datos[0] - 34);
-        save[SlotGuardado].Nivel = int(Datos[2] - 34);
-        save[SlotGuardado].Temp = int(Datos[1] - 34);
-      }
-      datosObtenidos = false;
-      break;
-    default:
-      break;
     }
   }
 }
