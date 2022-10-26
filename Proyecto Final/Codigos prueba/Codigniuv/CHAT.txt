@@ -1,0 +1,9 @@
+                        TO DO
+Seteo temperatura para prender la resistencia (todos)
+jaja
+si tocas el numero te selecciona el renglon
+
+//Mercado libre 
+https://articulo.mercadolibre.com.ar/MLA-616660543-encoder-rotativo-ec11-15mm-con-pulsador-arduino-pdiy--_JM?matt_tool=80203390&matt_word=&matt_source=google&matt_campaign_id=14545592783&matt_ad_group_id=125221142325&matt_match_type=&matt_network=g&matt_device=c&matt_creative=544135253026&matt_keyword=&matt_ad_position=&matt_ad_type=pla&matt_merchant_id=547454404&matt_product_id=MLA616660543&matt_product_partition_id=1638503335577&matt_target_id=aud-415044759576:pla-1638503335577
+
+save[0].temp
