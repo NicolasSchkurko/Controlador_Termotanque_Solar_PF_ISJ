@@ -268,7 +268,7 @@ void Actualizar_entradas()
       Enviar_Serial(2, 0);
   }
 
-  NivelActual = map(analogRead(SENSOR_NIVEL), 0, 1024, 0, 100);
+  NivelActual = map(analogRead(SENSOR_NIVEL), 0, 1024, 0, 4)*25;
   now = rtc.now(); // Actualiza el rtc
 }
 
