@@ -270,7 +270,14 @@ void Actualizar_entradas()
       Enviar_Serial(2, 0);
   }
 
-  NivelActual = map(analogRead(SENSOR_NIVEL), 0, 1024, 0, 100);
+    if (analogRead(SENSOR_NIVEL) < 140)NivelActual = 0;
+    if (analogRead(SENSOR_NIVEL) >= 140 /*&& analogRead(SENSOR_NIVEL) > 589*/)NivelActual = 25;
+    /*if (analogRead(SENSOR_NIVEL) >= 590 && analogRead(SENSOR_NIVEL) < 587)NivelActual = 50;
+    if (analogRead(SENSOR_NIVEL) >= 67 && analogRead(SENSOR_NIVEL) < 639)NivelActual = 75;
+    if (analogRead(SENSOR_NIVEL) >= 639 && analogRead(SENSOR_NIVEL) <= 1024)NivelActual = 100;*/
+    Serial.println(analogRead(A1));
+    Serial.println(NivelActual);
+  
   now = rtc.now(); // Actualiza el rtc
 }
 

@@ -3788,8 +3788,8 @@ CP Radial series Radial pin pitch 7.50mm  diameter 18mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D22.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=22mm, height=40mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 22mm height 40mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=22mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 22mm Electrolytic Capacitor
 0
 3
 2
@@ -3802,8 +3802,8 @@ CP Radial series Radial pin pitch 10.00mm  diameter 22mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D24.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=24mm, height=40mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 24mm height 40mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=24mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 24mm Electrolytic Capacitor
 0
 3
 2
@@ -3816,8 +3816,8 @@ CP Radial series Radial pin pitch 10.00mm  diameter 24mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D25.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=25mm, height=45mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 25mm height 45mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=25mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 25mm Electrolytic Capacitor
 0
 3
 2
@@ -3830,8 +3830,8 @@ CP Radial series Radial pin pitch 10.00mm  diameter 25mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D26.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=26mm, height=45mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 26mm height 45mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=26mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 26mm Electrolytic Capacitor
 0
 3
 2
@@ -3844,8 +3844,8 @@ CP Radial series Radial pin pitch 10.00mm  diameter 26mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D30.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=30mm, height=45mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 30mm height 45mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=30mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 30mm Electrolytic Capacitor
 0
 3
 2
@@ -3858,8 +3858,8 @@ CP Radial series Radial pin pitch 10.00mm  diameter 30mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D35.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=35mm, height=50mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 35mm height 50mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=35mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 35mm Electrolytic Capacitor
 0
 3
 2
@@ -3872,8 +3872,8 @@ CP Radial series Radial pin pitch 10.00mm  diameter 35mm Electrolytic Capacitor
 2
 Capacitor_THT
 CP_Radial_D40.0mm_P10.00mm_3pin_SnapIn
-CP, Radial series, Radial, pin pitch=10.00mm, diameter=40mm, height=50mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
-CP Radial series Radial pin pitch 10.00mm diameter 40mm height 50mm Electrolytic Capacitor
+CP, Radial series, Radial, pin pitch=10.00mm, , diameter=40mm, Electrolytic Capacitor, , http://www.vishay.com/docs/28342/058059pll-si.pdf
+CP Radial series Radial pin pitch 10.00mm  diameter 40mm Electrolytic Capacitor
 0
 3
 2
