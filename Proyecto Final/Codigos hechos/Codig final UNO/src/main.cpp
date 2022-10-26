@@ -138,9 +138,11 @@ void setup()
   SREG = (SREG & 0b01111110) | 0b10000000;
   // pulsadores
   DDRD &= B00001111; // 0 input, 1 output; de derecha a izquierda del 0 al 7
-  DDRB &= B11111110; // De derecha a izquierda del 8 al 13
+  DDRB |= B00011100; // De derecha a izquierda del 8 al 13
+  DDRC &= B01111111; // De derecha a izquierda del 8 al 13
   // setea pull up o pull down
   PORTD |= B11110000;// De derecha a izquierda del 0 al 7
+  PORTC |= B00000001; // 1 pull up 0 pull down; De derecha a izquierda del 8 al 13
   PORTB |= B00000001; // 1 pull up 0 pull down; De derecha a izquierda del 8 al 13
   // pines encoder
   attachInterrupt(Pin_Entrada(2), EncoderPinA, CHANGE);
@@ -2227,42 +2229,6 @@ bool Pin_Entrada(uint8_t Wich_Button)
     break;
 
   case 4:
-    if ((PIND & (1 << PD4)) == 0)
-    {
-      while ((PIND & (1 << PD4)) == 0)
-      {
-      }
-      return true;
-    }
-    else
-      return false;
-    break;
-
-  case 5:
-    if ((PIND & (1 << PD5)) == 0)
-    {
-      while ((PIND & (1 << PD5)) == 0)
-      {
-      }
-      return true;
-    }
-    else
-      return false;
-    break;
-
-  case 6:
-    if ((PIND & (1 << PD6)) == 0)
-    {
-      while ((PIND & (1 << PD6)) == 0)
-      {
-      }
-      return true;
-    }
-    else
-      return false;
-    break;
-
-  case 7:
     if ((PIND & (1 << PD7)) == 0)
     {
       while ((PIND & (1 << PD7)) == 0)
@@ -2274,8 +2240,44 @@ bool Pin_Entrada(uint8_t Wich_Button)
       return false;
     break;
 
+  case 5:
+    if ((PIND & (1 << PD4)) == 0)
+    {
+      while ((PIND & (1 << PD4)) == 0)
+      {
+      }
+      return true;
+    }
+    else
+      return false;
+    break;
+
+  case 6:
+    if ((PIND & (1 << PD5)) == 0)
+    {
+      while ((PIND & (1 << PD5)) == 0)
+      {
+      }
+      return true;
+    }
+    else
+      return false;
+    break;
+
+  case 7:
+    if ((PIND & (1 << PD6)) == 0)
+    {
+      while ((PIND & (1 << PD6)) == 0)
+      {
+      }
+      return true;
+    }
+    else
+      return false;
+    break;
+
   case 42:
-    if ((PINB & (1 << PB0)) == 0)
+    if ((PINC & (1 << PC0)) == 0)
       return true;
     else
       return false;

@@ -1,10 +1,10 @@
 #include <Arduino.h>
-#define SENSOR_NIVEL A3
+#define SENSOR_NIVEL A2
 #define TIEMPO_LECTURA_TEMP 3000
 #define TIEMPO_LECTURA_NIVEL 3000
 #define COLUMNAS_MAXIMAS_M1 7
 #define COLUMNAS_MAXIMAS_M2 5
-#define SENSOR_TEMP 9 // pin del SENSOR_TEMP
+#define SENSOR_TEMP A1 // pin del SENSOR_TEMP
 #define SUMADOR_TEMP 5
 #define TEMP_MINIMO 40
 #define SUMADOR_NIVEL 25
