@@ -2016,7 +2016,7 @@
     (property "Value" "Conn_01x08" (id 1) (at 229.489 127.6349 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" (id 2) (at 229.235 123.317 0)
+    (property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical" (id 2) (at 229.235 123.317 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 226.441 125.095 0)
@@ -2338,7 +2338,7 @@
     (uuid 9266ad98-56ad-4979-a534-eef1d9b8c163)
     (property "Reference" "J6" (id 0) (at 197.993 160.02 90))
     (property "Value" "Conn_01x06" (id 1) (at 197.993 162.56 90))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" (id 2) (at 199.263 156.21 0)
+    (property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical" (id 2) (at 199.263 156.21 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 199.263 156.21 0)
@@ -2459,7 +2459,7 @@
     (property "Value" "Conn_01x08" (id 1) (at 169.545 113.157 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" (id 2) (at 169.545 125.095 0)
+    (property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical" (id 2) (at 169.545 125.095 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 169.545 125.095 0)
@@ -3010,13 +3010,13 @@
       (reference "J3") (unit 1) (value "Conn_02x06_Odd_Even") (footprint "Connector_IDC:IDC-Header_2x06_P2.54mm_Vertical")
     )
     (path "/b221cb34-347c-4dd4-9279-103a258c41cf"
-      (reference "J4") (unit 1) (value "Conn_01x08") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical")
+      (reference "J4") (unit 1) (value "Conn_01x08") (footprint "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical")
     )
     (path "/1c714670-6c43-4ef9-a98b-4206a0351ce4"
-      (reference "J5") (unit 1) (value "Conn_01x08") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical")
+      (reference "J5") (unit 1) (value "Conn_01x08") (footprint "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical")
     )
     (path "/9266ad98-56ad-4979-a534-eef1d9b8c163"
-      (reference "J6") (unit 1) (value "Conn_01x06") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical")
+      (reference "J6") (unit 1) (value "Conn_01x06") (footprint "Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical")
     )
     (path "/6a730b26-141b-4550-bfbd-6131095893ab"
       (reference "R1") (unit 1) (value "4.7k") (footprint "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal")
