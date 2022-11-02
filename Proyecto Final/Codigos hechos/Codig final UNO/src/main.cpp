@@ -275,7 +275,8 @@ void Actualizar_entradas()
     if (analogRead(SENSOR_NIVEL) >= 243 && analogRead(SENSOR_NIVEL) < 605)NivelActual = 50;
     if (analogRead(SENSOR_NIVEL) >= 608 && analogRead(SENSOR_NIVEL) < 800)NivelActual = 75;
     if (analogRead(SENSOR_NIVEL) >= 800 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;
-  
+    Serial.println(NivelActual);
+    Serial.println(TemperaturaActual);
   now = rtc.now(); // Actualiza el rtc
 }
 
