@@ -270,14 +270,11 @@ void Actualizar_entradas()
       Enviar_Serial(2, 0);
   }
 
-    if (analogRead(SENSOR_NIVEL) < 140)NivelActual = 0;
-    if (analogRead(SENSOR_NIVEL) >= 140 /*&& analogRead(SENSOR_NIVEL) > 589*/)NivelActual = 25;
-    /*if (analogRead(SENSOR_NIVEL) >= 590 && analogRead(SENSOR_NIVEL) < 604)NivelActual = 50;
-    if (analogRead(SENSOR_NIVEL) >= 604 && analogRead(SENSOR_NIVEL) < 639)NivelActual = 75;
-    if (analogRead(SENSOR_NIVEL) >= 639 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;*/
-    Serial.print(analogRead(A2));
-    Serial.println("boca");
-    Serial.println(NivelActual);
+    if (analogRead(SENSOR_NIVEL) < 110)NivelActual = 0;
+    if (analogRead(SENSOR_NIVEL) >= 112 && analogRead(SENSOR_NIVEL) < 243)NivelActual = 25;
+    if (analogRead(SENSOR_NIVEL) >= 243 && analogRead(SENSOR_NIVEL) < 605)NivelActual = 50;
+    if (analogRead(SENSOR_NIVEL) >= 608 && analogRead(SENSOR_NIVEL) < 800)NivelActual = 75;
+    if (analogRead(SENSOR_NIVEL) >= 800 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;
   
   now = rtc.now(); // Actualiza el rtc
 }
