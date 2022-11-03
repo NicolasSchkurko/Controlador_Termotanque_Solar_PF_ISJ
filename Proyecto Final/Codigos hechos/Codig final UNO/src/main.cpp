@@ -13,7 +13,7 @@
 //█████████████████████████████████ Declaraciones libs ███████████████████████████████████
 OneWire sensor_t(SENSOR_TEMP);
 DallasTemperature Sensor_temp(&sensor_t);
-LiquidCrystal_I2C lcd(0x27, 20, 4);
+LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 DateTime now;
 AT24C32 eep;
@@ -270,13 +270,11 @@ void Actualizar_entradas()
       Enviar_Serial(2, 0);
   }
 
-    if (analogRead(SENSOR_NIVEL) < 110)NivelActual = 0;
-    if (analogRead(SENSOR_NIVEL) >= 112 && analogRead(SENSOR_NIVEL) < 243)NivelActual = 25;
-    if (analogRead(SENSOR_NIVEL) >= 243 && analogRead(SENSOR_NIVEL) < 605)NivelActual = 50;
-    if (analogRead(SENSOR_NIVEL) >= 608 && analogRead(SENSOR_NIVEL) < 800)NivelActual = 75;
-    if (analogRead(SENSOR_NIVEL) >= 800 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;
-    Serial.println(NivelActual);
-    Serial.println(TemperaturaActual);
+  if (analogRead(SENSOR_NIVEL) < 110)NivelActual = 0;
+  if (analogRead(SENSOR_NIVEL) >= 112 && analogRead(SENSOR_NIVEL) < 243)NivelActual = 25;
+  if (analogRead(SENSOR_NIVEL) >= 243 && analogRead(SENSOR_NIVEL) < 605)NivelActual = 50;
+  if (analogRead(SENSOR_NIVEL) >= 608 && analogRead(SENSOR_NIVEL) < 800)NivelActual = 75;
+  if (analogRead(SENSOR_NIVEL) >= 800 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;
   now = rtc.now(); // Actualiza el rtc
 }
 
