@@ -138,12 +138,11 @@ void setup()
   SREG = (SREG & 0b01111110) | 0b10000000;
   // pulsadores
   DDRD &= B00001111; // 0 input, 1 output; de derecha a izquierda del 0 al 7
-  DDRB |= B00011100; // De derecha a izquierda del 8 al 13
+  DDRB |= B00111000; // pb7-pb0
   DDRC &= B01111111; // De derecha a izquierda del 8 al 13
   // setea pull up o pull down
   PORTD |= B11110000;// De derecha a izquierda del 0 al 7
   PORTC |= B00000001; // 1 pull up 0 pull down; De derecha a izquierda del 8 al 13
-  PORTB |= B00000001; // 1 pull up 0 pull down; De derecha a izquierda del 8 al 13
   // pines encoder
   attachInterrupt(Pin_Entrada(2), EncoderPinA, CHANGE);
   attachInterrupt(Pin_Entrada(3), EncoderPinB, CHANGE);
@@ -304,6 +303,8 @@ void Actualizar_salidas()
 
   if (eep.read(59) == 254)  // eep57 es la activacion de la bomba, si esta en 254 (valor maximo) equivale a un booleano en true
     Pin_Salida(12, LLenar); // bomba
+  if (eep.read(59) != 254)  // eep57 es la activacion de la bomba, si esta en 254 (valor maximo) equivale a un booleano en true
+    Pin_Salida(12, false); // bomba
 
   Pin_Salida(11, LLenar);   // electrovalvula
   Pin_Salida(10, Calentar); // resistencia
@@ -2299,9 +2300,9 @@ void Pin_Salida(uint8_t nat_pin, bool state)
   {
   case 10:
     if (state)
-      PORTB |= B00000100;
+      PORTB |= B00100000;
     if (!state)
-      PORTB &= B11111011;
+      PORTB &= B11011111;
     break;
 
   case 11:
@@ -2318,6 +2319,7 @@ void Pin_Salida(uint8_t nat_pin, bool state)
       PORTB &= B11101111;
     break;
   }
+  
 }
 
 void Imprimir_LCD(char buffer[20], uint8_t Column, uint8_t Row)
