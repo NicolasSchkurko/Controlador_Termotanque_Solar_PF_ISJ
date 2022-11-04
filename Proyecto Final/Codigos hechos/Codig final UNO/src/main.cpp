@@ -132,6 +132,7 @@ bool LLenar;
 void setup()
 {
   // Interrupcion cada 1 mili
+  UCSR0C|=(1<<UCSZ01)|(1<<UCSZ01);  
   SREG = (SREG & 0b01111111);
   TIMSK2 = TIMSK2 | 0b00000001;
   TCCR2B = 0b00000011;
