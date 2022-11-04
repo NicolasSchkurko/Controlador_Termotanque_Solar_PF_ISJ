@@ -1,5 +1,6 @@
 #include <Arduino.h>
-#define SENSOR_NIVEL A3
+#define F_CPU 16000000UL
+#define SENSOR_NIVEL A2
 #define TIEMPO_LECTURA_TEMP 3000
 #define TIEMPO_LECTURA_NIVEL 3000
 #define COLUMNAS_MAXIMAS_M1 7
