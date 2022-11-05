@@ -14,10 +14,10 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
-#include "clock.h"
-#include "config.h"
-#include "usart.h"
-#include "usart_driver.h"
+#include "util/clock.h"
+#include "util/config.h"
+#include "usart/usart.h"
+#include "usart/usart_driver.h"
 
 // timeout helper
 volatile clock_time_t future = 0;
