@@ -132,7 +132,6 @@ bool LLenar;
 void setup()
 {
   // Interrupcion cada 1 mili
-  UCSR0C|=(1<<UCSZ01)|(1<<UCSZ01);  
   SREG = (SREG & 0b01111111);
   TIMSK2 = TIMSK2 | 0b00000001;
   TCCR2B = 0b00000011;
@@ -173,13 +172,13 @@ void setup()
   TiempoDeStandby = MiliSegundos;
   PosicionActual = PosicionEntradas;
   Estadoequipo = estado_inicial;
+  delay(100);
 }
 
 void loop()
 {
   Actualizar_entradas();
   Actualizar_salidas();
-
   // si recibe un dato del serial lo lee
   if (Serial.available() > 0)
     Leer_Serial();
