@@ -1,71 +1,64 @@
+
 /*
- * main.c
+ * UART_ATMEGA328P.c
  *
- *  Created on: Nov 5, 2014
- *      Author: jcobb
- */
-
-
-
-#define F_CPU		800000
+ * Created: 11/08/2018 17:24:40
+ * Author : CarlosQL
+ */ 
 
 #include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
-#include <stdbool.h>
-#include "clock.h"
-#include "config.h"
-#include "usart.h"
-#include "usart_driver.h"
+#include "uart.h"
 
-// timeout helper
-volatile clock_time_t future = 0;
-bool timeout();
-void set_timer(clock_time_t timeout);
-
-int main()
+int main(void)
 {
-	// led port
-	DDRB |= _BV(PB5);
-
-	clock_init();
-	config_init();
-	usart_driver_init();
-	sei();
-	usart_transmit_string("spike_328p_usart started...\r\n");
-	usart_transmit_string("enter some text followed by a carriage return\r\n");
-	while(true){
-
-		usart_driver_tick();
-		if(timeout()){
-			// toggle led
-			PORTB ^= _BV(PB5);
-			set_timer(1000);
+	
+	DDRD |= (1<<4)|(1<<3)|(1<<2);	// Bit 2 3 4 como salida
+	
+	UART_init();					// Inicia UART
+	
+	UART_write_txt("digite 1 3 5 para encender leds\n\r");
+	UART_write_txt("digite 2 4 6 para apagar leds\n\r");
+	uint8_t dato=0;
+   
+   
+    while (1) 
+    {
+		dato = UART_read();			// Leer datos de RX
+		
+		if(dato != 0)
+		{
+			switch(dato)
+			{
+				case '1':
+					UART_write_txt("LED1 encendido\n\r");
+					PORTD|= (1<<2);
+					break;
+				
+				case '2':
+					UART_write_txt("LED1 apagado\n\r");
+					PORTD &= ~(1<<2);
+					break;
+				
+				case '3':
+					UART_write_txt("LED2 encendido\n\r");
+					PORTD|= (1<<3);
+					break;
+				
+				case '4':
+					UART_write_txt("LED2 apagado\n\r");
+					PORTD &= ~(1<<3);
+					break;
+				
+				case '5':
+					UART_write_txt("LED3 encendido\n\r");
+					PORTD|= (1<<4);
+					break;
+				
+				case '6':
+					UART_write_txt("LED3 apagado\n\r");
+					PORTD &= ~(1<<4);
+					break;			
+			}
 		}
-	}
-
-	return 0;
-}
-
-
-void set_timer(clock_time_t timeout)
-{
-	future = clock_time() + timeout;
-}
-
-// timeout routine to demonstrate clock_time
-// being kept by pwm isr interrupt
-bool timeout()
-{
-	bool timeout = false;
-
-	if(clock_time() >= future)
-	{
-		set_timer(1000);
-		timeout = true;
-
-	}
-
-	return timeout;
+    }
 }
