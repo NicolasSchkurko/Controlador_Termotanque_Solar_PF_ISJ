@@ -178,7 +178,6 @@ void loop()
   Actualizar_salidas();
 
   // si recibe un dato del serial lo lee
-  if (Serial.available() > 0)
     Leer_Serial();
 
   switch (Estadoequipo)
@@ -2323,105 +2322,11 @@ void Imprimir_LCD(char buffer[20], uint8_t Column, uint8_t Row)
 
 void Leer_Serial()
 {
-  bool datosObtenidos;
-  char datos[18];
-  uint8_t largoDatos;
-  uint8_t slotEeprom;
-  uint8_t i;
-
-  largoDatos = Serial.available();
-
-  for (i = 0; i <= largoDatos; i++)
-  {
-    if (i == 0)
-      ItemSeleccionado = Serial.read();
-    if (i == 1)
-      Serial.read();
-    if (i >= 2 && i < largoDatos)
-      datos[i - 2] = Serial.read();
-    if (i == largoDatos)
-      datosObtenidos = true;
-  }
-  for(i=1; i<=18 - largoDatos;i++)
-    datos[largoDatos+i]='0';
-  if (datosObtenidos == true)
-  {
-    switch (ItemSeleccionado)
-    {         // dependiendo del char de comando
-    case 'W': // calentamiento manual
-      eep.write(15, datos[0] - 34);
-
-      if (datos[1] == 'O')
-        Calentar = false;
-
-      if (datos[1] == 'I')
-        Calentar = true;
-
-      datosObtenidos = false;
-      break;
-
-    case 'F': // llenmado manual
-      eep.write(14, datos[0] - 34);
-
-      if (datos[1] == 'O') // prendido
-        LLenar = false;
-
-      if (datos[1] == 'I') // apagado
-        LLenar = true;
-
-      datosObtenidos = false;
-      break;
-
-    case 'K': // H por hora
-      slotEeprom = datos[3] - 49;
-      if (slotEeprom <= 2 && slotEeprom >= 0)
-      {
-        eep.write((slotEeprom * 3) + 1, datos[0] - 34); // hora
-        eep.write((slotEeprom * 3) + 2, datos[2] - 34); // nivel
-        eep.write((slotEeprom * 3) + 3, datos[1] - 34); // temp
-        datosObtenidos = false;
-      }
-      break;
-
-    case 'H': // temp auto
-      eep.write(10, datos[0] - 34);
-      eep.write(11, datos[1] - 34);
-      datosObtenidos = false;
-      break;
-    case 'C': // llenado auto
-      eep.write(12, datos[0] - 34);
-      eep.write(13, datos[1] - 34);
-      datosObtenidos = false;
-      break;
-    case 'I': // Ip
-      eep.writeChars(60, datos, 22);
-      InternetDisponible = true;
-      if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
-        lcd.clear();
-      datosObtenidos = false;
-      break;
-    }
-  }
+  String mensaje;
+  mensaje = Serial.readString();
+  Serial.println(mensaje);
 }
 
 void Enviar_Serial(uint8_t WhatSend, uint8_t What_slot)
 {
-
-
-  switch (WhatSend)
-  {
-  case 0:
-    Serial.print(mensajeAEnviar);
-    sprintf( //    TempNiv |save1|save2|save3| c | H |
-    mensajeAEnviar, "U_%d%d", 
-    TemperaturaActual,  NivelActual);
-
-    break;
-  case 1:
-    sprintf(mensajeAEnviar, "N_%s", NombreWifi);
-    break;
-  case 2:
-    sprintf(mensajeAEnviar, "P_%s", ContraWifi);
-    break;
-  }
 }
