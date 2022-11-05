@@ -22,6 +22,10 @@
 		{
 			"name": "Serial arduino",
 			"path": "Proyecto Final/Codigos prueba/Serial arduino"
+		},
+		{
+			"name": "I2C esp",
+			"path": "Proyecto Final/Codigos prueba/I2C esp"
 		}
 	],
 	"settings": {
