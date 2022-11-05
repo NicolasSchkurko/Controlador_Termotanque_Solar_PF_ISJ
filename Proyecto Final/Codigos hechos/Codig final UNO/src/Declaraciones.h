@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <util/setbaud.h> 
 #define F_CPU 16000000UL
 #define USART_BAUDRATE  9600        // baudrate
 #define RX_BUFFER_SIZE  512         // buffer size

@@ -18,6 +18,10 @@
 		{
 			"name": "Codigniuv",
 			"path": "Proyecto Final/Codigos prueba/Codigniuv"
+		},
+		{
+			"name": "Serial arduino",
+			"path": "Proyecto Final/Codigos prueba/Serial arduino"
 		}
 	],
 	"settings": {

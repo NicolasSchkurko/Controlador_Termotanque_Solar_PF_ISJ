@@ -178,7 +178,7 @@ void loop()
   Actualizar_salidas();
 
   // si recibe un dato del serial lo lee
-    Leer_Serial();
+  Leer_Serial();
 
   switch (Estadoequipo)
   {
