@@ -397,11 +397,9 @@ void Leer_Serial()
     case 'N':
       memcpy(SSID, Datos, 22);
       datosObtenidos = false;
-      Serial.print(SSID);
       break;
     case 'P':
       memcpy(Password, Datos, 22);
-      Serial.print(Password);
       WiFi.begin(String(SSID), String(Password));
       EnviarIP = true;
       datosObtenidos = false;
