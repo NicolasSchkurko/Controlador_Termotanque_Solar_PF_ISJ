@@ -137,11 +137,11 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   // pulsadores
-  DDRD &= B00001111; // 0 input, 1 output; de derecha a izquierda del 0 al 7
+  DDRD &= B00111111; // 0 input, 1 output; de derecha a izquierda del 0 al 7
   DDRB |= B00111000; // pb7-pb0
   DDRC &= B01111111; // De derecha a izquierda del 8 al 13
   // setea pull up o pull down
-  PORTD |= B11110000;// De derecha a izquierda del 0 al 7
+  PORTD |= B11000000;// De derecha a izquierda del 0 al 7
   PORTC |= B00000001; // 1 pull up 0 pull down; De derecha a izquierda del 8 al 13
   // pines encoder
   attachInterrupt(Pin_Entrada(2), EncoderPinA, CHANGE);
