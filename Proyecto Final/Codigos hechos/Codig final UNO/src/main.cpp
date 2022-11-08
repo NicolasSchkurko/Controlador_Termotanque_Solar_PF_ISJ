@@ -137,12 +137,12 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   // pulsadores
-  DDRD &= B00111111; // 0 input, 1 output; de derecha a izquierda del 0 al 7
+  DDRD &= B11000000; // 0 input, 1 output; de derecha a izquierda del 0 al 7
   DDRB |= B00111000; // pb7-pb0
-  DDRC &= B01111111; // De derecha a izquierda del 8 al 13
+  DDRC &= B11111110; // De derecha a izquierda del 8 al 13
   // setea pull up o pull down
-  PORTD |= B11000000;// De derecha a izquierda del 0 al 7
-  PORTC |= B00000001; // 1 pull up 0 pull down; De derecha a izquierda del 8 al 13
+  PORTD |= B00011111;// De derecha a izquierda del 0 al 7
+  PORTC &= B11111110;
   // pines encoder
   attachInterrupt(Pin_Entrada(2), EncoderPinA, CHANGE);
   attachInterrupt(Pin_Entrada(3), EncoderPinB, CHANGE);
@@ -2219,6 +2219,13 @@ bool Pin_Entrada(uint8_t Wich_Button)
 {
   switch (Wich_Button)
   {
+  case 3:
+  if ((PINC & (1 << PC0)) == 0)
+    return true;
+  else
+    return false;
+  break;
+
   case 2:
     if ((PIND & (1 << PD2)) == 0)
       return true;
@@ -2226,7 +2233,7 @@ bool Pin_Entrada(uint8_t Wich_Button)
       return false;
     break;
 
-  case 3:
+  case 42:
     if ((PIND & (1 << PD3)) == 0)
       return true;
     else
@@ -2277,13 +2284,6 @@ bool Pin_Entrada(uint8_t Wich_Button)
       }
       return true;
     }
-    else
-      return false;
-    break;
-
-  case 42:
-    if ((PINC & (1 << PC0)) == 0)
-      return true;
     else
       return false;
     break;
