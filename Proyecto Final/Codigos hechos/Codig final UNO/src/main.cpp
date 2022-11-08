@@ -2351,8 +2351,6 @@ void Leer_Serial()
     if (i == largoDatos)
       datosObtenidos = true;
   }
-  for(i=1; i<=18 - largoDatos;i++)
-    datos[largoDatos+i]='0';
   if (datosObtenidos == true)
   {
     switch (ItemSeleccionado)
@@ -2403,7 +2401,9 @@ void Leer_Serial()
       datosObtenidos = false;
       break;
     case 'I': // Ip
-      eep.writeChars(60, datos, 22);
+      for(i=0;i<=18-largoDatos;i++)
+        datos[largoDatos+i]=' ';
+      eep.writeChars(60, datos, 18);
       InternetDisponible = true;
       if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
         lcd.clear();
