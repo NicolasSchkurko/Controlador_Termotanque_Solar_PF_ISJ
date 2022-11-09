@@ -137,7 +137,7 @@ void setup()
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   // pulsadores
-  DDRD &= B00000011; // 0 input, 1 output; de izq a der del 7 al 0
+  DDRD &= B00000011; // 0 input, 1 output;
   DDRB |= B00111000; // pb7-pb0
   DDRC &= B11111110; // 
   // setea pull up o pull down
