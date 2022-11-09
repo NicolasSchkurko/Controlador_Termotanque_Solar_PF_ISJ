@@ -131,17 +131,17 @@ bool LLenar;
 
 void setup()
 {
-  // Interrupcion cada 1 mili
+  // Interrupcion cada 1 milidd
   SREG = (SREG & 0b01111111);
   TIMSK2 = TIMSK2 | 0b00000001;
   TCCR2B = 0b00000011;
   SREG = (SREG & 0b01111110) | 0b10000000;
   // pulsadores
-  DDRD &= B11000000; // 0 input, 1 output; de derecha a izquierda del 0 al 7
+  DDRD &= B00000011; // 0 input, 1 output; de izq a der del 7 al 0
   DDRB |= B00111000; // pb7-pb0
-  DDRC &= B11111110; // De derecha a izquierda del 8 al 13
+  DDRC &= B11111110; // 
   // setea pull up o pull down
-  PORTD |= B00111111;// De derecha a izquierda del 0 al 7
+  PORTD |= B11111100;// De derecha a izquierda del 0 al 7
   PORTC |= B00000001;
   // pines encoder
   attachInterrupt(2, EncoderPinA, CHANGE);
