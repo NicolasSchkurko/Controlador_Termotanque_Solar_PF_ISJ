@@ -2219,7 +2219,7 @@ bool Pin_Entrada(uint8_t Wich_Button)
 {
   switch (Wich_Button)
   {
-  case 3:
+  case 42:
   if ((PINC & (1 << PC0)) == 0)
     return true;
   else
@@ -2233,7 +2233,7 @@ bool Pin_Entrada(uint8_t Wich_Button)
       return false;
     break;
 
-  case 42:
+  case 3:
     if ((PIND & (1 << PD3)) == 0)
       return true;
     else
