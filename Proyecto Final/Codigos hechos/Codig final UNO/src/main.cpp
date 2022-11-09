@@ -144,8 +144,8 @@ void setup()
   PORTD |= B00111111;// De derecha a izquierda del 0 al 7
   PORTC |= B00000001;
   // pines encoder
-  attachInterrupt(Pin_Entrada(2), EncoderPinA, CHANGE);
-  attachInterrupt(Pin_Entrada(3), EncoderPinB, CHANGE);
+  attachInterrupt(2, EncoderPinA, CHANGE);
+  attachInterrupt(3, EncoderPinB, CHANGE);
   // inicia sensor temp
   Wire.begin();
   Sensor_temp.begin();
