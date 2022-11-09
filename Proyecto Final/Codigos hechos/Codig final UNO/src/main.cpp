@@ -141,8 +141,8 @@ void setup()
   DDRB |= B00111000; // pb7-pb0
   DDRC &= B11111110; // De derecha a izquierda del 8 al 13
   // setea pull up o pull down
-  PORTD |= B00011111;// De derecha a izquierda del 0 al 7
-  PORTC &= B11111110;
+  PORTD |= B00001111;// De derecha a izquierda del 0 al 7
+  PORTC |= B00000001;
   // pines encoder
   attachInterrupt(Pin_Entrada(2), EncoderPinA, CHANGE);
   attachInterrupt(Pin_Entrada(3), EncoderPinB, CHANGE);
