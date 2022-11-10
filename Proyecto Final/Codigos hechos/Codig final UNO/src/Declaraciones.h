@@ -3,7 +3,7 @@
 #define USART_BAUDRATE  9600        // baudrate
 #define RX_BUFFER_SIZE  512         // buffer size
 #define RX_LINE_SIZE    128         // word size// no parity, 1 stop bit, 8-bit data
-#define SENSOR_NIVEL A2
+#define SENSOR_NIVEL A3
 #define TIEMPO_LECTURA_TEMP 3000
 #define TIEMPO_LECTURA_NIVEL 3000
 #define COLUMNAS_MAXIMAS_M1 7

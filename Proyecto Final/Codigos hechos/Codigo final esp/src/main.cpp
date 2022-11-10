@@ -382,7 +382,8 @@ void Leer_Serial()
       DatosObtenidos = true; // activa el comando final (flag)
     if (CharPos > largoMensaje - 2)
       Datos[CharPos] = 0;
-    
+    if (CharPos==22)
+      DatosObtenidos=true;
   }
 
   if (DatosObtenidos == true)
@@ -397,6 +398,7 @@ void Leer_Serial()
     case 'P':
       memcpy(Contraseña, Datos, 22);
       WiFi.begin(String(SSID), String(Contraseña));
+      Serial.print(Contraseña);
       EnviarIP = true;
       DatosObtenidos = false;
       break;

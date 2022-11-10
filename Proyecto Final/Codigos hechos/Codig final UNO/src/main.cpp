@@ -270,10 +270,10 @@ void Actualizar_entradas()
   }
 
   if (analogRead(SENSOR_NIVEL) < 110)NivelActual = 0;
-  if (analogRead(SENSOR_NIVEL) >= 112 && analogRead(SENSOR_NIVEL) < 243)NivelActual = 25;
-  if (analogRead(SENSOR_NIVEL) >= 243 && analogRead(SENSOR_NIVEL) < 605)NivelActual = 50;
-  if (analogRead(SENSOR_NIVEL) >= 608 && analogRead(SENSOR_NIVEL) < 800)NivelActual = 75;
-  if (analogRead(SENSOR_NIVEL) >= 800 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;
+  if (analogRead(SENSOR_NIVEL) >= 112 && analogRead(SENSOR_NIVEL) < 220)NivelActual = 25;
+  if (analogRead(SENSOR_NIVEL) >= 220 && analogRead(SENSOR_NIVEL) < 605)NivelActual = 50;
+  if (analogRead(SENSOR_NIVEL) >= 608 && analogRead(SENSOR_NIVEL) < 750)NivelActual = 75;
+  if (analogRead(SENSOR_NIVEL) >= 750 && analogRead(SENSOR_NIVEL) <= 1023)NivelActual = 100;
   now = rtc.now(); // Actualiza el rtc
 }
 
@@ -2240,7 +2240,7 @@ bool Pin_Entrada(uint8_t Wich_Button)
       return false;
     break;
 
-  case 4:
+  case 5:
     if ((PIND & (1 << PD7)) == 0)
     {
       while ((PIND & (1 << PD7)) == 0)
@@ -2252,7 +2252,7 @@ bool Pin_Entrada(uint8_t Wich_Button)
       return false;
     break;
 
-  case 5:
+  case 4:
     if ((PIND & (1 << PD4)) == 0)
     {
       while ((PIND & (1 << PD4)) == 0)
