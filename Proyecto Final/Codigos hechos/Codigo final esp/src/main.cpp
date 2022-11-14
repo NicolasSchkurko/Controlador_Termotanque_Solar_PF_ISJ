@@ -274,8 +274,6 @@ String ImprimirEnWeb(const String &var)
     return String(TempActual);
   if (var == "LVAL")
     return String(NivelActual);
-  if (var == "HVAL")
-    return String(TextoHora);
   // entrega strings de error
   if (var == "ERRORguardado")
     return TextoErrorGuardado;
@@ -405,17 +403,15 @@ void Leer_Serial()
     case 'U':
       TempActual = Datos[0] - 128;
       NivelActual = Datos[1] - 34;
-      if(Datos[4]!=Datos[7] && Datos[4]!=Datos[10]){
-        guardado[0].Hora = int(Datos[2] - 34);
-        guardado[0].Nivel = int(Datos[3] - 34);
-        guardado[0].Temp = int(Datos[4] - 34);
-        guardado[1].Hora = int(Datos[5] - 34);
-        guardado[1].Nivel = int(Datos[6] - 34);
-        guardado[1].Temp = int(Datos[7] - 34);
-        guardado[2].Hora = int(Datos[8] - 34);
-        guardado[2].Nivel = int(Datos[9] - 34);
-        guardado[2].Temp = int(Datos[10] - 34);
-      }
+      guardado[0].Hora = int(Datos[2] - 34);
+      guardado[0].Nivel = int(Datos[3] - 34);
+      guardado[0].Temp = int(Datos[4] - 34);
+      guardado[1].Hora = int(Datos[5] - 34);
+      guardado[1].Nivel = int(Datos[6] - 34);
+      guardado[1].Temp = int(Datos[7] - 34);
+      guardado[2].Hora = int(Datos[8] - 34);
+      guardado[2].Nivel = int(Datos[9] - 34);
+      guardado[2].Temp = int(Datos[10] - 34);
       NivelMaximoGuardado = Datos[12] - 34;
       NivelMinimoGuardado = Datos[11] - 34;
       TemperaturaMaximaGuardado = Datos[14] - 34;
