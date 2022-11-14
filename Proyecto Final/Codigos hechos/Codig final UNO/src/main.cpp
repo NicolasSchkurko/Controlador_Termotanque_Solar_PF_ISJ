@@ -894,11 +894,11 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     Imprimir_Hora(ImprimirLCD, Guardado_a_hora(1, eep.read(1)), Guardado_a_hora(2, eep.read(1)));
     Imprimir_LCD(ImprimirLCD, 3, 1);
     Imprimir_Hora(ImprimirLCD, Guardado_a_hora(1, eep.read(4)), Guardado_a_hora(2, eep.read(4)));
-    Imprimir_LCD(ImprimirLCD, 3, 3);
-    Imprimir_Hora(ImprimirLCD, Guardado_a_hora(1, eep.read(8)), Guardado_a_hora(2, eep.read(8)));
     Imprimir_LCD(ImprimirLCD, 3, 2);
+    Imprimir_Hora(ImprimirLCD, Guardado_a_hora(1, eep.read(7)), Guardado_a_hora(2, eep.read(7)));
+    Imprimir_LCD(ImprimirLCD, 3, 3);
     memcpy(ImprimirLCD, ">", 2);
-    Imprimir_LCD(ImprimirLCD, 0, ItemSeleccionado + 1);
+  
 
     if (Pin_Entrada(4))
       PosicionEntradas += 4;
@@ -907,6 +907,22 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
     if (Pin_Entrada(42))
       PosicionEntradas += 1;
 
+    if (PosicionEntradas >= 12 && PosicionEntradas <= 30 )
+      PosicionEntradas=1;
+
+    if (PosicionEntradas >= 31)
+      PosicionEntradas=11;
+
+    ItemSeleccionado = PosicionEntradas / 4;
+
+    if (PosicionActual2 != ItemSeleccionado)
+    {
+      memcpy(ImprimirLCD, " ", 2);
+      Imprimir_LCD(ImprimirLCD, 0, PosicionActual2 + 1);
+      PosicionActual2 = ItemSeleccionado;
+      TiempoDeStandby = MiliSegundos;
+    }
+     Imprimir_LCD(ImprimirLCD, 0, ItemSeleccionado + 1);
     if (Pin_Entrada(6))
     {
       TempASetear = TEMP_MINIMO;
@@ -922,19 +938,8 @@ void menu_de_auto_por_hora(uint8_t hora_actual, uint8_t minutos_actual)
       Estadoequipo = menu1;
       lcd.clear();
     }
-    ItemSeleccionado = PosicionEntradas / 4;
-    if (PosicionEntradas >= 12 && PosicionEntradas <= 30 )
-      PosicionEntradas=1;
-    if (PosicionEntradas >= 31)
-      PosicionEntradas=11;
 
-    if (PosicionActual2 != ItemSeleccionado)
-    {
-      memcpy(ImprimirLCD, " ", 2);
-      Imprimir_LCD(ImprimirLCD, 0, PosicionActual2 + 1);
-      PosicionActual2 = ItemSeleccionado;
-      TiempoDeStandby = MiliSegundos;
-    }
+
 
     break;
 
@@ -2402,7 +2407,7 @@ void Leer_Serial()
       break;
     case 'I': // Ip
       for(i=0;i<=18-largoDatos;i++)
-        datos[largoDatos+i]=' ';
+        datos[largoDatos-2+i]=' ';
       eep.writeChars(60, datos, 18);
       InternetDisponible = true;
       if (Estadoequipo == funciones && funcionActual == funcion_de_menu_seteo_wifi)
