@@ -65,8 +65,8 @@ void setup()
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
   { request->send(LittleFS, "/index.html", String(), false, ImprimirEnWeb); });
 
-  server.on("/desing.css", HTTP_GET, [](AsyncWebServerRequest *request)
-  { request->send(LittleFS, "/desing.css", "text/css"); });
+  server.on("/design.css", HTTP_GET, [](AsyncWebServerRequest *request)
+  { request->send(LittleFS, "/design.css", "text/css"); });
   // Toma datos del slider y los guarda en una variable
 
   server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
