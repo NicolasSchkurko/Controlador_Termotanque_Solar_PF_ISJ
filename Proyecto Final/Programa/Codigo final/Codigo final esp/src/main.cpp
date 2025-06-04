@@ -317,7 +317,7 @@ String ImprimirEnWeb(const String &var)
 
   // Devuelve un texto (Activar llenado)
   if (var == "BTNL")
-      return "Encender calentamiento manual";
+      return "Encender llenado manual";
 
   // Devuelve un texto (Activar calentamiento automatico)
   if (var == "STTA")
