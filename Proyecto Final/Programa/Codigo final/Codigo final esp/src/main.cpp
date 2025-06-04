@@ -372,7 +372,7 @@ void Leer_Serial()
   largoMensaje = entradaSerial.length(); // saca el largo del string
   comando = entradaSerial.charAt(0);       // toma el char de comando (el primer char usualmente una letra)
   memset(Datos, 0, 22);
-  for (uint8_t CharPos = 0; CharPos <= 22; CharPos++) // comeinza desde la posicion 2 del char (tras el _) y toma todos los datos
+  for (uint8_t CharPos = 0; CharPos < 22; CharPos++) // comienza desde la posicion 2 del char (tras el _) y toma todos los datos
   {
     if (CharPos < largoMensaje - 2)
       Datos[CharPos] = entradaSerial.charAt(CharPos + 2); 
@@ -380,8 +380,8 @@ void Leer_Serial()
       DatosObtenidos = true; // activa el comando final (flag)
     if (CharPos > largoMensaje - 2)
       Datos[CharPos] = 0;
-    if (CharPos==22)
-      DatosObtenidos=true;
+    if (CharPos == 21)
+      DatosObtenidos = true;
   }
 
   if (DatosObtenidos == true)
