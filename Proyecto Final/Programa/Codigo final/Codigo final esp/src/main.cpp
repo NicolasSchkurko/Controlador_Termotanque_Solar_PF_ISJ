@@ -368,7 +368,7 @@ void Leer_Serial()
   uint8_t largoMensaje;
   char comando;
 
-  entradaSerial = Serial.readString();   // iguala el string del serial a un string imput
+  entradaSerial = Serial.readString();   // iguala el string del serial a un string input
   largoMensaje = entradaSerial.length(); // saca el largo del string
   comando = entradaSerial.charAt(0);       // toma el char de comando (el primer char usualmente una letra)
   memset(Datos, 0, 22);
